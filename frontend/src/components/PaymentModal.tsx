@@ -114,8 +114,8 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
   );
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-in fade-in overflow-y-auto">
-      <div className="w-full max-w-lg glass-panel-dark text-white rounded-3xl shadow-2xl border border-luxury-gold/40 overflow-hidden relative my-6">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/85 backdrop-blur-md animate-in fade-in overflow-y-auto">
+      <div className="w-full max-w-lg max-h-[90vh] overflow-y-auto glass-panel-dark text-white rounded-2xl sm:rounded-3xl shadow-2xl border border-luxury-gold/40 relative my-auto">
         
         {/* Header */}
         <div className="p-5 sm:p-6 bg-gradient-to-r from-[#0D3B29] to-[#144d36] border-b border-luxury-gold/30 flex items-center justify-between">

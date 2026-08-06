@@ -69,12 +69,6 @@ export const initialSeedData = {
       role: 'admin' as const,
       avatar: '/assets/owner.png?v=2',
       wishlist: { rooms: ['room_2person_deluxe'], food: [] }
-    },
-    {
-      id: 'usr_guest', name: 'Rahul Kumar', email: 'guest@gonahotel.com', phone: '+91 98765 12345',
-      role: 'user' as const,
-      avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&q=80&fit=crop',
-      wishlist: { rooms: ['room_2person_deluxe', 'room_4person'], food: ['item_p_butter'] }
     }
   ],
 

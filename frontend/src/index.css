@@ -107,3 +107,19 @@
   box-shadow: 0 8px 30px rgba(13, 59, 41, 0.09), inset 0 1px 0 rgba(255, 255, 255, 0.9);
 }
 
+/* Responsive mobile scaling improvements */
+@media (max-width: 640px) {
+  .responsive-title-mobile {
+    font-size: 1.75rem !important;
+    line-height: 2.25rem !important;
+  }
+  .responsive-subtitle-mobile {
+    font-size: 0.875rem !important;
+    line-height: 1.25rem !important;
+  }
+  .glass-panel-dark {
+    padding: 1rem !important;
+  }
+}
+
+

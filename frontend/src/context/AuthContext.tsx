@@ -24,20 +24,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (saved) {
       try { return JSON.parse(saved); } catch (e) { }
     }
-    const defaultGuest = initialSeedData.users[1];
-    return {
-      id: defaultGuest.id,
-      name: defaultGuest.name,
-      email: defaultGuest.email,
-      phone: defaultGuest.phone,
-      role: 'user',
-      avatar: defaultGuest.avatar,
-      wishlist: defaultGuest.wishlist
-    };
+    return null;
   });
 
   const [token, setToken] = useState<string | null>(() => {
-    return localStorage.getItem('gona_token') || 'mock_jwt_token_guest_2026';
+    return localStorage.getItem('gona_token') || null;
   });
 
   const [isBackendConnected, setIsBackendConnected] = useState<boolean>(false);

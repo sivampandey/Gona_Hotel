@@ -6,16 +6,13 @@ Welcome to the official repository for **Gona Hotel & Estate** — a modern, res
 
 ---
 
-## 🔐 Admin Panel Credentials / एडमिन लॉगिन जानकारी
+## 🔐 Admin Panel Credentials
 
 Yes, this project includes a complete **Admin Dashboard** for hotel operations, booking management, menu edits, and analytics.
 
-| Access Type | URL Path / Route | Email ID | Default Password |
-| :--- | :--- | :--- | :--- |
-| 🛡️ **Admin Portal** | `http://localhost:5173/admin` | `admin@gonahotel.com` | `admin123` |
-| 👤 **Guest Account** | `http://localhost:5173/login` | `guest@gonahotel.com` | `guest123` |
-
-> 💡 **Note**: Logging in with `admin@gonahotel.com` unlocks full access to the Admin Dashboard located at [http://localhost:5173/admin](http://localhost:5173/admin).
+> 💡 **Note**: Admin Logging in with 
+     ID- `admin@gonahotel.com` 
+     Password-`admin123`
 
 ---
 
@@ -61,7 +58,6 @@ Yes, this project includes a complete **Admin Dashboard** for hotel operations, 
 
 ### 1. Clone the repository
 ```bash
-git clone https://github.com/sivampandey/Gona_Hotel.git
 cd Gona_Hotel
 ```
 
@@ -78,10 +74,6 @@ cd ../frontend
 npm install
 npm run dev
 ```
-
-Open [http://localhost:5173](http://localhost:5173) in your browser.
-
----
 
 ## 📄 License
 Created for Gona Hotel & Resort. All rights reserved.
