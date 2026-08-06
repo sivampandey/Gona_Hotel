@@ -2,7 +2,7 @@ import mongoose, { Schema, Document } from 'mongoose';
 
 export interface IMenuItem extends Document {
   name: string;
-  category: 'Breakfast' | 'Lunch' | 'Dinner' | 'Snacks' | 'Desserts' | 'Beverages';
+  category: 'Breakfast' | 'Lunch' | 'Dinner' | 'Snacks' | 'Desserts' | 'Beverages' | 'Indian Main Course' | 'Rice & Biryani' | 'Chinese' | 'South Indian' | 'Snacks & Thali' | 'Salad & Crispy';
   price: number;
   description: string;
   isVeg: boolean;
@@ -17,7 +17,7 @@ const MenuItemSchema: Schema = new Schema({
   name: { type: String, required: true },
   category: { 
     type: String, 
-    enum: ['Breakfast', 'Lunch', 'Dinner', 'Snacks', 'Desserts', 'Beverages'], 
+    enum: ['Breakfast', 'Lunch', 'Dinner', 'Snacks', 'Desserts', 'Beverages', 'Indian Main Course', 'Rice & Biryani', 'Chinese', 'South Indian', 'Snacks & Thali', 'Salad & Crispy'], 
     required: true 
   },
   price: { type: Number, required: true },
