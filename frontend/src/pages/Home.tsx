@@ -21,7 +21,7 @@ export const Home: React.FC = () => {
         {/* Background Photo */}
         <div className="absolute inset-0 z-0">
           <img
-            src="/assets/hero-bg.jpg?v=2"
+            src="/assets/hero-bg.jpg?v=3"
             alt="Gona Hotel Outdoor Resort & Restaurant"
             className="w-full h-full object-cover scale-105"
           />
@@ -184,9 +184,9 @@ export const Home: React.FC = () => {
             <h2 className="font-serif text-3xl sm:text-5xl font-bold text-white">
               About <span className="text-gold-gradient">Gona Hotel</span>
             </h2>
-            <p className="text-gray-300 max-w-2xl mx-auto text-sm leading-relaxed">
-              A premium hospitality destination on Chunar Road, Sarso, Mirzapur — where comfort,
-              taste, and warmth come together for an unforgettable experience.
+            <p className="text-gray-300 max-w-3xl mx-auto text-sm sm:text-base leading-relaxed font-light">
+              Nestled on the peaceful outskirts of the city, Gona Hotel offers a serene escape surrounded by nature.
+              Enjoy breathtaking mountain views, a nearby river, cool breezes, lush greenery, and farm-fresh organic food grown right on our own farm.
             </p>
           </div>
 
@@ -197,7 +197,7 @@ export const Home: React.FC = () => {
             <div className="space-y-8">
               <div className="rounded-3xl overflow-hidden shadow-2xl aspect-[4/3] border border-luxury-gold/20">
                 <img
-                  src="/assets/hero-bg.jpg?v=2"
+                  src="/assets/hero-bg.jpg?v=3"
                   alt="Gona Hotel Resort & Fountain"
                   className="w-full h-full object-cover"
                 />
@@ -252,8 +252,7 @@ export const Home: React.FC = () => {
 
                 <div className="p-6 space-y-4">
                   <p className="text-gray-200 text-sm leading-relaxed italic border-l-4 border-luxury-gold/50 pl-4">
-                    "Our mission is simple — make every guest feel at home. Gona Hotel was born from a dream
-                    to offer the warmth of Indian hospitality with modern comforts."
+                    "Nestled on the peaceful outskirts of the city, our hotel offers a serene escape surrounded by nature. With breathtaking mountain views and a beautiful river nearby, it feels far away from the noise of city life. We will be honoured to serve you with organic foods grown in our own farm!"
                   </p>
                   <div className="flex flex-col gap-2 text-sm">
                     <a href="tel:+919696631621" className="flex items-center gap-2 text-luxury-gold hover:text-white transition-colors">

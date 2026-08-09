@@ -63,15 +63,21 @@ export const About: React.FC = () => {
               </h2>
             </div>
             <p className="text-gray-700 leading-relaxed">
-              Gona Hotel is a premium hospitality destination located on <strong>Chunar Road, Sarso, Mirzapur, Uttar Pradesh</strong>.
-              We are dedicated to giving every guest a comfortable, memorable stay combined with an authentic dining experience.
+              Nestled on the peaceful outskirts of the city, Gona Hotel offers a serene escape surrounded by nature.
+              With breathtaking mountain views and a beautiful river nearby, it feels far away from the noise of city life.
             </p>
             <p className="text-gray-700 leading-relaxed">
-              Whether you are traveling for business, family holidays, or a weekend getaway, Gona Hotel offers well-furnished
-              AC rooms, a multi-cuisine restaurant, and round-the-clock service to make you feel truly at home.
+              The cool breeze, lush greenery, and quiet surroundings create a relaxing atmosphere. It is the perfect place
+              to unwind, enjoy scenic views, and reconnect with nature for a calm, happy quality time with your friends and family.
             </p>
             <div className="space-y-3 pt-2">
-              {['AC Rooms with modern amenities', 'Multi-cuisine Gona Restaurant', '24/7 Room Service', 'Secure Free Parking', 'Near Chunar Fort & Tourist Spots'].map(f => (
+              {[
+                'Organic foods grown in our own farm',
+                'Breathtaking mountain views & nearby river',
+                'Peaceful city outskirts & lush greenery',
+                'AC Rooms with modern amenities & 24/7 Service',
+                'Multi-cuisine Gona Restaurant & Free Parking'
+              ].map(f => (
                 <div key={f} className="flex items-center gap-3">
                   <CheckCircle2 className="w-5 h-5 text-luxury-gold shrink-0" />
                   <span className="text-sm text-gray-700 font-medium">{f}</span>
@@ -83,7 +89,7 @@ export const About: React.FC = () => {
           <div className="relative">
             <div className="rounded-3xl overflow-hidden shadow-2xl aspect-[4/3] border-2 border-luxury-gold/30">
               <img
-                src="/assets/hotel-exterior.png?v=2"
+                src="/assets/hotel-exterior.png?v=3"
                 alt="Gona Hotel Building"
                 className="w-full h-full object-cover"
                 onError={(e) => {
@@ -109,9 +115,9 @@ export const About: React.FC = () => {
       <section className="py-20 bg-[#0D3B29] text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-14">
-            <span className="text-xs font-bold text-luxury-gold uppercase tracking-widest">Meet the Founder</span>
+            <span className="text-xs font-bold text-luxury-gold uppercase tracking-widest">Message From Founder</span>
             <h2 className="font-serif text-3xl sm:text-5xl font-bold text-white mt-2">
-              The Man Behind <span className="text-gold-gradient">Gona Hotel</span>
+              A Warm Welcome to <span className="text-gold-gradient">Gona Hotel</span>
             </h2>
           </div>
 
@@ -149,22 +155,16 @@ export const About: React.FC = () => {
               <div className="relative pl-6 border-l-4 border-luxury-gold/60">
                 <Quote className="w-8 h-8 text-luxury-gold/40 absolute -top-2 -left-1" />
                 <p className="text-gray-200 italic text-base leading-relaxed">
-                  "Gona Hotel was built with one dream — to give every guest the feeling of warmth, care,
-                  and home. We don't just run a hotel; we create memories that guests carry back with them."
+                  "Nestled on the peaceful outskirts of the city, our hotel offers a serene escape surrounded by nature. With breathtaking mountain views and a beautiful river nearby, it feels far away from the noise of city life. The cool breeze, lush greenery, and quiet surroundings create a relaxing atmosphere. It is the perfect place to unwind, enjoy scenic views, and reconnect with nature and experience a calm happy quality time with your friends and family. We will be honoured to serve you, we provide organic foods grown in our own farm, an environment to feel the life and such things. Visit to us for such experience."
                 </p>
               </div>
 
               <div className="space-y-3 text-gray-200 text-sm leading-relaxed">
                 <p>
-                  With over a decade of experience in hospitality, our founder established Gona Hotel with a
-                  vision to bring <strong className="text-white">premium comfort at honest prices</strong> to the Mirzapur region.
-                  His hands-on approach and passion for genuine service have made Gona Hotel a trusted name for families,
-                  travelers, and business guests alike.
+                  With years of dedicated service in hospitality, our founder created Gona Hotel to bring a perfect blend of <strong className="text-white">nature, luxury, and farm-fresh organic dining</strong> to Mirzapur.
                 </p>
                 <p>
-                  Under his leadership, Gona Restaurant has grown to serve over <strong className="text-white">50+ authentic dishes</strong> —
-                  from traditional Indian curries and parathas to South Indian delicacies and Chinese cuisines,
-                  all prepared fresh with local ingredients.
+                  At Gona Restaurant, we take pride in serving meals prepared with <strong className="text-white">organic ingredients grown directly in our own farm</strong> — ensuring pure taste, high nutrition, and authentic home-style flavor for every guest.
                 </p>
               </div>
 
