@@ -14,6 +14,7 @@ import { Contact } from './pages/Contact';
 import { Login } from './pages/Login';
 import { Profile } from './pages/Profile';
 import { AdminDashboard } from './pages/AdminDashboard';
+import { Attractions } from './pages/Attractions';
 
 // Scroll to top on every route change
 const ScrollToTop: React.FC = () => {
@@ -38,6 +39,7 @@ export const App: React.FC = () => {
           <Route path="/rooms/:slug" element={<RoomDetails />} />
           <Route path="/restaurant" element={<Restaurant />} />
           <Route path="/checkout/food" element={<FoodCheckout />} />
+          <Route path="/attractions" element={<Attractions />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/login" element={<Login />} />
           <Route path="/profile" element={<Profile />} />

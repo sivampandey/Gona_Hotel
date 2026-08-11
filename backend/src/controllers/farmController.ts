@@ -19,26 +19,7 @@ export interface MemoryFarmBooking {
   createdAt: string;
 }
 
-export let memoryFarmBookings: MemoryFarmBooking[] = [
-  {
-    id: 'farm_5001',
-    userId: 'usr_guest',
-    userName: 'Alexander Wright',
-    userEmail: 'guest@gonahotel.com',
-    userPhone: '+91 98765 12345',
-    visitDate: '2026-08-12',
-    visitorCount: 3,
-    packageType: 'picnic_lunch',
-    specialRequests: 'Organic fruit picking basket for children',
-    pricePerVisitor: 1500,
-    totalAmount: 4500,
-    paymentStatus: 'paid',
-    status: 'confirmed',
-    paymentId: 'pay_rzp_farm_8812',
-    invoiceId: 'INV-FARM-2026-011',
-    createdAt: new Date().toISOString()
-  }
-];
+export let memoryFarmBookings: MemoryFarmBooking[] = [];
 
 export const createFarmBooking = async (req: any, res: Response) => {
   try {

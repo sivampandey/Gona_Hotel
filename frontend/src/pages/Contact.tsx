@@ -48,12 +48,20 @@ export const Contact: React.FC = () => {
               <h3 className="font-serif text-xl font-bold text-[#0D3B29]">Call Concierge</h3>
               <p className="text-xs text-gray-500">24/7 Direct Hotel Hotline</p>
             </div>
-            <a
-              href="tel:+919696631621"
-              className="inline-block px-6 py-2.5 rounded-full bg-[#0D3B29] text-white font-bold text-xs hover:bg-[#134A35] transition-colors"
-            >
-              +91 96966 31621
-            </a>
+            <div className="flex flex-col sm:flex-row gap-2 justify-center">
+              <a
+                href="tel:+919696631621"
+                className="inline-block px-4 py-2.5 rounded-full bg-[#0D3B29] text-white font-bold text-xs hover:bg-[#134A35] transition-colors"
+              >
+                +91 96966 31621
+              </a>
+              <a
+                href="tel:+917905079819"
+                className="inline-block px-4 py-2.5 rounded-full bg-luxury-gold text-[#0D3B29] font-bold text-xs hover:bg-[#F3E5AB] transition-colors"
+              >
+                +91 79050 79819
+              </a>
+            </div>
           </div>
 
           <div className="p-8 rounded-3xl bg-white border border-gray-200 shadow-md space-y-4 text-center">

@@ -22,28 +22,7 @@ export interface MemoryRoomBooking {
   createdAt: string;
 }
 
-export let memoryRoomBookings: MemoryRoomBooking[] = [
-  {
-    id: 'bk_1001',
-    userId: 'usr_guest',
-    userName: 'Alexander Wright',
-    userEmail: 'guest@gonahotel.com',
-    roomId: 'room_presidential',
-    roomName: 'Royal Presidential Sanctuary',
-    roomImage: 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=800&q=80',
-    checkIn: '2026-08-10',
-    checkOut: '2026-08-13',
-    guests: { adults: 2, children: 1 },
-    totalNights: 3,
-    pricePerNight: 45000,
-    totalAmount: 135000,
-    paymentStatus: 'paid',
-    bookingStatus: 'confirmed',
-    paymentId: 'pay_rzp_9812739182',
-    invoiceId: 'INV-ROOM-2026-001',
-    createdAt: new Date().toISOString()
-  }
-];
+export let memoryRoomBookings: MemoryRoomBooking[] = [];
 
 export const createRoomBooking = async (req: any, res: Response) => {
   try {

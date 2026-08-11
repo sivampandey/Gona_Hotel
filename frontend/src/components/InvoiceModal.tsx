@@ -37,7 +37,7 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({ isOpen, onClose, inv
           <div className="flex items-center gap-2">
             <Sparkles className="w-4 h-4 text-luxury-gold" />
             <span className="text-[10px] sm:text-xs font-bold text-luxury-champagne uppercase tracking-widest">
-              Official GST Tax Invoice
+              Official Hotel Bill & Receipt
             </span>
           </div>
           <div className="flex items-center gap-2 sm:gap-3">
@@ -45,7 +45,7 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({ isOpen, onClose, inv
               onClick={handlePrint}
               className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-luxury-gold text-luxury-emerald-dark font-bold text-xs hover:bg-luxury-gold-light transition-colors"
             >
-              <Printer className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> Print / PDF
+              <Printer className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> Print / Save PDF Bill
             </button>
             <button
               onClick={onClose}
@@ -62,12 +62,11 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({ isOpen, onClose, inv
           {/* Header */}
           <div className="flex justify-between items-start border-b border-gray-200 pb-6">
             <div>
-              <h1 className="font-serif text-3xl font-bold text-luxury-emerald-dark tracking-wide">
-                GONA HOTEL & ESTATE
+              <h1 className="font-serif text-3xl font-bold text-[#0D3B29] tracking-wide">
+                GONA HOTEL & RESTAURANT
               </h1>
-              <p className="text-xs text-gray-500">Luxury Sanctuary • Fine Dining • Organic Farm</p>
-              <p className="text-xs text-gray-500 mt-1">Heritage Valley Road, Nature Haven 400001</p>
-              <p className="text-xs text-gray-500">GSTIN: 27AABCG1234F1Z9</p>
+              <p className="text-xs text-gray-500 font-semibold">Luxury Rooms • Multi-Cuisine Restaurant • Organic Farm</p>
+              <p className="text-xs text-gray-500 mt-1">Village- Semari, Post- Sarso, Rajgarh, Mirzapur (U.P.) 231201</p>
             </div>
             <div className="text-right">
               <span className="inline-block px-3 py-1 bg-green-100 text-green-800 font-bold text-xs rounded-full mb-2">
@@ -80,7 +79,7 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({ isOpen, onClose, inv
           </div>
 
           {/* Customer Info */}
-          <div className="grid grid-cols-2 gap-6 bg-luxury-sand p-4 rounded-2xl border border-gray-200 text-xs">
+          <div className="grid grid-cols-2 gap-6 bg-amber-50/50 p-4 rounded-2xl border border-gray-200 text-xs">
             <div>
               <span className="font-bold text-gray-500 uppercase tracking-wider block mb-1">Billed To</span>
               <p className="font-bold text-sm text-gray-900">{invoiceData.customerName}</p>
@@ -89,7 +88,7 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({ isOpen, onClose, inv
             </div>
             <div className="text-right">
               <span className="font-bold text-gray-500 uppercase tracking-wider block mb-1">Reservation Type</span>
-              <p className="font-bold text-sm text-luxury-emerald-dark capitalize">{invoiceData.title}</p>
+              <p className="font-bold text-sm text-[#0D3B29] capitalize">{invoiceData.title}</p>
               <p className="text-gray-600">Payment Method: Verified UPI QR / Hotel Desk</p>
             </div>
           </div>
@@ -125,17 +124,13 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({ isOpen, onClose, inv
                 <span>Subtotal</span>
                 <span className="font-semibold text-gray-900">₹{invoiceData.subtotal.toLocaleString('en-IN')}</span>
               </div>
-              <div className="flex justify-between text-gray-600">
-                <span>GST (5%)</span>
-                <span className="font-semibold text-gray-900">₹{invoiceData.tax.toLocaleString('en-IN')}</span>
-              </div>
               {invoiceData.discount && invoiceData.discount > 0 && (
                 <div className="flex justify-between text-green-600 font-medium">
                   <span>Special Discount</span>
                   <span>-₹{invoiceData.discount.toLocaleString('en-IN')}</span>
                 </div>
               )}
-              <div className="flex justify-between text-base font-serif font-bold text-luxury-emerald-dark pt-2 border-t border-gray-300">
+              <div className="flex justify-between text-base font-serif font-bold text-[#0D3B29] pt-2 border-t border-gray-300">
                 <span>Total Amount Paid</span>
                 <span>₹{invoiceData.totalAmount.toLocaleString('en-IN')}</span>
               </div>
@@ -144,8 +139,8 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({ isOpen, onClose, inv
 
           {/* Footer Note */}
           <div className="pt-6 border-t border-gray-200 text-center text-[11px] text-gray-500 space-y-1">
-            <p className="font-medium text-gray-700">Thank you for choosing Gona Hotel & Estate!</p>
-            <p>For any concierge inquiries, call +91 98765 43210 or email concierge@gonahotel.com</p>
+            <p className="font-medium text-gray-700">Thank you for choosing Gona Hotel & Restaurant!</p>
+            <p>For any concierge inquiries, call +91 96966 31621 / +91 79050 79819</p>
           </div>
 
         </div>

@@ -27,43 +27,7 @@ export interface MemoryFoodOrder {
   createdAt: string;
 }
 
-export let memoryFoodOrders: MemoryFoodOrder[] = [
-  {
-    id: 'ord_3001',
-    userId: 'usr_guest',
-    userName: 'Alexander Wright',
-    userPhone: '+91 98765 12345',
-    items: [
-      {
-        itemId: 'item_truffle',
-        name: 'Wild Farm Mushroom & Black Truffle Risotto',
-        price: 1450,
-        quantity: 2,
-        isVeg: true,
-        image: 'https://images.unsplash.com/photo-1633964913295-ceb43826e7c9?auto=format&fit=crop&w=400&q=80'
-      },
-      {
-        itemId: 'item_tiramisu',
-        name: 'Signature Gona Espresso Tiramisu',
-        price: 650,
-        quantity: 1,
-        isVeg: true,
-        image: 'https://images.unsplash.com/photo-1571877227200-a0d98ea607e9?auto=format&fit=crop&w=400&q=80'
-      }
-    ],
-    orderType: 'delivery',
-    deliveryAddress: 'Suite 402, Royal Presidential Wing',
-    subtotal: 3550,
-    tax: 177.5,
-    discount: 355,
-    totalAmount: 3372.5,
-    paymentStatus: 'paid',
-    orderStatus: 'preparing',
-    paymentId: 'pay_rzp_food_99182',
-    invoiceId: 'INV-FOOD-2026-042',
-    createdAt: new Date().toISOString()
-  }
-];
+export let memoryFoodOrders: MemoryFoodOrder[] = [];
 
 export const createFoodOrder = async (req: any, res: Response) => {
   try {

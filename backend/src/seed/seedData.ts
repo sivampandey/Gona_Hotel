@@ -7,20 +7,10 @@ export const initialSeedData = {
       name: 'Mithlesh Singh',
       email: 'admin@gonahotel.com',
       passwordHash: bcrypt.hashSync('admin123', 10),
-      phone: '+91 98765 43210',
+      phone: '+91 96966 31621',
       role: 'admin',
       avatar: '/assets/owner.png?v=2',
-      wishlist: { rooms: ['room_deluxe'], food: [] }
-    },
-    {
-      id: 'usr_guest',
-      name: 'Alexander Wright',
-      email: 'guest@gonahotel.com',
-      passwordHash: bcrypt.hashSync('guest123', 10),
-      phone: '+91 98765 12345',
-      role: 'user',
-      avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80',
-      wishlist: { rooms: ['room_deluxe', 'room_luxury'], food: ['item_p_butter'] }
+      wishlist: { rooms: [] as string[], food: [] as string[] }
     }
   ],
 
@@ -273,17 +263,7 @@ export const initialSeedData = {
 
   gallery: [],
 
-  reviews: [
-    {
-      id: 'rev_1',
-      userName: 'Rajesh Kumar',
-      userAvatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=200&q=80',
-      rating: 5,
-      comment: 'Gona Hotel is amazing! Staying in the Deluxe Room and tasting Paneer Butter Masala was a great experience.',
-      entityType: 'hotel',
-      isApproved: true
-    }
-  ],
+  reviews: [],
 
   coupons: [
     {

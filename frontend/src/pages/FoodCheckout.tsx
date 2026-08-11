@@ -134,7 +134,7 @@ export const FoodCheckout: React.FC = () => {
                 onClick={() => setIsInvoiceOpen(true)}
                 className="px-6 py-3 rounded-full bg-luxury-gold text-luxury-emerald-dark font-bold text-xs"
               >
-                View / Print GST Invoice
+                View / Print Official Bill
               </button>
               <Link
                 to="/profile?tab=orders"
@@ -284,10 +284,6 @@ export const FoodCheckout: React.FC = () => {
                 <div className="flex justify-between">
                   <span>Subtotal</span>
                   <span className="font-semibold text-white">₹{subtotal}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>GST & Service Charge (5%)</span>
-                  <span className="font-semibold text-white">₹{tax}</span>
                 </div>
                 {discountAmount > 0 && (
                   <div className="flex justify-between text-luxury-gold font-bold">

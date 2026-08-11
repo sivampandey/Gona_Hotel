@@ -35,9 +35,9 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
 
   const upiId = '7880729819m@pnb';
   const payeeName = 'Gona Hotel and Resort';
-  const hotelPhonePrimary = '+917880729819';
-  const hotelPhoneFormatted = '+91 78807 29819';
-  const hotelPhoneSecondary = '+91 96966 31621';
+  const hotelPhonePrimary = '+919696631621';
+  const hotelPhoneFormatted = '+91 96966 31621';
+  const hotelPhoneSecondary = '+91 79050 79819';
 
   // Standard UPI URI scheme to open native UPI app on device
   const upiUri = `upi://pay?pa=${upiId}&pn=${encodeURIComponent(payeeName)}&am=${amount}&cu=INR&tn=${encodeURIComponent('Gona Hotel - ' + title)}`;
@@ -335,7 +335,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
 
                     {/* WhatsApp button */}
                     <a
-                      href={`https://wa.me/917880729819?text=${whatsappMessage}`}
+                      href={`https://wa.me/919696631621?text=${whatsappMessage}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="w-full py-3 px-4 rounded-xl bg-green-600 hover:bg-green-500 text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-lg transition-all"

@@ -126,12 +126,13 @@ export const toggleWishlist = async (req: any, res: Response) => {
     if (!user) return res.status(404).json({ message: 'User not found' });
 
     const key = type === 'food' ? 'food' : 'rooms';
-    const exists = user.wishlist[key].includes(itemId);
+    const list: string[] = (user.wishlist as any)[key] || [];
+    const exists = list.includes(itemId);
 
     if (exists) {
-      user.wishlist[key] = user.wishlist[key].filter(id => id !== itemId);
+      (user.wishlist as any)[key] = list.filter((id: string) => id !== itemId);
     } else {
-      user.wishlist[key].push(itemId);
+      (user.wishlist as any)[key] = [...list, itemId];
     }
 
     return res.json({

@@ -98,8 +98,8 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const subtotal = cart.reduce((acc, item) => acc + item.price * item.quantity, 0);
-  const tax = Math.round(subtotal * 0.05 * 100) / 100; // 5% GST/Tax
-  const totalAmount = Math.max(0, subtotal + tax - discountAmount);
+  const tax = 0; // No GST tax
+  const totalAmount = Math.max(0, subtotal - discountAmount);
   const totalItemsCount = cart.reduce((acc, item) => acc + item.quantity, 0);
 
   return (

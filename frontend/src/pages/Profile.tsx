@@ -202,13 +202,13 @@ export const Profile: React.FC = () => {
                           customerEmail: b.userEmail,
                           paymentId: b.paymentId,
                           items: [{ description: `${b.roomName} (${b.totalNights} nights)`, quantity: b.totalNights, amount: b.totalAmount }],
-                          subtotal: Math.round(b.totalAmount / 1.05),
-                          tax: Math.round(b.totalAmount - (b.totalAmount / 1.05)),
+                          subtotal: b.totalAmount,
+                          tax: 0,
                           totalAmount: b.totalAmount
                         })}
                         className="px-4 py-2 rounded-full bg-[#0D3B29] text-white font-bold text-xs inline-flex items-center justify-center gap-1.5 shadow-sm"
                       >
-                        <Printer className="w-3.5 h-3.5" /> GST Invoice
+                        <Printer className="w-3.5 h-3.5" /> Print Bill / Invoice
                       </button>
 
                       {!isCancelled && (
@@ -270,7 +270,7 @@ export const Profile: React.FC = () => {
                     })}
                     className="px-4 py-2 rounded-full bg-[#0D3B29] text-white font-bold text-xs inline-flex items-center gap-1.5"
                   >
-                    <Printer className="w-3.5 h-3.5" /> GST Invoice
+                    <Printer className="w-3.5 h-3.5" /> Print Bill / Invoice
                   </button>
                 </div>
               </div>

@@ -19,21 +19,16 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(() => {
-    const saved = localStorage.getItem('gona_user');
-    if (saved) {
-      try { return JSON.parse(saved); } catch (e) { }
-    }
-    return null;
-  });
-
-  const [token, setToken] = useState<string | null>(() => {
-    return localStorage.getItem('gona_token') || null;
-  });
+  // Always start logged out by default on website load
+  const [user, setUser] = useState<User | null>(null);
+  const [token, setToken] = useState<string | null>(null);
 
   const [isBackendConnected, setIsBackendConnected] = useState<boolean>(false);
 
   useEffect(() => {
+    // Clear any residual demo auto-login session on load
+    localStorage.removeItem('gona_user');
+    localStorage.removeItem('gona_token');
     checkBackendHealth().then((connected) => {
       setIsBackendConnected(connected);
     });

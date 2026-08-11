@@ -1,29 +1,152 @@
-import React from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import {
-  Utensils, Star, Hotel, Tag, Phone, MapPin
+  Utensils, Star, Hotel, Tag, Phone, MapPin, Compass, Camera, ArrowRight,
+  ChevronLeft, ChevronRight, Pause, Play
 } from 'lucide-react';
 import { RoomCard } from '../components/RoomCard';
 import { FoodCard } from '../components/FoodCard';
 import { initialSeedData } from '../data/seedData';
+import { touristPlaces } from './Attractions';
 
 export const Home: React.FC = () => {
   const featuredRooms = initialSeedData.rooms;
-  const popularFoods = initialSeedData.menuItems.slice(0, 4);
+  const popularFoods = initialSeedData.menuItems
+    .filter(item => item.id !== 'item_plain_roti' && item.id !== 'item_butter_roti')
+    .slice(0, 6);
   const reviews = initialSeedData.reviews;
+
+  // Responsive Desktop vs Mobile View State
+  const [isDesktop, setIsDesktop] = useState(typeof window !== 'undefined' ? window.innerWidth >= 768 : true);
+
+  useEffect(() => {
+    const handleResize = () => setIsDesktop(window.innerWidth >= 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  // Rooms Automatic & Touch Slider State
+  const [currentRoomIndex, setCurrentRoomIndex] = useState(0);
+  const touchStartX = useRef<number | null>(null);
+
+  // Food Automatic & Touch Slider State
+  const [currentFoodIndex, setCurrentFoodIndex] = useState(0);
+  const touchFoodStartX = useRef<number | null>(null);
+
+  // Tourist Attractions Automatic & Touch Slider State
+  const [currentTouristIndex, setCurrentTouristIndex] = useState(0);
+  const touchTouristStartX = useRef<number | null>(null);
+
+  // Hero Background Automatic Slider State
+  const heroImages = [
+    '/assets/hero-bg.jpg?v=3',
+    '/assets/gona-exterior.jpg',
+    '/assets/gona-venture-signpost.jpg',
+    '/assets/deluxe-room.jpg'
+  ];
+  const [heroImageIndex, setHeroImageIndex] = useState(0);
+
+  // Auto-play timer for Hero Background (slides every 4 seconds)
+  useEffect(() => {
+    const heroTimer = setInterval(() => {
+      setHeroImageIndex((prev) => (prev + 1) % heroImages.length);
+    }, 4000);
+    return () => clearInterval(heroTimer);
+  }, [heroImages.length]);
+
+  // Auto-play timer for Rooms Showcase (slides every 3 seconds infinitely)
+  useEffect(() => {
+    const roomTimer = setInterval(() => {
+      setCurrentRoomIndex((prev) => (prev + 1) % featuredRooms.length);
+    }, 3000);
+    return () => clearInterval(roomTimer);
+  }, [featuredRooms.length]);
+
+  // Auto-play timer for Food Showcase (slides every 3.2 seconds infinitely)
+  useEffect(() => {
+    const foodTimer = setInterval(() => {
+      setCurrentFoodIndex((prev) => (prev + 1) % popularFoods.length);
+    }, 3200);
+    return () => clearInterval(foodTimer);
+  }, [popularFoods.length]);
+
+  // Auto-play timer for Tourist Attractions (slides every 3.6 seconds infinitely)
+  useEffect(() => {
+    const touristTimer = setInterval(() => {
+      setCurrentTouristIndex((prev) => (prev + 1) % touristPlaces.length);
+    }, 3600);
+    return () => clearInterval(touristTimer);
+  }, [touristPlaces.length]);
+
+  const handleNextRoom = () => {
+    setCurrentRoomIndex((prev) => (prev + 1) % featuredRooms.length);
+  };
+  const handlePrevRoom = () => {
+    setCurrentRoomIndex((prev) => (prev - 1 + featuredRooms.length) % featuredRooms.length);
+  };
+
+  const handleNextFood = () => {
+    setCurrentFoodIndex((prev) => (prev + 1) % popularFoods.length);
+  };
+  const handlePrevFood = () => {
+    setCurrentFoodIndex((prev) => (prev - 1 + popularFoods.length) % popularFoods.length);
+  };
+
+  const handleNextTourist = () => {
+    setCurrentTouristIndex((prev) => (prev + 1) % touristPlaces.length);
+  };
+  const handlePrevTourist = () => {
+    setCurrentTouristIndex((prev) => (prev - 1 + touristPlaces.length) % touristPlaces.length);
+  };
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+  };
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartX.current === null) return;
+    const touchEndX = e.changedTouches[0].clientX;
+    const diffX = touchStartX.current - touchEndX;
+    if (diffX > 40) handleNextRoom();
+    else if (diffX < -40) handlePrevRoom();
+    touchStartX.current = null;
+  };
+
+  const handleFoodTouchStart = (e: React.TouchEvent) => {
+    touchFoodStartX.current = e.touches[0].clientX;
+  };
+  const handleFoodTouchEnd = (e: React.TouchEvent) => {
+    if (touchFoodStartX.current === null) return;
+    const touchEndX = e.changedTouches[0].clientX;
+    const diffX = touchFoodStartX.current - touchEndX;
+    if (diffX > 40) handleNextFood();
+    else if (diffX < -40) handlePrevFood();
+    touchFoodStartX.current = null;
+  };
+
+  const handleTouristTouchStart = (e: React.TouchEvent) => {
+    touchTouristStartX.current = e.touches[0].clientX;
+  };
+  const handleTouristTouchEnd = (e: React.TouchEvent) => {
+    if (touchTouristStartX.current === null) return;
+    const touchEndX = e.changedTouches[0].clientX;
+    const diffX = touchTouristStartX.current - touchEndX;
+    if (diffX > 40) handleNextTourist();
+    else if (diffX < -40) handlePrevTourist();
+    touchTouristStartX.current = null;
+  };
 
   return (
     <div className="min-h-screen bg-[#F7F4EB] text-luxury-obsidian overflow-hidden">
 
-      {/* HERO SECTION */}
+      {/* HERO SECTION WITH AUTOMATIC BACKGROUND SLIDER */}
       <section className="relative min-h-[80vh] sm:min-h-[85vh] flex items-center justify-center pt-24 pb-14 sm:pt-36 sm:pb-20 overflow-hidden">
 
-        {/* Background Photo */}
+        {/* Automatic Sliding Background Photo */}
         <div className="absolute inset-0 z-0">
           <img
-            src="/assets/hero-bg.jpg?v=3"
+            src={heroImages[heroImageIndex]}
             alt="Gona Hotel Outdoor Resort & Restaurant"
-            className="w-full h-full object-cover scale-105"
+            className="w-full h-full object-cover transition-all duration-1000 scale-105"
           />
           <div className="absolute inset-0 bg-gradient-to-r from-[#0A2E20]/90 via-[#0D3B29]/75 to-[#0A2E20]/90" />
         </div>
@@ -171,114 +294,151 @@ export const Home: React.FC = () => {
         </div>
       </section>
 
-      {/* ABOUT GONA HOTEL SECTION */}
-      <section id="about" className="py-20 bg-[#0D3B29] text-white relative overflow-hidden">
+      {/* ABOUT GONA HOTEL SECTION - COMPACT MOBILE OPTIMIZED */}
+      <section id="about" className="py-10 sm:py-20 bg-[#0D3B29] text-white relative overflow-hidden">
         {/* Decorative background pattern */}
         <div className="absolute inset-0 opacity-5" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, white 1px, transparent 0)', backgroundSize: '32px 32px' }} />
 
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-16">
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8 sm:space-y-16">
 
           {/* Title */}
-          <div className="text-center space-y-3">
+          <div className="text-center space-y-1.5 sm:space-y-3">
             <span className="text-xs font-bold text-luxury-gold uppercase tracking-widest">Our Story</span>
-            <h2 className="font-serif text-3xl sm:text-5xl font-bold text-white">
+            <h2 className="font-serif text-2xl sm:text-5xl font-bold text-white">
               About <span className="text-gold-gradient">Gona Hotel</span>
             </h2>
-            <p className="text-gray-300 max-w-3xl mx-auto text-sm sm:text-base leading-relaxed font-light">
-              Nestled on the peaceful outskirts of the city, Gona Hotel offers a serene escape surrounded by nature.
-              Enjoy breathtaking mountain views, a nearby river, cool breezes, lush greenery, and farm-fresh organic food grown right on our own farm.
+            <p className="text-gray-300 max-w-3xl mx-auto text-xs sm:text-base leading-relaxed font-light line-clamp-3 sm:line-clamp-none">
+              Nestled on the peaceful outskirts of the city, Gona Hotel offers a serene escape surrounded by nature with mountain views, cool breezes, and farm-fresh organic food.
             </p>
           </div>
 
-          {/* Two column: Hotel info + Owner card */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
+          {/* TOP ROW: Owner Card (Left) + Uploaded Signpost Image (Right) */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-8 items-stretch">
 
-            {/* Left: Hotel Info */}
-            <div className="space-y-8">
-              <div className="rounded-3xl overflow-hidden shadow-2xl aspect-[4/3] border border-luxury-gold/20">
+            {/* Left: Owner Card */}
+            <div className="rounded-2xl sm:rounded-3xl bg-white/5 border border-luxury-gold/30 shadow-xl overflow-hidden flex flex-col justify-between p-4 sm:p-6 space-y-3 sm:space-y-5">
+              {/* Header info */}
+              <div className="space-y-1">
+                <div className="inline-block bg-luxury-gold text-[#0D3B29] font-bold text-[10px] sm:text-xs px-2.5 py-0.5 rounded-full shadow-md mb-1">
+                  ⭐ Founder & Owner
+                </div>
+                <h3 className="font-serif text-xl sm:text-2xl font-bold text-white">Mithlesh Singh</h3>
+                <p className="text-luxury-gold text-[10px] sm:text-xs font-semibold uppercase tracking-wider">Managing Director, Gona Hotel</p>
+              </div>
+
+              {/* Full Owner Image - Crisp, clean, full display */}
+              <div className="rounded-xl sm:rounded-2xl overflow-hidden border border-luxury-gold/20 shadow-md aspect-[4/3] sm:aspect-[5/4] w-full bg-black/40">
                 <img
-                  src="/assets/hero-bg.jpg?v=3"
-                  alt="Gona Hotel Resort & Fountain"
-                  className="w-full h-full object-cover"
+                  src="/assets/owner.png?v=3"
+                  alt="Gona Hotel Owner"
+                  className="w-full h-full object-cover object-top"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=600&q=90&fit=crop';
+                  }}
                 />
               </div>
 
-              {/* Stats */}
-              <div className="grid grid-cols-3 gap-4">
-                {[
-                  { val: '10+', label: 'Years in Business' },
-                  { val: '5000+', label: 'Happy Guests' },
-                  { val: '50+', label: 'Delicious Dishes' },
-                ].map(s => (
-                  <div key={s.label} className="text-center p-4 rounded-2xl bg-white/5 border border-luxury-gold/20">
-                    <div className="font-serif text-3xl font-bold text-luxury-gold">{s.val}</div>
-                    <div className="text-xs text-gray-400 mt-1 uppercase tracking-wide">{s.label}</div>
-                  </div>
-                ))}
+              {/* Quote & Contact */}
+              <div className="space-y-3">
+                <p className="text-gray-200 text-xs sm:text-sm leading-relaxed italic border-l-2 sm:border-l-4 border-luxury-gold/50 pl-3">
+                  "Nestled on the peaceful outskirts of the city, our hotel offers a serene escape surrounded by nature. We will be honoured to serve you with organic foods grown in our own farm!"
+                </p>
+                <div className="flex flex-col sm:flex-row flex-wrap gap-2 sm:gap-4 text-[11px] sm:text-sm pt-2 border-t border-white/10">
+                  <a href="tel:+919696631621" className="flex items-center gap-1.5 text-luxury-gold hover:text-white transition-colors">
+                    <Phone className="w-3.5 h-3.5" /> +91 96966 31621 / +91 79050 79819
+                  </a>
+                  <a href="https://maps.app.goo.gl/BhUY7vjPVnFwfDbX9" target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 text-luxury-gold hover:text-white transition-colors">
+                    <MapPin className="w-3.5 h-3.5" /> Chunar Road, Sarso, Mirzapur
+                  </a>
+                </div>
               </div>
-
-              <Link
-                to="/about"
-                className="inline-flex items-center gap-2 px-8 py-3.5 rounded-full bg-luxury-gold text-[#0D3B29] font-bold text-sm hover:bg-[#F3E5AB] transition-colors shadow-lg"
-              >
-                Read Our Full Story →
-              </Link>
             </div>
 
-            {/* Right: Owner Card */}
-            <div className="space-y-6">
-              {/* Owner Portrait Card */}
-              <div className="rounded-3xl bg-white/5 border border-luxury-gold/30 shadow-xl overflow-hidden">
-                <div className="relative">
-                  <div className="aspect-[3/2] overflow-hidden">
-                    <img
-                      src="/assets/owner.png?v=3"
-                      alt="Gona Hotel Owner"
-                      className="w-full h-full object-cover object-top"
-                      onError={(e) => {
-                        (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=600&q=90&fit=crop';
-                      }}
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#0D3B29] via-transparent to-transparent" />
-                  </div>
-                  <div className="absolute bottom-0 left-0 right-0 p-6">
-                    <div className="inline-block bg-luxury-gold text-[#0D3B29] font-bold text-xs px-3 py-1 rounded-full mb-2">
-                      ⭐ Founder & Owner
-                    </div>
-                    <h3 className="font-serif text-2xl font-bold text-white">Mithlesh Singh</h3>
-                    <p className="text-luxury-gold text-xs font-semibold uppercase tracking-wider">Managing Director, Gona Hotel</p>
-                  </div>
+            {/* Right: Uploaded Signpost Image Card */}
+            <div className="rounded-2xl sm:rounded-3xl bg-white/5 border border-luxury-gold/30 shadow-xl overflow-hidden flex flex-col justify-between p-4 sm:p-6 space-y-3 sm:space-y-5">
+              {/* Header info */}
+              <div className="space-y-1">
+                <div className="inline-block bg-luxury-gold text-[#0D3B29] font-bold text-[10px] sm:text-xs px-2.5 py-0.5 rounded-full shadow-md mb-1">
+                  🌳 Gona Group
                 </div>
-
-                <div className="p-6 space-y-4">
-                  <p className="text-gray-200 text-sm leading-relaxed italic border-l-4 border-luxury-gold/50 pl-4">
-                    "Nestled on the peaceful outskirts of the city, our hotel offers a serene escape surrounded by nature. With breathtaking mountain views and a beautiful river nearby, it feels far away from the noise of city life. We will be honoured to serve you with organic foods grown in our own farm!"
-                  </p>
-                  <div className="flex flex-col gap-2 text-sm">
-                    <a href="tel:+919696631621" className="flex items-center gap-2 text-luxury-gold hover:text-white transition-colors">
-                      <Phone className="w-4 h-4" /> +91 96966 31621
-                    </a>
-                    <a href="https://maps.app.goo.gl/BhUY7vjPVnFwfDbX9" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-luxury-gold hover:text-white transition-colors">
-                      <MapPin className="w-4 h-4" /> Chunar Road, Sarso, Mirzapur
-                    </a>
-                  </div>
-                </div>
+                <h3 className="font-serif text-xl sm:text-2xl font-bold text-white">Gona Group Ventures</h3>
+                <p className="text-luxury-gold text-[10px] sm:text-xs font-semibold uppercase tracking-wider">Sister Organisations & Businesses</p>
               </div>
 
-              {/* Values Quick Cards */}
-              <div className="grid grid-cols-2 gap-4">
-                {[
-                  { icon: '🏨', title: 'Comfortable Rooms', desc: 'Modern AC rooms with all amenities' },
-                  { icon: '🍽️', title: 'Fresh Food Daily', desc: 'Authentic multi-cuisine restaurant' },
-                  { icon: '🤝', title: 'Honest Service', desc: 'Transparent pricing, zero hidden costs' },
-                  { icon: '📞', title: '24/7 Support', desc: 'Always available for your needs' },
-                ].map(v => (
-                  <div key={v.title} className="p-4 rounded-2xl bg-white/5 border border-white/10 hover:border-luxury-gold/30 transition-colors">
-                    <div className="text-2xl mb-2">{v.icon}</div>
-                    <h5 className="font-bold text-white text-sm">{v.title}</h5>
-                    <p className="text-xs text-gray-400 mt-1">{v.desc}</p>
-                  </div>
-                ))}
+              {/* FULL SIGNPOST IMAGE - Object-Contain for 100% Zero Text Crop */}
+              <div className="rounded-xl sm:rounded-2xl overflow-hidden border border-luxury-gold/20 shadow-md aspect-[4/3] sm:aspect-[5/4] w-full bg-black/40 flex items-center justify-center">
+                <img
+                  src="/assets/gona-venture-signpost.jpg?v=3"
+                  alt="Gona Group Ventures Signpost"
+                  className="w-full h-full object-contain sm:object-cover"
+                />
+              </div>
+
+              {/* Details list */}
+              <div className="space-y-2">
+                <p className="text-gray-200 text-xs sm:text-sm leading-relaxed">
+                  Encompassing hospitality, education, organic farming & consultancy:
+                </p>
+                <div className="grid grid-cols-2 gap-1.5 text-[11px] sm:text-xs text-gray-300 pt-2 border-t border-white/10">
+                  <span className="flex items-center gap-1"><span className="text-luxury-gold font-bold">•</span> Gona Consultancy</span>
+                  <span className="flex items-center gap-1"><span className="text-luxury-gold font-bold">•</span> Gona Foundation</span>
+                  <span className="flex items-center gap-1"><span className="text-luxury-gold font-bold">•</span> Shyam Balram College</span>
+                  <span className="flex items-center gap-1"><span className="text-luxury-gold font-bold">•</span> Gona Farm & Resort</span>
+                  <span className="flex items-center gap-1"><span className="text-luxury-gold font-bold">•</span> Gona Dairy Products</span>
+                  <span className="flex items-center gap-1"><span className="text-luxury-gold font-bold">•</span> Gona Restaurant</span>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          {/* BOTTOM ROW: Hotel Image under both of them */}
+          <div className="rounded-2xl sm:rounded-3xl bg-white/5 border border-luxury-gold/30 shadow-2xl overflow-hidden p-4 sm:p-8 space-y-4 sm:space-y-6">
+            <div className="text-center sm:text-left space-y-1">
+              <span className="text-[10px] sm:text-xs font-bold text-luxury-gold uppercase tracking-widest">Serene Ambiance & Resort Building</span>
+              <h3 className="font-serif text-xl sm:text-3xl font-bold text-white">
+                Gona Hotel & Resort Property
+              </h3>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-8 items-center">
+              {/* Hotel Image */}
+              <div className="lg:col-span-7 rounded-xl sm:rounded-2xl overflow-hidden shadow-2xl border border-luxury-gold/20 bg-black/20">
+                <img
+                  src="/assets/hero-bg.jpg?v=3"
+                  alt="Gona Hotel Resort Building & Fountain"
+                  className="w-full h-auto max-h-[220px] sm:max-h-[380px] object-cover"
+                />
+              </div>
+
+              {/* Hotel Info & Stats */}
+              <div className="lg:col-span-5 space-y-4 sm:space-y-6">
+                <p className="text-xs sm:text-sm text-gray-200 leading-relaxed font-light">
+                  Situated near Mirzapur & Chunar, featuring AC rooms, manicured gardens, fountain view dining, and organic farming.
+                </p>
+
+                {/* Stats */}
+                <div className="grid grid-cols-3 gap-2 sm:gap-3">
+                  {[
+                    { val: '10+', label: 'Years Exp.' },
+                    { val: '5000+', label: 'Happy Guests' },
+                    { val: '50+', label: 'Dishes Served' },
+                  ].map(s => (
+                    <div key={s.label} className="text-center p-2 sm:p-3 rounded-xl sm:rounded-2xl bg-white/5 border border-luxury-gold/20">
+                      <div className="font-serif text-lg sm:text-2xl font-bold text-luxury-gold">{s.val}</div>
+                      <div className="text-[9px] sm:text-[10px] text-gray-400 mt-0.5 uppercase tracking-wide">{s.label}</div>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="pt-1">
+                  <Link
+                    to="/about"
+                    className="inline-flex items-center gap-2 px-6 py-2.5 sm:px-8 sm:py-3.5 rounded-full bg-luxury-gold text-[#0D3B29] font-bold text-xs sm:text-sm hover:bg-[#F3E5AB] transition-colors shadow-lg"
+                  >
+                    Read Our Full Story →
+                  </Link>
+                </div>
               </div>
             </div>
           </div>
@@ -286,15 +446,22 @@ export const Home: React.FC = () => {
       </section>
 
 
-      {/* FEATURED ROOMS */}
-      <section className="py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+      {/* FEATURED ROOMS SINGLE COMPACT AUTOMATIC SLIDER */}
+      <section 
+        className="py-12 sm:py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6"
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
+      >
+        <div className="flex items-center justify-between border-b border-gray-200 pb-4">
           <div>
-            <span className="text-xs font-bold text-[#0D3B29] uppercase tracking-wider">Acclaimed Suites</span>
-            <h2 className="font-serif text-3xl sm:text-4xl font-bold text-[#0D3B29]">
-              Featured Rooms & Suites
+            <span className="px-3 py-1 rounded-full bg-luxury-gold/20 text-[#0D3B29] text-[11px] font-bold uppercase tracking-widest border border-luxury-gold/40 inline-block mb-1">
+              ✨ Featured Luxury Room
+            </span>
+            <h2 className="font-serif text-2xl sm:text-3xl font-bold text-[#0D3B29]">
+              Rooms & Suites Showcase
             </h2>
           </div>
+
           <Link
             to="/rooms"
             className="text-xs font-bold text-[#0D3B29] hover:text-luxury-gold flex items-center gap-1"
@@ -303,39 +470,149 @@ export const Home: React.FC = () => {
           </Link>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {featuredRooms.map((room) => (
-            <RoomCard key={room.id} room={room} />
-          ))}
-        </div>
-      </section>
+        {/* Responsive Card Slider Frame with Left/Right Water Glass Arrows */}
+        <div className="relative max-w-full md:max-w-7xl mx-auto px-1 sm:px-2">
+          
+          {/* Left Overlay Arrow Button - Water Glass Effect */}
+          <button
+            onClick={handlePrevRoom}
+            className="absolute left-2 md:-left-5 top-1/2 -translate-y-1/2 z-20 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-white/40 backdrop-blur-md text-[#0D3B29] border border-white/70 hover:bg-white/80 hover:scale-110 active:scale-90 transition-all duration-300 flex items-center justify-center shadow-2xl"
+            title="Previous Room"
+          >
+            <ChevronLeft className="w-6 h-6 sm:w-7 sm:h-7 text-[#0D3B29] drop-shadow-sm" />
+          </button>
 
-      {/* GOURMET RESTAURANT SHOWCASE */}
-      <section className="py-20 bg-white border-y border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
-          <div className="text-center space-y-2">
-            <h2 className="font-serif text-3xl sm:text-4xl font-bold text-[#0D3B29]">
-              Our Special Restaurant Dishes
-            </h2>
-            <p className="text-xs text-gray-600 tracking-wide uppercase font-semibold">
-              Freshly prepared with love & authentic spices
-            </p>
+          {/* Right Overlay Arrow Button - Water Glass Effect */}
+          <button
+            onClick={handleNextRoom}
+            className="absolute right-2 md:-right-5 top-1/2 -translate-y-1/2 z-20 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-white/40 backdrop-blur-md text-[#0D3B29] border border-white/70 hover:bg-white/80 hover:scale-110 active:scale-90 transition-all duration-300 flex items-center justify-center shadow-2xl"
+            title="Next Room"
+          >
+            <ChevronRight className="w-6 h-6 sm:w-7 sm:h-7 text-[#0D3B29] drop-shadow-sm" />
+          </button>
+
+          {/* Viewport Container - Zero inner padding for 100% clean mobile slider */}
+          <div className="overflow-hidden w-full rounded-3xl py-2 px-0">
+            <div 
+              className="flex transition-transform duration-500 ease-in-out gap-0 md:gap-6"
+              style={{
+                transform: `translateX(-${currentRoomIndex * (isDesktop ? 33.3333 : 100)}%)`
+              }}
+            >
+              {[...featuredRooms, ...featuredRooms].map((room, idx) => (
+                <div 
+                  key={`${room.id}-${idx}`} 
+                  className="w-full md:w-[calc(33.333%-16px)] shrink-0 transition-all"
+                >
+                  <RoomCard room={room} />
+                </div>
+              ))}
+            </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-            {popularFoods.map((item) => (
-              <FoodCard key={item.id} item={item} />
+        </div>
+
+        {/* Slider Pagination Indicators */}
+        <div className="flex items-center justify-center gap-2 pt-2">
+          {featuredRooms.map((_, idx) => (
+            <button
+              key={idx}
+              onClick={() => setCurrentRoomIndex(idx)}
+              className={`h-2.5 rounded-full transition-all duration-300 ${
+                currentRoomIndex === idx 
+                  ? 'w-8 bg-[#0D3B29]' 
+                  : 'w-2.5 bg-gray-300 hover:bg-gray-400'
+              }`}
+              title={`Go to Room ${idx + 1}`}
+            />
+          ))}
+        </div>
+
+      </section>
+
+      {/* GOURMET RESTAURANT AUTOMATIC & TOUCH SLIDER */}
+      <section className="py-16 bg-white border-y border-gray-200">
+        <div 
+          className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6"
+          onTouchStart={handleFoodTouchStart}
+          onTouchEnd={handleFoodTouchEnd}
+        >
+          <div className="flex items-center justify-between border-b border-gray-200 pb-4">
+            <div>
+              <span className="px-3 py-1 rounded-full bg-luxury-gold/20 text-[#0D3B29] text-[11px] font-bold uppercase tracking-widest border border-luxury-gold/40 inline-block mb-1">
+                🍛 Auto-Sliding Culinary Menu
+              </span>
+              <h2 className="font-serif text-2xl sm:text-3xl font-bold text-[#0D3B29]">
+                Our Special Restaurant Dishes
+              </h2>
+            </div>
+
+            <Link
+              to="/restaurant"
+              className="text-xs font-bold text-[#0D3B29] hover:text-luxury-gold flex items-center gap-1"
+            >
+              Full Menu →
+            </Link>
+          </div>
+
+          {/* Responsive Food Card Slider Frame with Left/Right Water Glass Arrows */}
+          <div className="relative max-w-full md:max-w-7xl mx-auto px-1 sm:px-2">
+            
+            {/* Left Overlay Arrow Button - Water Glass Effect */}
+            <button
+              onClick={handlePrevFood}
+              className="absolute left-2 md:-left-5 top-1/2 -translate-y-1/2 z-20 w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-white/40 backdrop-blur-md text-[#0D3B29] border border-white/70 hover:bg-white/80 hover:scale-110 active:scale-90 transition-all duration-300 flex items-center justify-center shadow-2xl"
+              title="Previous Dish"
+            >
+              <ChevronLeft className="w-6 h-6 text-[#0D3B29] drop-shadow-sm" />
+            </button>
+
+            {/* Right Overlay Arrow Button - Water Glass Effect */}
+            <button
+              onClick={handleNextFood}
+              className="absolute right-2 md:-right-5 top-1/2 -translate-y-1/2 z-20 w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-white/40 backdrop-blur-md text-[#0D3B29] border border-white/70 hover:bg-white/80 hover:scale-110 active:scale-90 transition-all duration-300 flex items-center justify-center shadow-2xl"
+              title="Next Dish"
+            >
+              <ChevronRight className="w-6 h-6 text-[#0D3B29] drop-shadow-sm" />
+            </button>
+
+            {/* Viewport Container - Zero inner padding for 100% clean mobile slider */}
+            <div className="overflow-hidden w-full rounded-3xl py-2 px-0">
+              <div 
+                className="flex transition-transform duration-500 ease-in-out gap-0 md:gap-6"
+                style={{
+                  transform: `translateX(-${currentFoodIndex * (isDesktop ? 33.3333 : 100)}%)`
+                }}
+              >
+                {[...popularFoods, ...popularFoods].map((item, idx) => (
+                  <div 
+                    key={`${item.id}-${idx}`} 
+                    className="w-full md:w-[calc(33.333%-16px)] shrink-0 transition-all"
+                  >
+                    <FoodCard item={item} />
+                  </div>
+                ))}
+              </div>
+            </div>
+
+          </div>
+
+          {/* Slider Pagination Indicators */}
+          <div className="flex items-center justify-center gap-2 pt-2">
+            {popularFoods.map((_, idx) => (
+              <button
+                key={idx}
+                onClick={() => setCurrentFoodIndex(idx)}
+                className={`h-2.5 rounded-full transition-all duration-300 ${
+                  currentFoodIndex === idx 
+                    ? 'w-8 bg-[#0D3B29]' 
+                    : 'w-2.5 bg-gray-300 hover:bg-gray-400'
+                }`}
+                title={`Go to Dish ${idx + 1}`}
+              />
             ))}
           </div>
 
-          <div className="text-center">
-            <Link
-              to="/restaurant"
-              className="px-8 py-3.5 rounded-full bg-[#0D3B29] text-white font-bold text-xs tracking-wider inline-block hover:bg-[#134A35] transition-colors"
-            >
-              Explore Full Restaurant Menu
-            </Link>
-          </div>
         </div>
       </section>
 
@@ -384,6 +661,119 @@ export const Home: React.FC = () => {
               </div>
             </div>
           ))}
+        </div>
+      </section>
+
+      {/* NEARBY TOURIST PLACES AUTOMATIC & TOUCH SLIDER */}
+      <section className="py-14 sm:py-16 bg-[#0D3B29] text-white">
+        <div 
+          className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6"
+          onTouchStart={handleTouristTouchStart}
+          onTouchEnd={handleTouristTouchEnd}
+        >
+          
+          <div className="flex items-center justify-between border-b border-luxury-gold/30 pb-4">
+            <div className="space-y-1">
+              <span className="px-3 py-1 rounded-full bg-luxury-gold text-[#0D3B29] text-[11px] font-bold uppercase tracking-widest inline-flex items-center gap-1.5 shadow-md">
+                <Compass className="w-3.5 h-3.5" /> Auto-Sliding Sightseeing Guide
+              </span>
+              <h2 className="font-serif text-2xl sm:text-3xl font-bold text-gold-gradient">
+                Famous Nearby Tourist Attractions
+              </h2>
+            </div>
+
+            <Link
+              to="/attractions"
+              className="px-4 py-2 rounded-full bg-luxury-gold text-[#0D3B29] hover:bg-white font-bold text-xs transition-all inline-flex items-center justify-center gap-1 shadow-lg shrink-0"
+            >
+              Explore All Places →
+            </Link>
+          </div>
+
+          {/* Responsive Tourist Card Slider Frame with Left/Right Water Glass Arrows */}
+          <div className="relative max-w-full md:max-w-7xl mx-auto px-1 sm:px-2">
+            
+            {/* Left Overlay Arrow Button - Water Glass Effect */}
+            <button
+              onClick={handlePrevTourist}
+              className="absolute left-2 md:-left-5 top-1/2 -translate-y-1/2 z-20 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-white/30 backdrop-blur-md text-white border border-white/60 hover:bg-white/60 hover:text-[#0D3B29] hover:scale-110 active:scale-90 transition-all duration-300 flex items-center justify-center shadow-2xl"
+              title="Previous Attraction"
+            >
+              <ChevronLeft className="w-6 h-6 sm:w-7 sm:h-7 text-white drop-shadow-sm" />
+            </button>
+
+            {/* Right Overlay Arrow Button - Water Glass Effect */}
+            <button
+              onClick={handleNextTourist}
+              className="absolute right-2 md:-right-5 top-1/2 -translate-y-1/2 z-20 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-white/30 backdrop-blur-md text-white border border-white/60 hover:bg-white/60 hover:text-[#0D3B29] hover:scale-110 active:scale-90 transition-all duration-300 flex items-center justify-center shadow-2xl"
+              title="Next Attraction"
+            >
+              <ChevronRight className="w-6 h-6 sm:w-7 sm:h-7 text-white drop-shadow-sm" />
+            </button>
+
+            {/* Viewport Container - Zero inner padding for 100% clean mobile slider */}
+            <div className="overflow-hidden w-full rounded-2xl py-2 px-0">
+              <div 
+                className="flex transition-transform duration-500 ease-in-out gap-0 md:gap-6"
+                style={{
+                  transform: `translateX(-${currentTouristIndex * (isDesktop ? 33.3333 : 100)}%)`
+                }}
+              >
+                {[...touristPlaces, ...touristPlaces].map((place, idx) => (
+                  <div key={`${place.id}-${idx}`} className="w-full md:w-[calc(33.333%-16px)] shrink-0 transition-all">
+                    <div className="rounded-2xl bg-white/5 border border-luxury-gold/30 overflow-hidden shadow-xl flex flex-col justify-between group hover:border-luxury-gold/60 transition-all h-full">
+                      <div className="relative aspect-[16/10] overflow-hidden bg-black">
+                        <img
+                          src={place.image}
+                          alt={place.name}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        />
+                        <div className="absolute top-2.5 left-2.5 bg-[#0D3B29]/90 text-luxury-gold text-[11px] font-bold px-2.5 py-1 rounded-full border border-luxury-gold/40">
+                          📍 {place.distanceFromHotel}
+                        </div>
+                      </div>
+                      <div className="p-4 sm:p-5 space-y-2 flex-1 flex flex-col justify-between text-left">
+                        <div>
+                          <h3 className="font-serif text-lg sm:text-xl font-bold text-white">{place.name}</h3>
+                          <span className="text-[11px] text-luxury-gold font-bold block">{place.hindiName}</span>
+                          <p className="text-xs text-gray-300 font-light mt-1.5 leading-relaxed line-clamp-2">
+                            {place.shortDesc}
+                          </p>
+                        </div>
+                        <div className="flex items-center justify-between pt-2">
+                          <span className="text-[11px] text-gray-400">🚗 {place.travelTime}</span>
+                          <Link
+                            to="/attractions"
+                            className="text-xs text-luxury-gold font-bold inline-flex items-center gap-1 hover:underline"
+                          >
+                            View Photos & Route →
+                          </Link>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+          </div>
+
+          {/* Slider Pagination Indicators */}
+          <div className="flex items-center justify-center gap-2 pt-2">
+            {touristPlaces.map((_, idx) => (
+              <button
+                key={idx}
+                onClick={() => setCurrentTouristIndex(idx)}
+                className={`h-2.5 rounded-full transition-all duration-300 ${
+                  currentTouristIndex === idx 
+                    ? 'w-8 bg-luxury-gold' 
+                    : 'w-2.5 bg-white/30 hover:bg-white/50'
+                }`}
+                title={`Go to Attraction ${idx + 1}`}
+              />
+            ))}
+          </div>
+
         </div>
       </section>
 

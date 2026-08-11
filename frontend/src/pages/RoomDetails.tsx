@@ -38,8 +38,8 @@ export const RoomDetails: React.FC = () => {
   const diffDays = Math.round((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
   const totalNights = diffDays > 0 ? diffDays : 1;
   const subtotal = room.pricePerNight * totalNights;
-  const tax = Math.round(subtotal * 0.05);
-  const totalAmount = subtotal + tax;
+  const tax = 0;
+  const totalAmount = subtotal;
 
   const handleBookingSubmit = (e: React.FormEvent) => {
     e.preventDefault();

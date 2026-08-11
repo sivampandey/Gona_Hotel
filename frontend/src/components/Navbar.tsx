@@ -44,6 +44,7 @@ export const Navbar: React.FC = () => {
     { name: 'Home', path: '/' },
     { name: 'Rooms', path: '/rooms' },
     { name: 'Restaurant', path: '/restaurant' },
+    { name: 'Explore Places', path: '/attractions' },
     { name: 'About Us', path: '/about' },
     { name: 'Contact', path: '/contact' },
   ];
@@ -105,7 +106,7 @@ export const Navbar: React.FC = () => {
             <a
               href="tel:+919696631621"
               className="p-2 text-[#0D3B29] hover:text-[#B8860B] transition-colors flex items-center gap-1.5 text-xs font-bold"
-              title="Call Concierge: +91 96966 31621"
+              title="Call Concierge: +91 96966 31621 / +91 79050 79819"
             >
               <Phone className="w-4 h-4 text-[#0D3B29]" />
               <span>+91 96966 31621</span>

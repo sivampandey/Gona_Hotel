@@ -63,14 +63,7 @@ const IMG = {
 };
 
 export const initialSeedData = {
-  users: [
-    {
-      id: 'usr_admin', name: 'Mithlesh Singh', email: 'admin@gonahotel.com', phone: '+91 96966 31621',
-      role: 'admin' as const,
-      avatar: '/assets/owner.png?v=2',
-      wishlist: { rooms: ['room_2person_deluxe'], food: [] }
-    }
-  ],
+  users: [] as User[],
 
   rooms: [
     {
@@ -213,20 +206,7 @@ export const initialSeedData = {
 
   gallery: [],
 
-  reviews: [
-    {
-      id: 'rev_1', userName: 'Rajesh Kumar',
-      userAvatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&q=80&fit=crop',
-      rating: 5, comment: 'Gona Hotel is amazing! The Paneer Butter Masala and Sada Thali were exceptional. Rooms are very clean.',
-      entityType: 'hotel' as const, isApproved: true
-    },
-    {
-      id: 'rev_2', userName: 'Priya Sharma',
-      userAvatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&q=80&fit=crop',
-      rating: 5, comment: 'Gona Restaurant food is 100% fresh and delicious! Masala Dosa and Aloo Paratha are must-tries.',
-      entityType: 'restaurant' as const, isApproved: true
-    }
-  ] as Review[],
+  reviews: [] as Review[],
 
   coupons: [
     { id: 'c1', code: 'GONA20', discountPercentage: 20, maxDiscount: 1000, minSpend: 2000, validUntil: '2026-12-31', isActive: true },

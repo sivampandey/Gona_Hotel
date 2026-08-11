@@ -72,7 +72,7 @@ export const Footer: React.FC = () => {
             <li><Link to="/profile" className="hover:text-luxury-gold transition-colors">My Profile & Bookings</Link></li>
             <li><Link to="/contact" className="hover:text-luxury-gold transition-colors">Help Desk & Concierge</Link></li>
             <li><Link to="/admin" className="hover:text-luxury-gold transition-colors">Admin Management Portal</Link></li>
-            <li><a href="tel:+919696631621" className="hover:text-luxury-gold transition-colors">Call Hotel: +91 96966 31621</a></li>
+            <li><a href="tel:+919696631621" className="hover:text-luxury-gold transition-colors">Call Hotel: +91 96966 31621 / +91 79050 79819</a></li>
           </ul>
         </div>
 
@@ -97,7 +97,7 @@ export const Footer: React.FC = () => {
       </div>
 
       <div className="border-t border-gray-800 py-6 text-center text-xs text-gray-500">
-        <p>© 2026 Gona Hotel (Rooms & Restaurant). Contact: +91 96966 31621</p>
+        <p>© 2026 Gona Hotel (Rooms & Restaurant). Contact: +91 96966 31621, +91 79050 79819</p>
       </div>
 
     </footer>

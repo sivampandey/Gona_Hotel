@@ -259,10 +259,6 @@ export const CartDrawer: React.FC = () => {
                   <span>Subtotal</span>
                   <span className="font-semibold text-white">₹{subtotal}</span>
                 </div>
-                <div className="flex justify-between">
-                  <span>GST & Service Charge (5%)</span>
-                  <span className="font-semibold text-white">₹{tax}</span>
-                </div>
                 {discountAmount > 0 && (
                   <div className="flex justify-between text-luxury-gold">
                     <span>Special Offer Discount</span>

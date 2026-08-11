@@ -168,21 +168,79 @@ export const About: React.FC = () => {
                 </p>
               </div>
 
-              <div className="flex flex-col sm:flex-row gap-4 pt-2">
+              <div className="flex flex-wrap gap-3 pt-2">
                 <a
                   href="tel:+919696631621"
-                  className="flex items-center gap-2 px-6 py-3 rounded-full bg-luxury-gold text-[#0D3B29] font-bold text-sm hover:bg-[#F3E5AB] transition-colors shadow-lg"
+                  className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-luxury-gold text-[#0D3B29] font-bold text-xs sm:text-sm hover:bg-[#F3E5AB] transition-colors shadow-lg"
                 >
                   <Phone className="w-4 h-4" /> +91 96966 31621
+                </a>
+                <a
+                  href="tel:+917905079819"
+                  className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-white/10 text-white border border-luxury-gold/40 font-bold text-xs sm:text-sm hover:bg-luxury-gold hover:text-[#0D3B29] transition-colors"
+                >
+                  <Phone className="w-4 h-4 text-luxury-gold" /> +91 79050 79819
                 </a>
                 <a
                   href="https://maps.app.goo.gl/BhUY7vjPVnFwfDbX9"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-2 px-6 py-3 rounded-full border border-luxury-gold/50 text-luxury-gold font-bold text-sm hover:bg-luxury-gold/10 transition-colors"
+                  className="flex items-center gap-2 px-5 py-2.5 rounded-full border border-luxury-gold/50 text-luxury-gold font-bold text-xs sm:text-sm hover:bg-luxury-gold/10 transition-colors"
                 >
                   <MapPin className="w-4 h-4" /> View Location
                 </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── GONA GROUP VENTURES ── */}
+      <section className="py-20 bg-[#F7F4EB]">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            <div className="rounded-3xl overflow-hidden shadow-2xl border-2 border-luxury-gold/30 aspect-[5/4] w-full bg-black/10">
+              <img
+                src="/assets/gona-venture-signpost.jpg?v=3"
+                alt="Gona Group Signpost"
+                className="w-full h-full object-cover"
+              />
+            </div>
+            <div className="space-y-6">
+              <div>
+                <span className="text-xs font-bold text-luxury-gold uppercase tracking-widest">Our Ecosystem</span>
+                <h2 className="font-serif text-3xl sm:text-5xl font-bold text-[#0D3B29] mt-2">
+                  Gona Group of Ventures
+                </h2>
+              </div>
+              <p className="text-gray-700 leading-relaxed">
+                Under the vision of our management, Gona Group has grown into a trusted network of multi-sector enterprises dedicated to excellence, community empowerment, education, organic living, and world-class hospitality.
+              </p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm text-gray-800 font-medium">
+                <div className="flex items-center gap-2.5 p-3 rounded-xl bg-white shadow-sm border border-gray-200">
+                  <span className="w-2.5 h-2.5 rounded-full bg-luxury-gold shrink-0"></span>
+                  Gona Consultancy Services Pvt. Ltd.
+                </div>
+                <div className="flex items-center gap-2.5 p-3 rounded-xl bg-white shadow-sm border border-gray-200">
+                  <span className="w-2.5 h-2.5 rounded-full bg-luxury-gold shrink-0"></span>
+                  Gona Foundation Trust
+                </div>
+                <div className="flex items-center gap-2.5 p-3 rounded-xl bg-white shadow-sm border border-gray-200">
+                  <span className="w-2.5 h-2.5 rounded-full bg-luxury-gold shrink-0"></span>
+                  Shri Shyam Balram Singh Intermediate College
+                </div>
+                <div className="flex items-center gap-2.5 p-3 rounded-xl bg-white shadow-sm border border-gray-200">
+                  <span className="w-2.5 h-2.5 rounded-full bg-luxury-gold shrink-0"></span>
+                  Gona Farm and Holiday Home
+                </div>
+                <div className="flex items-center gap-2.5 p-3 rounded-xl bg-white shadow-sm border border-gray-200">
+                  <span className="w-2.5 h-2.5 rounded-full bg-luxury-gold shrink-0"></span>
+                  Gona Agri & Dairy Products
+                </div>
+                <div className="flex items-center gap-2.5 p-3 rounded-xl bg-white shadow-sm border border-gray-200">
+                  <span className="w-2.5 h-2.5 rounded-full bg-luxury-gold shrink-0"></span>
+                  Gona Resort & Restaurant
+                </div>
               </div>
             </div>
           </div>
