@@ -188,15 +188,19 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                       Scan QR code or click your preferred app below to pay directly
                     </p>
 
-                    {/* QR Code Image */}
+                    {/* Dynamic Auto-Amount Locked QR Code */}
                     <div className="relative inline-block p-3 bg-white rounded-2xl shadow-xl border-2 border-luxury-gold">
                       <img
-                        src="/assets/payment-qr.png"
-                        alt="Gona Hotel UPI QR Code"
+                        src={`https://api.qrserver.com/v1/create-qr-code/?size=280x280&data=${encodeURIComponent(upiUri)}`}
+                        alt="Gona Hotel Auto-Amount UPI QR Code"
                         className="w-48 h-48 sm:w-56 sm:h-56 object-contain rounded-lg mx-auto"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).src = '/assets/payment-qr.png';
+                        }}
                       />
-                      <div className="mt-2 text-[11px] font-bold text-[#0D3B29] flex items-center justify-center gap-1 uppercase tracking-wider">
-                        <Sparkles className="w-3 h-3 text-luxury-gold" /> Official Hotel QR Code
+                      <div className="mt-2.5 px-3 py-1.5 rounded-lg bg-emerald-50 border border-emerald-300 text-[11px] font-bold text-emerald-800 flex items-center justify-center gap-1.5">
+                        <Sparkles className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                        <span>Auto-Amount Locked: ₹{amount.toLocaleString('en-IN')} (No typing needed)</span>
                       </div>
                     </div>
 

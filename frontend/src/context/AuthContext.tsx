@@ -3,14 +3,19 @@ import type { User } from '../types';
 import { initialSeedData } from '../data/seedData';
 import { apiService, checkBackendHealth } from '../services/api';
 
+export interface AuthResponse {
+  success: boolean;
+  message?: string;
+}
+
 interface AuthContextType {
   user: User | null;
   token: string | null;
   isAuthenticated: boolean;
   isAdmin: boolean;
   isBackendConnected: boolean;
-  login: (email: string, password?: string) => Promise<boolean>;
-  register: (name: string, email: string, password?: string, phone?: string) => Promise<boolean>;
+  login: (email: string, password?: string) => Promise<AuthResponse>;
+  register: (name: string, email: string, password?: string, phone?: string) => Promise<AuthResponse>;
   logout: () => void;
   toggleWishlist: (itemId: string, type: 'rooms' | 'food') => void;
   isWishlisted: (itemId: string, type: 'rooms' | 'food') => boolean;
@@ -50,17 +55,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }, [token]);
 
-  const login = async (email: string, password?: string): Promise<boolean> => {
+  const login = async (email: string, password?: string): Promise<AuthResponse> => {
     try {
       const res = await apiService.login(email, password || 'admin123');
-      if (res.data?.success && res.data?.user) {
+      if ((res.status === 200 || res.status === 201) && res.data?.user) {
         setUser(res.data.user);
         setToken(res.data.token);
         setIsBackendConnected(true);
-        return true;
+        return { success: true, message: res.data.message || 'Login successful' };
       }
-    } catch (err) {
-      // Backend fallback for local demo
+      if (res.status >= 400 && res.data?.message) {
+        return { success: false, message: res.data.message };
+      }
+    } catch (err: any) {
+      console.warn('Backend server connection error, using local fallback:', err);
     }
 
     if (email.toLowerCase().includes('admin')) {
@@ -76,7 +84,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       };
       setUser(adminUser);
       setToken('mock_jwt_token_admin_2026');
-      return true;
+      return { success: true, message: 'Signed in as Admin (Local Mode)' };
     }
 
     const guestData = initialSeedData.users[1];
@@ -91,20 +99,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
     setUser(normalUser);
     setToken('mock_jwt_token_' + Date.now());
-    return true;
+    return { success: true, message: 'Signed in successfully (Local Mode)' };
   };
 
-  const register = async (name: string, email: string, password?: string, phone?: string): Promise<boolean> => {
+  const register = async (name: string, email: string, password?: string, phone?: string): Promise<AuthResponse> => {
     try {
       const res = await apiService.register(name, email, password || 'guest123', phone);
-      if (res.data?.success && res.data?.user) {
+      if ((res.status === 200 || res.status === 201) && res.data?.user) {
         setUser(res.data.user);
         setToken(res.data.token);
         setIsBackendConnected(true);
-        return true;
+        return { success: true, message: res.data.message || 'Registration successful' };
       }
-    } catch (err) {
-      // Fallback
+      if (res.status >= 400 && res.data?.message) {
+        return { success: false, message: res.data.message };
+      }
+    } catch (err: any) {
+      console.warn('Backend server connection error, using local fallback:', err);
     }
 
     const newUser: User = {
@@ -118,7 +129,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
     setUser(newUser);
     setToken('mock_jwt_token_' + Date.now());
-    return true;
+    return { success: true, message: 'Registration successful (Local Mode)' };
   };
 
   const logout = () => {

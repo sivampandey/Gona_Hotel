@@ -26,9 +26,9 @@ export const About: React.FC = () => {
       {/* ── HERO ── */}
       <section className="relative h-72 sm:h-96 flex items-end pb-12 overflow-hidden">
         <img
-          src="https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=2000&q=90&fit=crop"
-          alt="Gona Hotel"
-          className="absolute inset-0 w-full h-full object-cover"
+          src="/assets/about-hero.jpg"
+          alt="Gona Hotel & Estate"
+          className="absolute inset-0 w-full h-full object-cover object-center"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-[#0D3B29]/90 via-[#0D3B29]/50 to-transparent" />
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -89,12 +89,9 @@ export const About: React.FC = () => {
           <div className="relative">
             <div className="rounded-3xl overflow-hidden shadow-2xl aspect-[4/3] border-2 border-luxury-gold/30">
               <img
-                src="/assets/hotel-exterior.png?v=3"
+                src="/assets/hero-bg.jpg"
                 alt="Gona Hotel Building"
                 className="w-full h-full object-cover"
-                onError={(e) => {
-                  (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800&q=90&fit=crop';
-                }}
               />
             </div>
             {/* floating card */}

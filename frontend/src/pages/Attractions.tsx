@@ -60,7 +60,7 @@ export const touristPlaces: TouristPlace[] = [
     image: '/assets/tourist/chunar-fort.jpg',
     galleryImages: [
       '/assets/tourist/chunar-fort.jpg',
-      '/assets/gona-exterior.jpg',
+      '/assets/hotel-exterior.jpg',
       '/assets/gona-venture-signpost.jpg'
     ],
     shortDesc: 'Iconic ancient fortress perched high on a cliff overlooking the calm Ganges River. Features King Bhartihari Samadhi, Sonwa Mandap, and massive sandstone ramparts.',

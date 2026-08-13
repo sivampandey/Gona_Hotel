@@ -37,22 +37,11 @@ export const Home: React.FC = () => {
   const [currentTouristIndex, setCurrentTouristIndex] = useState(0);
   const touchTouristStartX = useRef<number | null>(null);
 
-  // Hero Background Automatic Slider State
-  const heroImages = [
-    '/assets/hero-bg.jpg?v=3',
-    '/assets/gona-exterior.jpg',
-    '/assets/gona-venture-signpost.jpg',
-    '/assets/deluxe-room.jpg'
-  ];
-  const [heroImageIndex, setHeroImageIndex] = useState(0);
-
-  // Auto-play timer for Hero Background (slides every 4 seconds)
+  // Preload hero background image on mount for instant loading
   useEffect(() => {
-    const heroTimer = setInterval(() => {
-      setHeroImageIndex((prev) => (prev + 1) % heroImages.length);
-    }, 4000);
-    return () => clearInterval(heroTimer);
-  }, [heroImages.length]);
+    const img = new Image();
+    img.src = '/assets/hero-bg.jpg';
+  }, []);
 
   // Auto-play timer for Rooms Showcase (slides every 3 seconds infinitely)
   useEffect(() => {
@@ -141,12 +130,13 @@ export const Home: React.FC = () => {
       {/* HERO SECTION WITH AUTOMATIC BACKGROUND SLIDER */}
       <section className="relative min-h-[80vh] sm:min-h-[85vh] flex items-center justify-center pt-24 pb-14 sm:pt-36 sm:pb-20 overflow-hidden">
 
-        {/* Automatic Sliding Background Photo */}
-        <div className="absolute inset-0 z-0">
+        {/* Single Fixed Background Photo */}
+        <div className="absolute inset-0 z-0 overflow-hidden">
           <img
-            src={heroImages[heroImageIndex]}
+            src="/assets/hero-bg.jpg"
             alt="Gona Hotel Outdoor Resort & Restaurant"
-            className="w-full h-full object-cover transition-all duration-1000 scale-105"
+            loading="eager"
+            className="w-full h-full object-cover scale-105"
           />
           <div className="absolute inset-0 bg-gradient-to-r from-[#0A2E20]/90 via-[#0D3B29]/75 to-[#0A2E20]/90" />
         </div>
