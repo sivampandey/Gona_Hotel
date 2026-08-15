@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import {
   Phone, MapPin, Star, Award, Users, Heart,
-  CheckCircle2, Utensils, Hotel, Quote, ArrowRight
+  CheckCircle2, Utensils, Hotel, Quote, ArrowRight,
+  ChevronLeft, ChevronRight
 } from 'lucide-react';
 
 export const About: React.FC = () => {
@@ -12,6 +13,71 @@ export const About: React.FC = () => {
     { value: '50+', label: 'Menu Items', icon: Utensils },
     { value: '4.9★', label: 'Guest Rating', icon: Star },
   ];
+
+  const storyImages = [
+    {
+      src: '/assets/hotel-entrance.jpg',
+      title: 'Grand Entrance Gate',
+      desc: 'Gona Hotel Main Entrance & Welcome Arch'
+    },
+    {
+      src: '/assets/hotel-courtyard-night.jpg',
+      title: 'Resort Night View',
+      desc: 'Spacious illuminated courtyard & balcony suites'
+    },
+    {
+      src: '/assets/hotel-facade.jpg',
+      title: 'Modern Wood Exterior',
+      desc: 'Eco-friendly wooden finish campus with lush greenery'
+    },
+    {
+      src: '/assets/hotel-terrace-lounge.jpg',
+      title: 'Terrace Open Lounge',
+      desc: 'Covered seating lounge with scenic mountain views'
+    },
+    {
+      src: '/assets/restaurant-indoor-hall.jpg',
+      title: 'Fine Dining Hall',
+      desc: 'Luxe indoor dining hall with modern lighting & teak flooring'
+    },
+    {
+      src: '/assets/resort-pool-fountain.jpg',
+      title: 'Fountain & Pool View',
+      desc: 'Crystal clear resort pool with 3-tier marble fountain'
+    }
+  ];
+
+  const [currentStoryIndex, setCurrentStoryIndex] = useState(0);
+  const [isStoryPaused, setIsStoryPaused] = useState(false);
+  const touchStoryStartX = useRef<number | null>(null);
+
+  // Auto-play timer for About page story slider (slides every 3.5s)
+  useEffect(() => {
+    if (isStoryPaused) return;
+    const timer = setInterval(() => {
+      setCurrentStoryIndex(prev => (prev + 1) % storyImages.length);
+    }, 3500);
+    return () => clearInterval(timer);
+  }, [storyImages.length, isStoryPaused]);
+
+  const handleNextStory = () => {
+    setCurrentStoryIndex(prev => (prev + 1) % storyImages.length);
+  };
+  const handlePrevStory = () => {
+    setCurrentStoryIndex(prev => (prev - 1 + storyImages.length) % storyImages.length);
+  };
+
+  const handleStoryTouchStart = (e: React.TouchEvent) => {
+    touchStoryStartX.current = e.touches[0].clientX;
+  };
+  const handleStoryTouchEnd = (e: React.TouchEvent) => {
+    if (touchStoryStartX.current === null) return;
+    const touchEndX = e.changedTouches[0].clientX;
+    const diffX = touchStoryStartX.current - touchEndX;
+    if (diffX > 40) handleNextStory();
+    else if (diffX < -40) handlePrevStory();
+    touchStoryStartX.current = null;
+  };
 
   const values = [
     { title: 'Warm Hospitality', desc: 'Every guest is family. We greet you with genuine warmth and care from the moment you arrive.' },
@@ -87,22 +153,100 @@ export const About: React.FC = () => {
           </div>
 
           <div className="relative">
-            <div className="rounded-3xl overflow-hidden shadow-2xl aspect-[4/3] border-2 border-luxury-gold/30">
-              <img
-                src="/assets/hero-bg.jpg"
-                alt="Gona Hotel Building"
-                className="w-full h-full object-cover"
-              />
+            {/* Automatic Image Slider */}
+            <div 
+              className="rounded-3xl overflow-hidden shadow-2xl aspect-[4/3] border-2 border-luxury-gold/40 relative group bg-black/40 select-none"
+              onMouseEnter={() => setIsStoryPaused(true)}
+              onMouseLeave={() => setIsStoryPaused(false)}
+              onTouchStart={handleStoryTouchStart}
+              onTouchEnd={handleStoryTouchEnd}
+            >
+              {storyImages.map((img, idx) => (
+                <div
+                  key={img.src}
+                  className={`absolute inset-0 transition-opacity duration-700 ease-in-out ${
+                    idx === currentStoryIndex ? 'opacity-100 z-10' : 'opacity-0 z-0 pointer-events-none'
+                  }`}
+                >
+                  <img
+                    src={img.src}
+                    alt={img.title}
+                    className="w-full h-full object-cover"
+                  />
+                  {/* Dark gradient for caption readability */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent" />
+                  
+                  {/* Caption & Counter */}
+                  <div className="absolute bottom-4 left-4 right-4 text-white flex items-end justify-between gap-2 z-20">
+                    <div>
+                      <span className="inline-block bg-luxury-gold text-[#0D3B29] text-[10px] sm:text-xs font-bold px-2.5 py-0.5 rounded-full mb-1 shadow">
+                        {img.title}
+                      </span>
+                      <p className="text-[11px] sm:text-xs text-gray-200 font-light line-clamp-1">
+                        {img.desc}
+                      </p>
+                    </div>
+                    <div className="bg-black/60 backdrop-blur-md border border-luxury-gold/40 text-luxury-gold font-mono text-[10px] sm:text-xs px-2.5 py-0.5 rounded-full shrink-0 shadow">
+                      {idx + 1} / {storyImages.length}
+                    </div>
+                  </div>
+                </div>
+              ))}
+
+              {/* Prev Button */}
+              <button
+                onClick={handlePrevStory}
+                className="absolute left-2.5 top-1/2 -translate-y-1/2 z-20 p-2 rounded-full bg-black/60 text-white border border-luxury-gold/40 hover:bg-luxury-gold hover:text-[#0D3B29] transition-all opacity-80 group-hover:opacity-100 shadow-xl"
+                aria-label="Previous photo"
+              >
+                <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5" />
+              </button>
+
+              {/* Next Button */}
+              <button
+                onClick={handleNextStory}
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 z-20 p-2 rounded-full bg-black/60 text-white border border-luxury-gold/40 hover:bg-luxury-gold hover:text-[#0D3B29] transition-all opacity-80 group-hover:opacity-100 shadow-xl"
+                aria-label="Next photo"
+              >
+                <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />
+              </button>
+
+              {/* Dots */}
+              <div className="absolute top-3 right-3 z-20 flex items-center gap-1.5 bg-black/60 px-2.5 py-1 rounded-full backdrop-blur-md border border-white/20">
+                {storyImages.map((_, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => setCurrentStoryIndex(idx)}
+                    className={`h-1.5 rounded-full transition-all duration-300 ${
+                      idx === currentStoryIndex
+                        ? 'w-5 bg-luxury-gold'
+                        : 'w-1.5 bg-white/40 hover:bg-white/70'
+                    }`}
+                    aria-label={`Go to slide ${idx + 1}`}
+                  />
+                ))}
+              </div>
             </div>
-            {/* floating card */}
-            <div className="absolute -bottom-6 -left-6 bg-white rounded-2xl shadow-xl p-4 border border-luxury-gold/20 flex items-center gap-3">
-              <div className="w-12 h-12 rounded-full bg-luxury-gold/20 flex items-center justify-center">
-                <MapPin className="w-6 h-6 text-luxury-gold" />
+
+            {/* Clean Location Bar below image */}
+            <div className="mt-4 bg-white rounded-2xl shadow-lg p-3 sm:p-4 border border-luxury-gold/30 flex items-center justify-between gap-3">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-[#0D3B29] text-luxury-gold flex items-center justify-center shrink-0 shadow">
+                  <MapPin className="w-5 h-5 text-luxury-gold" />
+                </div>
+                <div>
+                  <p className="font-bold text-[#0D3B29] text-xs sm:text-sm">Chunar Road, Sarso, Rajgarh</p>
+                  <p className="text-[11px] text-gray-500">Mirzapur, Uttar Pradesh - 231201</p>
+                </div>
               </div>
-              <div>
-                <p className="font-bold text-[#0D3B29] text-sm">Chunar Road, Sarso</p>
-                <p className="text-xs text-gray-500">Mirzapur, Uttar Pradesh</p>
-              </div>
+              <a
+                href="https://maps.app.goo.gl/BhUY7vjPVnFwfDbX9"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-3.5 py-1.5 rounded-full bg-luxury-gold text-[#0D3B29] font-bold text-[11px] hover:bg-[#F3E5AB] transition shrink-0 shadow"
+              >
+                View Map 📍
+              </a>
             </div>
           </div>
         </div>

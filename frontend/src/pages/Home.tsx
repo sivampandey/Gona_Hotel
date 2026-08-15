@@ -37,10 +37,52 @@ export const Home: React.FC = () => {
   const [currentTouristIndex, setCurrentTouristIndex] = useState(0);
   const touchTouristStartX = useRef<number | null>(null);
 
-  // Preload hero background image on mount for instant loading
+  // Our Story Hotel Showcase Images & Slider State (All 6 Photos)
+  const storyImages = [
+    {
+      src: '/assets/hotel-entrance.jpg',
+      title: 'Grand Entrance Gate',
+      desc: 'Gona Hotel Main Entrance & Welcome Arch'
+    },
+    {
+      src: '/assets/hotel-courtyard-night.jpg',
+      title: 'Resort Night View',
+      desc: 'Spacious illuminated courtyard & balcony suites'
+    },
+    {
+      src: '/assets/hotel-facade.jpg',
+      title: 'Modern Wood Exterior',
+      desc: 'Eco-friendly wooden finish campus with lush greenery'
+    },
+    {
+      src: '/assets/hotel-terrace-lounge.jpg',
+      title: 'Terrace Open Lounge',
+      desc: 'Covered sitting lounge with scenic mountain views'
+    },
+    {
+      src: '/assets/restaurant-indoor-hall.jpg',
+      title: 'Fine Dining Hall',
+      desc: 'Luxe indoor dining hall with modern lighting & teak flooring'
+    },
+    {
+      src: '/assets/resort-pool-fountain.jpg',
+      title: 'Fountain & Pool View',
+      desc: 'Crystal clear resort pool with 3-tier marble fountain'
+    }
+  ];
+
+  const [currentStoryIndex, setCurrentStoryIndex] = useState(0);
+  const [isStoryPaused, setIsStoryPaused] = useState(false);
+  const touchStoryStartX = useRef<number | null>(null);
+
+  // Preload hero & story images on mount for instant smooth display
   useEffect(() => {
     const img = new Image();
     img.src = '/assets/hero-bg.jpg';
+    storyImages.forEach(item => {
+      const storyImg = new Image();
+      storyImg.src = item.src;
+    });
   }, []);
 
   // Auto-play timer for Rooms Showcase (slides every 3 seconds infinitely)
@@ -67,6 +109,15 @@ export const Home: React.FC = () => {
     return () => clearInterval(touristTimer);
   }, [touristPlaces.length]);
 
+  // Auto-play timer for Story Hotel Slider (slides every 3.5 seconds)
+  useEffect(() => {
+    if (isStoryPaused) return;
+    const storyTimer = setInterval(() => {
+      setCurrentStoryIndex((prev) => (prev + 1) % storyImages.length);
+    }, 3500);
+    return () => clearInterval(storyTimer);
+  }, [storyImages.length, isStoryPaused]);
+
   const handleNextRoom = () => {
     setCurrentRoomIndex((prev) => (prev + 1) % featuredRooms.length);
   };
@@ -86,6 +137,13 @@ export const Home: React.FC = () => {
   };
   const handlePrevTourist = () => {
     setCurrentTouristIndex((prev) => (prev - 1 + touristPlaces.length) % touristPlaces.length);
+  };
+
+  const handleNextStory = () => {
+    setCurrentStoryIndex((prev) => (prev + 1) % storyImages.length);
+  };
+  const handlePrevStory = () => {
+    setCurrentStoryIndex((prev) => (prev - 1 + storyImages.length) % storyImages.length);
   };
 
   const handleTouchStart = (e: React.TouchEvent) => {
@@ -122,6 +180,18 @@ export const Home: React.FC = () => {
     if (diffX > 40) handleNextTourist();
     else if (diffX < -40) handlePrevTourist();
     touchTouristStartX.current = null;
+  };
+
+  const handleStoryTouchStart = (e: React.TouchEvent) => {
+    touchStoryStartX.current = e.touches[0].clientX;
+  };
+  const handleStoryTouchEnd = (e: React.TouchEvent) => {
+    if (touchStoryStartX.current === null) return;
+    const touchEndX = e.changedTouches[0].clientX;
+    const diffX = touchStoryStartX.current - touchEndX;
+    if (diffX > 40) handleNextStory();
+    else if (diffX < -40) handlePrevStory();
+    touchStoryStartX.current = null;
   };
 
   return (
@@ -392,13 +462,80 @@ export const Home: React.FC = () => {
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-8 items-center">
-              {/* Hotel Image */}
-              <div className="lg:col-span-7 rounded-xl sm:rounded-2xl overflow-hidden shadow-2xl border border-luxury-gold/20 bg-black/20">
-                <img
-                  src="/assets/hero-bg.jpg?v=3"
-                  alt="Gona Hotel Resort Building & Fountain"
-                  className="w-full h-auto max-h-[220px] sm:max-h-[380px] object-cover"
-                />
+              {/* Hotel Automatic Image Slider */}
+              <div 
+                className="lg:col-span-7 rounded-xl sm:rounded-2xl overflow-hidden shadow-2xl border border-luxury-gold/30 bg-black/40 relative group h-[260px] sm:h-[380px] w-full select-none"
+                onMouseEnter={() => setIsStoryPaused(true)}
+                onMouseLeave={() => setIsStoryPaused(false)}
+                onTouchStart={handleStoryTouchStart}
+                onTouchEnd={handleStoryTouchEnd}
+              >
+                {/* Images Stack */}
+                {storyImages.map((img, idx) => (
+                  <div
+                    key={img.src}
+                    className={`absolute inset-0 transition-opacity duration-700 ease-in-out ${
+                      idx === currentStoryIndex ? 'opacity-100 z-10' : 'opacity-0 z-0 pointer-events-none'
+                    }`}
+                  >
+                    <img
+                      src={img.src}
+                      alt={img.title}
+                      className="w-full h-full object-cover"
+                    />
+                    {/* Gradient Overlay for text readability */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent" />
+                    
+                    {/* Caption & Counter Badge */}
+                    <div className="absolute bottom-3 left-3 right-3 sm:bottom-4 sm:left-4 sm:right-4 text-white flex items-end justify-between gap-2 z-20">
+                      <div className="space-y-0.5">
+                        <span className="inline-block bg-luxury-gold text-[#0D3B29] text-[10px] sm:text-xs font-bold px-2.5 py-0.5 rounded-full shadow">
+                          {img.title}
+                        </span>
+                        <p className="text-[11px] sm:text-xs text-gray-200 font-light line-clamp-1">
+                          {img.desc}
+                        </p>
+                      </div>
+                      <div className="bg-black/60 backdrop-blur-md border border-luxury-gold/40 text-luxury-gold font-mono text-[10px] sm:text-xs px-2.5 py-0.5 rounded-full shrink-0 shadow">
+                        {idx + 1} / {storyImages.length}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+
+                {/* Prev Arrow Button */}
+                <button
+                  onClick={handlePrevStory}
+                  className="absolute left-2.5 top-1/2 -translate-y-1/2 z-20 p-2 sm:p-2.5 rounded-full bg-black/60 text-white border border-luxury-gold/40 hover:bg-luxury-gold hover:text-[#0D3B29] transition-all opacity-80 group-hover:opacity-100 shadow-xl active:scale-95"
+                  aria-label="Previous image"
+                >
+                  <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5" />
+                </button>
+
+                {/* Next Arrow Button */}
+                <button
+                  onClick={handleNextStory}
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 z-20 p-2 sm:p-2.5 rounded-full bg-black/60 text-white border border-luxury-gold/40 hover:bg-luxury-gold hover:text-[#0D3B29] transition-all opacity-80 group-hover:opacity-100 shadow-xl active:scale-95"
+                  aria-label="Next image"
+                >
+                  <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />
+                </button>
+
+                {/* Navigation Dots Indicator */}
+                <div className="absolute top-3 right-3 z-20 flex items-center gap-1.5 bg-black/60 px-3 py-1.5 rounded-full backdrop-blur-md border border-white/20">
+                  {storyImages.map((_, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => setCurrentStoryIndex(idx)}
+                      className={`h-2 rounded-full transition-all duration-300 ${
+                        idx === currentStoryIndex
+                          ? 'w-6 bg-luxury-gold'
+                          : 'w-2 bg-white/40 hover:bg-white/70'
+                      }`}
+                      aria-label={`Go to image ${idx + 1}`}
+                    />
+                  ))}
+                </div>
               </div>
 
               {/* Hotel Info & Stats */}

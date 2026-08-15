@@ -2,12 +2,13 @@ import React, { useState } from 'react';
 import {
   LayoutDashboard, Hotel, Utensils, Tag, Users,
   Edit3, CheckCircle2, TrendingUp, Lock, Plus, Trash2,
-  ShoppingBag, Star, IndianRupee, Calendar, Phone, Mail
+  ShoppingBag, Star, IndianRupee, Calendar, Phone, Mail, Printer
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { initialSeedData } from '../data/seedData';
 import { memoryRoomBookings, memoryFoodOrders } from '../data/mockBookings';
 import { useNotification } from '../context/NotificationContext';
+import { InvoiceModal } from '../components/InvoiceModal';
 
 type AdminTab = 'analytics' | 'rooms' | 'bookings' | 'menu' | 'food-orders' | 'coupons' | 'customers';
 
@@ -15,6 +16,7 @@ export const AdminDashboard: React.FC = () => {
   const { isAdmin } = useAuth();
   const { showToast } = useNotification();
   const [activeTab, setActiveTab] = useState<AdminTab>('analytics');
+  const [selectedInvoice, setSelectedInvoice] = useState<any>(null);
 
   const [rooms, setRooms] = useState([...initialSeedData.rooms]);
   const [menuItems, setMenuItems] = useState([...initialSeedData.menuItems]);
@@ -272,10 +274,37 @@ export const AdminDashboard: React.FC = () => {
                         ₹{b.totalAmount.toLocaleString('en-IN')}
                       </p>
                       <p className="text-[11px] text-gray-400">{b.invoiceId}</p>
-                      <div className="flex gap-2 justify-end flex-wrap">
+                      <div className="flex gap-2 justify-end flex-wrap items-center">
                         <span className={`text-[11px] font-bold px-2 py-0.5 rounded-full ${statusColor(b.paymentStatus)}`}>
                           {isCancelled ? 'REFUNDED' : b.paymentStatus.toUpperCase()}
                         </span>
+                        <button
+                          onClick={() => {
+                            setSelectedInvoice({
+                              invoiceId: b.invoiceId || `INV-ROOM-${b.id}`,
+                              title: `Room Stay: ${b.roomName}`,
+                              type: 'room',
+                              date: b.checkIn || new Date().toISOString(),
+                              customerName: b.userName,
+                              customerEmail: b.userEmail || 'guest@gonahotel.com',
+                              customerPhone: b.userPhone || '+91 96966 31621',
+                              paymentId: b.paymentId || 'PAY-ONLINE-UPI',
+                              items: [
+                                {
+                                  description: `Room Stay: ${b.roomName} (${b.totalNights} Nights)`,
+                                  quantity: b.totalNights,
+                                  amount: b.totalAmount
+                                }
+                              ],
+                              subtotal: Math.round(b.totalAmount / 1.05),
+                              tax: Math.round(b.totalAmount - (b.totalAmount / 1.05)),
+                              totalAmount: b.totalAmount
+                            });
+                          }}
+                          className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-luxury-gold text-[#0D3B29] font-bold text-xs hover:bg-[#F3E5AB] transition shadow-sm"
+                        >
+                          <Printer className="w-3.5 h-3.5" /> Print / Download GST Bill
+                        </button>
                       </div>
                     </div>
                   </div>
@@ -345,11 +374,36 @@ export const AdminDashboard: React.FC = () => {
                     <span className={`text-[11px] font-bold px-2 py-0.5 rounded-full ${statusColor(o.paymentStatus)}`}>
                       {o.paymentStatus.toUpperCase()}
                     </span>
-                    <div className="mt-2">
+                    <div className="mt-2 flex items-center justify-end gap-2 flex-wrap">
+                      <button
+                        onClick={() => {
+                          setSelectedInvoice({
+                            invoiceId: o.invoiceId || `INV-FOOD-${o.id}`,
+                            title: `Gona Restaurant Food Order (${(o.orderType || 'delivery').toUpperCase()})`,
+                            type: 'food',
+                            date: o.createdAt || new Date().toISOString(),
+                            customerName: o.userName,
+                            customerEmail: o.userEmail || 'guest@gonahotel.com',
+                            customerPhone: o.userPhone || '+91 96966 31621',
+                            paymentId: o.paymentId || 'PAY-ONLINE-UPI',
+                            items: o.items.map((i: any) => ({
+                              description: i.name,
+                              quantity: i.quantity,
+                              amount: i.price * i.quantity
+                            })),
+                            subtotal: o.subtotal || Math.round(o.totalAmount / 1.05),
+                            tax: o.tax || Math.round(o.totalAmount - (o.totalAmount / 1.05)),
+                            totalAmount: o.totalAmount
+                          });
+                        }}
+                        className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-luxury-gold text-[#0D3B29] font-bold text-xs hover:bg-[#F3E5AB] transition shadow-sm"
+                      >
+                        <Printer className="w-3.5 h-3.5" /> Print / Download GST Bill
+                      </button>
                       <select
                         value={o.orderStatus}
                         onChange={e => updateFoodStatus(o.id, e.target.value)}
-                        className="px-3 py-2 rounded-xl bg-[#0D3B29] text-white font-bold text-xs"
+                        className="px-3 py-1.5 rounded-xl bg-[#0D3B29] text-white font-bold text-xs"
                       >
                         <option value="placed">Placed</option>
                         <option value="preparing">Preparing</option>
@@ -445,6 +499,15 @@ export const AdminDashboard: React.FC = () => {
         )}
 
       </div>
+
+      {/* Invoice Modal for Admin Print / Download */}
+      {selectedInvoice && (
+        <InvoiceModal
+          isOpen={!!selectedInvoice}
+          onClose={() => setSelectedInvoice(null)}
+          invoiceData={selectedInvoice}
+        />
+      )}
     </div>
   );
 };

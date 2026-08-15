@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { 
-  MapPin, Compass, Camera, Navigation, Phone, ExternalLink, 
+import {
+  MapPin, Compass, Camera, Navigation, Phone, ExternalLink,
   Sparkles, X, ChevronRight, CheckCircle2, Clock, Car, Sun
 } from 'lucide-react';
 
@@ -29,8 +29,8 @@ export const touristPlaces: TouristPlace[] = [
     hindiName: 'लखनिया दरी झरना',
     category: 'waterfall',
     categoryLabel: 'Waterfall & Nature Trek',
-    distanceFromHotel: '18 km from Gona Hotel',
-    travelTime: '25 mins drive',
+    distanceFromHotel: '5 km from Gona Hotel',
+    travelTime: '10 mins drive',
     bestTime: 'Monsoon & Winter (July to March)',
     image: '/assets/tourist/lakhaniya-dari.jpg',
     galleryImages: [
@@ -44,9 +44,57 @@ export const touristPlaces: TouristPlace[] = [
       '150-meter majestic cascading waterfall pool',
       'Prehistoric cave rock paintings & archaeological sites',
       'Popular for eco-trekking & stream bathing',
-      'Just 25 mins drive from Gona Hotel & Resort'
+      'Just 10 mins drive (6 km) from Gona Hotel & Resort'
     ],
     googleMapsUrl: 'https://www.google.com/maps/search/Lakhaniya+Dari+Waterfall+Mirzapur'
+  },
+  {
+    id: 'sirsi-dam',
+    name: 'Sirsi Dam & Water Reservoir',
+    hindiName: 'सिरसी बाँध एवं झील',
+    category: 'nature',
+    categoryLabel: 'Reservoir Lake & Scenic Dam',
+    distanceFromHotel: '6 km from Gona Hotel',
+    travelTime: '10 mins drive',
+    bestTime: 'July to March',
+    image: '/assets/tourist/sirsi-dam.jpg',
+    galleryImages: [
+      '/assets/tourist/sirsi-dam.jpg',
+      '/assets/tourist/siddhanath-dari.jpg'
+    ],
+    shortDesc: 'A vast blue water reservoir dam surrounded by rolling green hills, offering serene waterside vistas, sunset views, and seasonal water spillways.',
+    fullDesc: 'Sirsi Dam is a major water reservoir built across the Sirsi river near Rajgarh. The sprawling lake is enclosed by lush green hills, creating a tranquil waterscape. During monsoon and post-monsoon months, the dam spillways release roaring sheets of water, attracting photographers and nature lovers.',
+    highlights: [
+      'Vast tranquil reservoir lake with hill backdrop',
+      'Spectacular water spillway during monsoon season',
+      'Peaceful sunset viewpoint & photography destination',
+      'Just 8 mins drive (4 km) south of Gona Hotel'
+    ],
+    googleMapsUrl: 'https://www.google.com/maps/search/Sirsi+Dam+Rajgarh+Mirzapur'
+  },
+  {
+    id: 'siddhanath-dari',
+    name: 'Siddhanath Ki Dari Waterfall',
+    hindiName: 'सिद्धनाथ दरी झरना',
+    category: 'waterfall',
+    categoryLabel: 'Forest Waterfall & Trekking',
+    distanceFromHotel: '4 km from Gona Hotel',
+    travelTime: '8 mins drive',
+    bestTime: 'Monsoon & Winter',
+    image: '/assets/tourist/siddhanath-dari.jpg',
+    galleryImages: [
+      '/assets/tourist/siddhanath-dari.jpg',
+      '/assets/tourist/lakhaniya-dari.jpg'
+    ],
+    shortDesc: 'A pristine forest waterfall nestled near Saktesgarh and Chunar, popular for cool stream pools, forest trekking, and peaceful natural surroundings.',
+    fullDesc: 'Siddhanath Ki Dari is a pristine natural waterfall hidden within rocky forest terrain near Saktesgarh. The stream cascades over rocky ledges into crystal clear natural pools. It is a favorite spot for visitors seeking offbeat nature trails away from city crowds.',
+    highlights: [
+      'Pristine uncrowded natural forest waterfall',
+      'Cool stream pools surrounded by greenery',
+      'Great for nature walks & adventure photography',
+      '12 mins scenic drive (8 km) from Gona Hotel'
+    ],
+    googleMapsUrl: 'https://www.google.com/maps/search/Siddhanath+Ki+Dari+Mirzapur'
   },
   {
     id: 'chunar-fort',
@@ -54,8 +102,8 @@ export const touristPlaces: TouristPlace[] = [
     hindiName: 'चुनार का ऐतिहासिक किला',
     category: 'fort',
     categoryLabel: 'Historic Heritage Fort',
-    distanceFromHotel: '28 km from Gona Hotel',
-    travelTime: '35 mins drive',
+    distanceFromHotel: '12 km from Gona Hotel',
+    travelTime: '15 mins drive',
     bestTime: 'All Year Round (October to March best)',
     image: '/assets/tourist/chunar-fort.jpg',
     galleryImages: [
@@ -69,33 +117,9 @@ export const touristPlaces: TouristPlace[] = [
       'Commanding panoramic views over holy River Ganges',
       'Sonwa Mandap & King Bhartihari underground Samadhi',
       'Massive 16th-century stone ramparts & cannon posts',
-      'Easily accessible via Chunar Road from Gona Hotel'
+      'Quick 15 mins drive (12 km) via Chunar Road from Gona Hotel'
     ],
     googleMapsUrl: 'https://www.google.com/maps/search/Chunar+Fort+Mirzapur'
-  },
-  {
-    id: 'vindhyachal-dham',
-    name: 'Vindhyachal Dham & Maa Vindhyavasini Temple',
-    hindiName: 'विन्ध्याचल माता मंदिर',
-    category: 'temple',
-    categoryLabel: 'Sacred Shaktipeeth Pilgrimage',
-    distanceFromHotel: '38 km from Gona Hotel',
-    travelTime: '45 mins drive',
-    bestTime: 'All Year Round (Grand Navratri Mela)',
-    image: '/assets/tourist/vindhyachal-dham.jpg',
-    galleryImages: [
-      '/assets/tourist/vindhyachal-dham.jpg',
-      '/assets/tourist/chunar-fort.jpg'
-    ],
-    shortDesc: 'One of India\'s most revered holy Shaktipeeth temples situated on the holy banks of River Ganga, featuring Ashtabhuja Temple & Kali Khoh cave shrine.',
-    fullDesc: 'Vindhyachal Dham is a premier Hindu pilgrimage destination dedicated to Goddess Durga (Maa Vindhyavasini). Unlike many other Shaktipeeths situated on mountains, Maa Vindhyavasini resides right on the banks of River Ganga. Pilgrims perform the sacred "Trikona Parikrama" covering Maa Vindhyavasini Temple, Ashtabhuja Devi Temple atop the hill, and Kali Khoh cave temple.',
-    highlights: [
-      'Sacred Shaktipeeth on the holy banks of River Ganga',
-      'Complete Trikona Parikrama circuit (Vindhyavasini, Ashtabhuja, Kali Khoh)',
-      'Holy Ganges Ghats for holy dip & evening Aarti',
-      'Direct highway drive from Gona Hotel'
-    ],
-    googleMapsUrl: 'https://www.google.com/maps/search/Vindhyavasini+Devi+Temple+Vindhyachal'
   },
   {
     id: 'wyndham-falls',
@@ -103,8 +127,8 @@ export const touristPlaces: TouristPlace[] = [
     hindiName: 'विंडम फॉल्स झरना',
     category: 'waterfall',
     categoryLabel: 'Picturesque Waterfall & Park',
-    distanceFromHotel: '30 km from Gona Hotel',
-    travelTime: '35 mins drive',
+    distanceFromHotel: '18 km from Gona Hotel',
+    travelTime: '20 mins drive',
     bestTime: 'August to February',
     image: '/assets/tourist/wyndham-falls.jpg',
     galleryImages: [
@@ -117,57 +141,33 @@ export const touristPlaces: TouristPlace[] = [
       'Gentle multi-step rock waterfall streams',
       'Family park and nature gardens',
       'Scenic Vindhya mountain valley background',
-      'Convenient parking and picnic spots'
+      '20 mins drive (18 km) from Gona Hotel'
     ],
     googleMapsUrl: 'https://www.google.com/maps/search/Wyndham+Falls+Mirzapur'
   },
   {
-    id: 'sirsi-dam',
-    name: 'Sirsi Dam & Water Reservoir',
-    hindiName: 'सिरसी बाँध एवं झील',
-    category: 'nature',
-    categoryLabel: 'Reservoir Lake & Scenic Dam',
-    distanceFromHotel: '22 km from Gona Hotel',
-    travelTime: '30 mins drive',
-    bestTime: 'July to March',
-    image: '/assets/tourist/sirsi-dam.jpg',
-    galleryImages: [
-      '/assets/tourist/sirsi-dam.jpg',
-      '/assets/tourist/siddhanath-dari.jpg'
-    ],
-    shortDesc: 'A vast blue water reservoir dam surrounded by rolling green hills, offering serene waterside vistas, sunset views, and seasonal water spillways.',
-    fullDesc: 'Sirsi Dam is a major water reservoir built across the Sirsi river near Rajgarh. The sprawling lake is enclosed by lush green hills, creating a tranquil waterscape. During monsoon and post-monsoon months, the dam spillways release roaring sheets of water, attracting photographers and nature lovers.',
-    highlights: [
-      'Vast tranquil reservoir lake with hill backdrop',
-      'Spectacular water spillway during monsoon season',
-      'Peaceful sunset viewpoint & photography destination',
-      'Just 22 km south of Gona Hotel'
-    ],
-    googleMapsUrl: 'https://www.google.com/maps/search/Sirsi+Dam+Rajgarh+Mirzapur'
-  },
-  {
-    id: 'siddhanath-dari',
-    name: 'Siddhanath Ki Dari Waterfall',
-    hindiName: 'सिद्धनाथ दरी झरना',
-    category: 'waterfall',
-    categoryLabel: 'Forest Waterfall & Trekking',
+    id: 'vindhyachal-dham',
+    name: 'Vindhyachal Dham & Maa Vindhyavasini Temple',
+    hindiName: 'विन्ध्याचल माता मंदिर',
+    category: 'temple',
+    categoryLabel: 'Sacred Shaktipeeth Pilgrimage',
     distanceFromHotel: '24 km from Gona Hotel',
-    travelTime: '30 mins drive',
-    bestTime: 'Monsoon & Winter',
-    image: '/assets/tourist/siddhanath-dari.jpg',
+    travelTime: '28 mins drive',
+    bestTime: 'All Year Round (Grand Navratri Mela)',
+    image: '/assets/tourist/vindhyachal-dham.jpg',
     galleryImages: [
-      '/assets/tourist/siddhanath-dari.jpg',
-      '/assets/tourist/lakhaniya-dari.jpg'
+      '/assets/tourist/vindhyachal-dham.jpg',
+      '/assets/tourist/chunar-fort.jpg'
     ],
-    shortDesc: 'A pristine forest waterfall nestled near Saktesgarh and Chunar, popular for cool stream pools, forest trekking, and peaceful natural surroundings.',
-    fullDesc: 'Siddhanath Ki Dari is a pristine natural waterfall hidden within rocky forest terrain near Saktesgarh. The stream cascades over rocky ledges into crystal clear natural pools. It is a favorite spot for visitors seeking offbeat nature trails away from city crowds.',
+    shortDesc: 'One of India\'s most revered holy Shaktipeeth temples situated on the holy banks of River Ganga, featuring Ashtabhuja Temple & Kali Khoh cave shrine.',
+    fullDesc: 'Vindhyachal Dham is a premier Hindu pilgrimage destination dedicated to Goddess Durga (Maa Vindhyavasini). Unlike many other Shaktipeeths situated on mountains, Maa Vindhyavasini resides right on the banks of River Ganga. Pilgrims perform the sacred "Trikona Parikrama" covering Maa Vindhyavasini Temple, Ashtabhuja Devi Temple atop the hill, and Kali Khoh cave temple.',
     highlights: [
-      'Pristine uncrowded natural forest waterfall',
-      'Cool stream pools surrounded by greenery',
-      'Great for nature walks & adventure photography',
-      '30 mins scenic drive from Gona Hotel'
+      'Sacred Shaktipeeth on the holy banks of River Ganga',
+      'Complete Trikona Parikrama circuit (Vindhyavasini, Ashtabhuja, Kali Khoh)',
+      'Holy Ganges Ghats for holy dip & evening Aarti',
+      '28 mins drive (24 km) from Gona Hotel'
     ],
-    googleMapsUrl: 'https://www.google.com/maps/search/Siddhanath+Ki+Dari+Mirzapur'
+    googleMapsUrl: 'https://www.google.com/maps/search/Vindhyavasini+Devi+Temple+Vindhyachal'
   }
 ];
 
@@ -175,14 +175,14 @@ export const Attractions: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [selectedPlace, setSelectedPlace] = useState<TouristPlace | null>(null);
 
-  const filteredPlaces = selectedCategory === 'all' 
-    ? touristPlaces 
+  const filteredPlaces = selectedCategory === 'all'
+    ? touristPlaces
     : touristPlaces.filter(p => p.category === selectedCategory);
 
   return (
     <div className="min-h-screen bg-[#F7F4EB] text-luxury-obsidian pt-28 pb-24">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
-        
+
         {/* Page Header */}
         <div className="text-center space-y-4 max-w-3xl mx-auto">
           <span className="px-4 py-1.5 rounded-full bg-luxury-gold/20 text-[#0D3B29] text-xs font-bold uppercase tracking-widest border border-luxury-gold/40 inline-flex items-center gap-1.5">
@@ -200,41 +200,37 @@ export const Attractions: React.FC = () => {
         <div className="flex flex-wrap items-center justify-center gap-3">
           <button
             onClick={() => setSelectedCategory('all')}
-            className={`px-5 py-2.5 rounded-full text-xs font-bold transition-all shadow-sm ${
-              selectedCategory === 'all'
+            className={`px-5 py-2.5 rounded-full text-xs font-bold transition-all shadow-sm ${selectedCategory === 'all'
                 ? 'bg-[#0D3B29] text-white shadow-md'
                 : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-200'
-            }`}
+              }`}
           >
             🌟 All Tourist Places ({touristPlaces.length})
           </button>
           <button
             onClick={() => setSelectedCategory('waterfall')}
-            className={`px-5 py-2.5 rounded-full text-xs font-bold transition-all shadow-sm ${
-              selectedCategory === 'waterfall'
+            className={`px-5 py-2.5 rounded-full text-xs font-bold transition-all shadow-sm ${selectedCategory === 'waterfall'
                 ? 'bg-[#0D3B29] text-white shadow-md'
                 : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-200'
-            }`}
+              }`}
           >
             🌊 Waterfalls & Nature
           </button>
           <button
             onClick={() => setSelectedCategory('fort')}
-            className={`px-5 py-2.5 rounded-full text-xs font-bold transition-all shadow-sm ${
-              selectedCategory === 'fort'
+            className={`px-5 py-2.5 rounded-full text-xs font-bold transition-all shadow-sm ${selectedCategory === 'fort'
                 ? 'bg-[#0D3B29] text-white shadow-md'
                 : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-200'
-            }`}
+              }`}
           >
             🏰 Historic Ganga Forts
           </button>
           <button
             onClick={() => setSelectedCategory('temple')}
-            className={`px-5 py-2.5 rounded-full text-xs font-bold transition-all shadow-sm ${
-              selectedCategory === 'temple'
+            className={`px-5 py-2.5 rounded-full text-xs font-bold transition-all shadow-sm ${selectedCategory === 'temple'
                 ? 'bg-[#0D3B29] text-white shadow-md'
                 : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-200'
-            }`}
+              }`}
           >
             🛕 Spiritual Shaktipeeth
           </button>
@@ -247,21 +243,24 @@ export const Attractions: React.FC = () => {
               key={place.id}
               className="bg-white rounded-2xl overflow-hidden border border-gray-200 shadow-md hover:shadow-xl transition-all duration-300 flex flex-col group"
             >
-              {/* Image Container - Sleek 16:10 aspect ratio */}
+              {/* Image Container */}
               <div className="relative aspect-[16/10] overflow-hidden bg-black">
                 <img
                   src={place.image}
                   alt={place.name}
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                 />
-                
-                {/* Distance Badge */}
-                <div className="absolute top-3 left-3 bg-[#0D3B29]/90 text-luxury-gold text-[11px] font-bold px-3 py-1 rounded-full backdrop-blur-md border border-luxury-gold/30 shadow-md flex items-center gap-1.5">
-                  <MapPin className="w-3.5 h-3.5 text-luxury-gold" /> {place.distanceFromHotel}
+
+                {/* Gradient for text contrast */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-black/30 pointer-events-none" />
+
+                {/* Distance Badge - Top Left */}
+                <div className="absolute top-3 left-3 bg-[#0D3B29]/95 text-luxury-gold text-xs font-bold px-3 py-1 rounded-full backdrop-blur-md border border-luxury-gold/40 shadow-lg flex items-center gap-1.5 z-10">
+                  <MapPin className="w-3.5 h-3.5 text-luxury-gold shrink-0" /> {place.distanceFromHotel}
                 </div>
 
-                {/* Category Badge */}
-                <div className="absolute top-3 right-3 bg-luxury-gold text-[#0D3B29] text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider shadow-md">
+                {/* Category Badge - Bottom Left (No overlap with distance) */}
+                <div className="absolute bottom-3 left-3 bg-luxury-gold text-[#0D3B29] text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider shadow-md z-10">
                   {place.categoryLabel}
                 </div>
               </div>
@@ -350,7 +349,7 @@ export const Attractions: React.FC = () => {
       {selectedPlace && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/80 backdrop-blur-md animate-in fade-in overflow-y-auto">
           <div className="w-full max-w-4xl bg-white text-gray-900 rounded-3xl shadow-2xl overflow-hidden my-6 border border-luxury-gold max-h-[90vh] flex flex-col">
-            
+
             {/* Modal Header */}
             <div className="p-4 sm:p-6 bg-[#0D3B29] text-white flex items-center justify-between shrink-0 border-b border-luxury-gold/30">
               <div>
@@ -374,7 +373,7 @@ export const Attractions: React.FC = () => {
 
             {/* Modal Body */}
             <div className="p-6 space-y-6 overflow-y-auto flex-1">
-              
+
               {/* Photo Gallery Grid */}
               <div className="space-y-2">
                 <h4 className="font-serif text-lg font-bold text-[#0D3B29] flex items-center gap-2">
