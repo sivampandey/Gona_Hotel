@@ -1,42 +1,50 @@
 # 🏰 Gona Hotel, Fine Dining Restaurant & Luxury Farm House
 
-Welcome to the official repository for **Gona Hotel & Estate** — a modern, responsive, full-stack web platform built for luxury hotel room bookings, fine dining food ordering, and private farm house reservations.
+Welcome to the official repository for **Gona Hotel & Estate** — a modern, high-performance, full-stack web platform built for luxury hotel room bookings, fine dining food ordering, and private farm house reservations.
 
 ![Gona Hotel Banner](frontend/public/assets/hero-bg.jpg)
 
 ---
 
-## 🔐 Admin Panel Credentials
+## 🔐 Admin Panel Access & Credentials
 
-Yes, this project includes a complete **Admin Dashboard** for hotel operations, booking management, menu edits, and analytics.
+This project includes a feature-packed **Admin Dashboard** for complete hotel operations, booking management, menu edits, invoice printing, and revenue analytics.
 
-> 💡 **Note**: Admin Logging in with 
-     ID- `admin@gonahotel.com` 
-     Password-`admin123`
+> 💡 **Admin Login Credentials**:
+> - **Email**: `admin@gonahotel.com` 
+> - **Password**: `admin123`
 
 ---
 
 ## 🌟 Key Features
 
-- **🏨 Luxury Room Bookings**: Explore rooms, view high-res galleries, check real-time availability, and book stays.
-- **🍽️ Fine Dining Restaurant**: Interactive food menu with category filters, cart management, coupons, and table/delivery checkout.
+- **🏨 Luxury Room Bookings**: Browse AC Deluxe & Standard rooms with detailed amenities, interactive photo galleries, real-time availability checks, and instant booking.
+- **🍽️ Multi-Cuisine Fine Dining**: Interactive food menu with category filters (North Indian, Veg & Non-Veg Specials, Biryani, Chinese, Beverages), cart management, coupons, and table/delivery checkout.
+- **🧾 Professional 5% GST Tax Invoice**: Print-ready GST Tax Invoices featuring official branding (**GONA HOTEL & RESTAURANT**), **GSTIN: `09AAAFG9696A1Z5`**, **SAC Code: `9963`**, single 5% GST breakdown, and 1-click **Print / Download PDF** for guests and admins.
+- **📸 Automatic 6-Photo Resort Showcase Sliders**: Smooth 3.5s auto-play sliders with touch-swipe support, pause-on-hover, index counter badges, and navigation arrows on both Home and About pages.
+- **🗺️ Nearby Tourist Attractions Guide**: Real Google Maps driving distances and route directions measured directly from Gona Hotel (Sarso, Rajgarh):
+  - 🌊 **Sirsi Dam & Water Reservoir**: 4 km (8 mins)
+  - 🌊 **Lakhaniya Dari Waterfall**: 6 km (10 mins)
+  - 🌊 **Siddhanath Ki Dari Waterfall**: 8 km (12 mins)
+  - 🏰 **Historic Chunar Fort**: 12 km (15 mins)
+  - 🌊 **Wyndham Falls**: 18 km (20 mins)
+  - 🛕 **Vindhyachal Dham & Maa Vindhyavasini Temple**: 24 km (28 mins)
 - **🏡 Private Farm House Estate**: Dedicated booking portal for full farm house stays, pool picnics, BBQ nights, and celebration lawns.
-- **📱 UPI QR & App Direct Payments**: Native integration for UPI QR scanning (PNB Gateway) and 1-click payment via Google Pay, PhonePe, Paytm, and BHIM (`7880729819m@pnb`).
-- **📞 Direct Hotel Concierge**: Integrated 24/7 phone hotline (`+91 78807 29819`) and instant WhatsApp reservation desk.
-- **🧾 Instant GST Invoices**: Automatic tax invoice generation with PDF print capabilities.
-- **📊 Full Admin Dashboard**: Comprehensive admin portal for managing room reservations, food orders, farm bookings, menu pricing, discount coupons, and revenue analytics.
+- **💳 Payment Integration**: Native support for UPI QR scanning and 1-click payment via Google Pay, PhonePe, Paytm, and BHIM (`7880729819m@pnb`).
+- **📞 24/7 Hotel Concierge**: Integrated phone hotline (`+91 96966 31621`, `+91 79050 79819`) and instant WhatsApp reservation desk.
+- **📊 Comprehensive Admin Dashboard**: Live tracking of room reservations, kitchen food orders, menu price edits, coupon codes, user management, and GST tax invoice printing.
 
 ---
 
-## 📊 Admin Dashboard Features
+## 📊 Admin Dashboard Capabilities
 
-1. **Revenue Analytics**: Track total room earnings, restaurant food sales, and live reservation counts.
-2. **Room Management**: Edit room prices per night, toggle availability, and update descriptions.
-3. **Room Bookings**: View incoming guest reservations, check-in/check-out dates, and payment statuses.
-4. **Restaurant Menu Management**: Update food items, change dish prices, toggle dish availability.
-5. **Kitchen Food Orders**: Live tracking of food orders (Preparing, Out for Delivery, Delivered).
-6. **Coupon Management**: Create and manage discount codes (e.g. `GONA20`, `WELCOME10`).
-7. **Customer Database**: View registered user accounts and phone numbers.
+1. **📈 Revenue Analytics**: Monitor room revenue, restaurant sales, total orders, and active guest bookings.
+2. **🏨 Room Management**: Edit nightly rates, toggle room availability, and update room specs.
+3. **📄 GST Tax Bill Printing**: 1-click **Print / Download GST Bill** modal for every room booking and food order.
+4. **🍽️ Restaurant Menu Control**: Add new dishes, adjust prices, and toggle item availability.
+5. **👨‍🍳 Live Kitchen Order Tracking**: Manage order lifecycle (Preparing, Out for Delivery, Delivered, Completed).
+6. **🎟️ Coupon Management**: Create custom discount codes (e.g. `GONA20`, `WELCOME10`).
+7. **👥 Customer Database**: View registered guest accounts, contact numbers, and order history.
 
 ---
 
@@ -44,12 +52,12 @@ Yes, this project includes a complete **Admin Dashboard** for hotel operations, 
 
 ### **Frontend**
 - **Framework**: React 19 + TypeScript + Vite
-- **Styling**: TailwindCSS + Lucide Icons + Framer Motion
+- **Styling**: Vanilla CSS / TailwindCSS + Lucide Icons
 - **State & Routing**: React Router v7 + Context API
 
 ### **Backend**
 - **Runtime**: Node.js + Express + TypeScript
-- **Database**: MongoDB (Mongoose) with seamless fallback
+- **Database**: MongoDB (Mongoose) with local fallback support
 - **Authentication**: JWT & Bcrypt
 
 ---
@@ -58,22 +66,34 @@ Yes, this project includes a complete **Admin Dashboard** for hotel operations, 
 
 ### 1. Clone the repository
 ```bash
+git clone https://github.com/sivampandey/Gona_Hotel.git
 cd Gona_Hotel
 ```
 
-### 2. Install Dependencies & Start Backend
+### 2. Install & Start Backend
 ```bash
 cd backend
 npm install
 npm run dev
 ```
 
-### 3. Install Dependencies & Start Frontend
+### 3. Install & Start Frontend
 ```bash
-cd ./frontend
+cd ../frontend
 npm install
 npm run dev
 ```
 
+---
+
+## 📍 Location & Contact Details
+
+- **Address**: Chunar Road, Sarso, Rajgarh, Mirzapur, Uttar Pradesh - 231201
+- **Phone**: +91 96966 31621 | +91 79050 79819
+- **GSTIN**: `09AAAFG9696A1Z5`
+- **SAC Code**: `9963`
+
+---
+
 ## 📄 License
-Created for Gona Hotel & Resort. All rights reserved.
+Created for **Gona Hotel & Restaurant** (A Unit of Gona Group Ventures). All rights reserved.
