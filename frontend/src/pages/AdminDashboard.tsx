@@ -144,6 +144,21 @@ export const AdminDashboard: React.FC = () => {
     }
   };
 
+  const handleUpdateRoom = async (roomId: string, updatedFields: Partial<any>) => {
+    try {
+      const res = await apiService.updateRoomAdmin(roomId, updatedFields);
+      if (res.status === 200 || res.ok) {
+        showToast('Room details updated successfully!', 'success');
+        setRooms(prev => prev.map(r => (r._id === roomId || r.id === roomId || r.slug === roomId) ? { ...r, ...updatedFields } : r));
+      } else {
+        showToast(res.data?.message || 'Failed to update room', 'error');
+      }
+    } catch (err: any) {
+      showToast(err.message || 'Error updating room', 'error');
+    }
+  };
+
+
   const pendingSubmissions = pendingPayments.filter(p => p.status === 'PAYMENT_SUBMITTED');
 
   const tabs: { id: AdminTab; label: string; icon: React.FC<any>; count?: number }[] = [
@@ -404,36 +419,123 @@ export const AdminDashboard: React.FC = () => {
 
         {/* ──────────── ROOMS ──────────── */}
         {activeTab === 'rooms' && (
-          <div className="space-y-4">
-            <h3 className="font-serif text-xl font-bold text-[#0D3B29]">Hotel Rooms & Pricing</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {rooms.map((room: any) => (
-                <div key={room._id || room.id} className="p-5 rounded-3xl bg-white border border-gray-200 shadow-md">
-                  <div className="flex items-center gap-4">
-                    <img src={room.images?.[0]} alt={room.title} className="w-24 h-20 rounded-2xl object-cover shadow" />
-                    <div className="flex-1">
-                      <h4 className="font-serif text-lg font-bold text-[#0D3B29]">{room.title}</h4>
-                      <p className="text-xs text-gray-500">{room.category} • Max {room.maxGuests} Guests • {room.sizeSqFt} sq ft</p>
+          <div className="space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <h3 className="font-serif text-xl font-bold text-[#0D3B29]">Hotel Rooms, Inventory & Rates</h3>
+                <p className="text-xs text-gray-500">Update nightly prices, guest capacities, and room availability status</p>
+              </div>
+              <span className="px-3 py-1 rounded-full bg-luxury-gold/20 text-[#0D3B29] text-xs font-bold shrink-0">
+                {rooms.length} Room Categories Active
+              </span>
+            </div>
 
-                      <div className="flex items-center gap-3 mt-1.5">
-                        <span className="font-serif text-xl font-bold text-luxury-gold">₹{room.pricePerNight?.toLocaleString('en-IN')}<span className="text-xs text-gray-400 font-normal"> /night</span></span>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {rooms.map((room: any) => {
+                const roomKey = room._id || room.id || room.slug;
+                const isEditingThis = editingRoomId === roomKey;
+
+                return (
+                  <div key={roomKey} className="p-6 rounded-3xl bg-white border border-luxury-gold/30 shadow-md space-y-4">
+                    <div className="flex items-start gap-4">
+                      <img src={room.images?.[0]} alt={room.title} className="w-24 h-24 rounded-2xl object-cover shadow shrink-0" />
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between gap-2">
+                          <h4 className="font-serif text-lg font-bold text-[#0D3B29] truncate">{room.title}</h4>
+                          <button
+                            onClick={() => {
+                              if (isEditingThis) {
+                                setEditingRoomId(null);
+                              } else {
+                                setEditingRoomId(roomKey);
+                                setNewPrice(room.pricePerNight || 0);
+                              }
+                            }}
+                            className="p-1.5 rounded-full hover:bg-gray-100 text-luxury-gold transition shrink-0"
+                            title="Edit Room Details"
+                          >
+                            <Edit3 className="w-4 h-4" />
+                          </button>
+                        </div>
+                        <p className="text-xs text-gray-500">{room.category} • {room.bedType}</p>
+
+                        <div className="flex items-center gap-2 mt-2">
+                          <span className="font-serif text-2xl font-bold text-luxury-gold">
+                            ₹{room.pricePerNight?.toLocaleString('en-IN')}
+                          </span>
+                          <span className="text-xs text-gray-400">/ night</span>
+                        </div>
                       </div>
                     </div>
-                  </div>
 
-                  <div className="mt-3 flex items-center gap-1.5">
-                    <Star className="w-3.5 h-3.5 fill-luxury-gold text-luxury-gold" />
-                    <span className="text-xs font-bold text-gray-700">{room.rating || 4.9}</span>
-                    <span className="text-xs text-gray-400">({room.reviewCount || 24} reviews)</span>
-                    <span className={`ml-auto text-[11px] font-bold px-2.5 py-0.5 rounded-full ${room.isAvailable ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-                      {room.isAvailable ? 'Available' : 'Unavailable'}
-                    </span>
+                    {/* Room Quick Controls & Inventory Inputs */}
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 p-3.5 bg-luxury-cream/50 rounded-2xl border border-luxury-gold/20 text-xs">
+                      <div>
+                        <span className="text-gray-500 font-bold block text-[10px] uppercase">Price / Night (₹)</span>
+                        <input
+                          type="number"
+                          value={isEditingThis ? newPrice : room.pricePerNight}
+                          onChange={(e) => {
+                            const val = Number(e.target.value);
+                            setNewPrice(val);
+                            if (!isEditingThis) setEditingRoomId(roomKey);
+                          }}
+                          className="w-full mt-1 px-2.5 py-1.5 rounded-lg border border-gray-300 font-bold text-[#0D3B29] bg-white focus:outline-none focus:border-luxury-gold text-xs"
+                        />
+                      </div>
+
+                      <div>
+                        <span className="text-gray-500 font-bold block text-[10px] uppercase">Available Rooms</span>
+                        <input
+                          type="number"
+                          value={room.availableCount ?? 5}
+                          onChange={(e) => handleUpdateRoom(roomKey, { availableCount: Number(e.target.value) })}
+                          className="w-full mt-1 px-2.5 py-1.5 rounded-lg border border-gray-300 font-bold text-[#0D3B29] bg-white focus:outline-none focus:border-luxury-gold text-xs"
+                        />
+                      </div>
+
+                      <div>
+                        <span className="text-gray-500 font-bold block text-[10px] uppercase">Max Guests</span>
+                        <input
+                          type="number"
+                          value={room.maxGuests}
+                          onChange={(e) => handleUpdateRoom(roomKey, { maxGuests: Number(e.target.value) })}
+                          className="w-full mt-1 px-2.5 py-1.5 rounded-lg border border-gray-300 font-bold text-[#0D3B29] bg-white focus:outline-none focus:border-luxury-gold text-xs"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Save Price & Availability Toggle */}
+                    <div className="flex items-center justify-between gap-3 pt-1">
+                      <button
+                        onClick={() => handleUpdateRoom(roomKey, { isAvailable: !room.isAvailable })}
+                        className={`px-4 py-2 rounded-full font-bold text-xs flex items-center gap-1.5 transition cursor-pointer ${
+                          room.isAvailable ? 'bg-green-100 text-green-800 border border-green-300' : 'bg-red-100 text-red-800 border border-red-300'
+                        }`}
+                      >
+                        {room.isAvailable ? <CheckCircle2 className="w-3.5 h-3.5" /> : <XCircle className="w-3.5 h-3.5" />}
+                        {room.isAvailable ? 'Status: Available' : 'Status: Booked / Offline'}
+                      </button>
+
+                      {isEditingThis && (
+                        <button
+                          onClick={() => {
+                            handleUpdateRoom(roomKey, { pricePerNight: newPrice });
+                            setEditingRoomId(null);
+                          }}
+                          className="px-5 py-2 rounded-full bg-[#0D3B29] hover:bg-luxury-emerald text-white font-bold text-xs shadow-md transition cursor-pointer"
+                        >
+                          Save Price Update
+                        </button>
+                      )}
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         )}
+
 
         {/* ──────────── ROOM BOOKINGS ──────────── */}
         {activeTab === 'bookings' && (

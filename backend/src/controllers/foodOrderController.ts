@@ -46,13 +46,26 @@ export const createFoodOrder = async (req: any, res: Response) => {
       });
 
       if (!dbItem) {
-        const fallback = initialSeedData.menuItems.find(m => m.id === item.itemId);
+        const fallback = initialSeedData.menuItems.find(m => m.id === item.itemId || m.name?.toLowerCase() === item.name?.toLowerCase());
         if (fallback) dbItem = fallback as any;
+      }
+
+      // Fallback to item passed from cart if not found in DB or seedData
+      if (!dbItem && item.name) {
+        dbItem = {
+          id: item.itemId || ('item_' + Date.now()),
+          name: item.name,
+          price: Number(item.price) || 15,
+          isVeg: true,
+          image: '',
+          isAvailable: true
+        } as any;
       }
 
       if (!dbItem) {
         return res.status(400).json({ message: `Food item "${item.name || item.itemId}" is no longer available` });
       }
+
 
       if (dbItem.isAvailable === false) {
         return res.status(400).json({ message: `Food item "${dbItem.name}" is currently sold out` });

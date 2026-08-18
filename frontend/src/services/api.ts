@@ -115,6 +115,15 @@ export const apiService = {
     return { data: await safeParseJson(res), status: res.status };
   },
 
+  updateRoomAdmin: async (id: string, roomData: any) => {
+    return await safeFetch(`${API_BASE_URL}/rooms/${id}`, {
+      method: 'PUT',
+      headers: getHeaders(true),
+      body: JSON.stringify(roomData)
+    });
+  },
+
+
   // Food Menu API
   getMenu: async () => {
     const res = await fetch(`${API_BASE_URL}/food/menu`);
