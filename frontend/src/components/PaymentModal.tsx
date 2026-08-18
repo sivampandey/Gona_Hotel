@@ -36,6 +36,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
   const [copiedUpi, setCopiedUpi] = useState(false);
   const [submittedUtr, setSubmittedUtr] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [qrLoadFailed, setQrLoadFailed] = useState(false);
 
   const { showToast } = useNotification();
 
@@ -228,15 +229,22 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                     </p>
 
                     {/* Official Client QR Code Image */}
-                    <div className="relative inline-block p-3 bg-white rounded-2xl shadow-xl border-2 border-luxury-gold">
-                      <img
-                        src="/assets/payment-qr.png"
-                        alt="Gona Hotel Official UPI QR Code"
-                        className="w-48 h-48 sm:w-56 sm:h-56 object-contain rounded-lg mx-auto"
-                        onError={(e) => {
-                          (e.target as HTMLImageElement).src = `https://api.qrserver.com/v1/create-qr-code/?size=280x280&data=${encodeURIComponent(upiUri)}`;
-                        }}
-                      />
+                    <div className="relative inline-block p-3 bg-white rounded-2xl shadow-xl border-2 border-luxury-gold min-w-[200px]">
+                      {qrLoadFailed ? (
+                        <div className="w-48 h-48 sm:w-56 sm:h-56 rounded-lg bg-red-50 border border-red-200 p-4 flex flex-col items-center justify-center text-center gap-2 text-red-700">
+                          <AlertCircle className="w-8 h-8 text-red-500 shrink-0" />
+                          <p className="text-xs font-bold">Payment QR could not be loaded. Please try again.</p>
+                        </div>
+                      ) : (
+                        <img
+                          src="/assets/payment-qr.png"
+                          alt="Gona Hotel Official UPI QR Code"
+                          className="w-48 h-48 sm:w-56 sm:h-56 object-contain rounded-lg mx-auto"
+                          onError={() => {
+                            setQrLoadFailed(true);
+                          }}
+                        />
+                      )}
                       <div className="mt-2.5 px-3 py-1.5 rounded-lg bg-amber-50 border border-amber-300 text-[11px] font-bold text-amber-900 flex items-center justify-center gap-1.5">
                         <Sparkles className="w-3.5 h-3.5 text-amber-600 shrink-0" />
                         <span>Payee: {payeeName} (₹{amount.toLocaleString('en-IN')})</span>

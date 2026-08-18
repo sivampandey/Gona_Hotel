@@ -11,6 +11,9 @@ export interface IUser extends Document {
     rooms: string[];
     food: string[];
   };
+  resetTokenHash?: string;
+  resetTokenExpiresAt?: Date;
+  resetTokenUsedAt?: Date;
   createdAt: Date;
 }
 
@@ -24,10 +27,14 @@ const UserSchema: Schema = new Schema({
   wishlist: {
     rooms: [{ type: String }],
     food: [{ type: String }]
-  }
+  },
+  resetTokenHash: { type: String },
+  resetTokenExpiresAt: { type: Date },
+  resetTokenUsedAt: { type: Date }
 }, { timestamps: true });
 
 UserSchema.index({ email: 1 });
 UserSchema.index({ phone: 1 });
+UserSchema.index({ resetTokenHash: 1 });
 
 export default mongoose.model<IUser>('User', UserSchema);

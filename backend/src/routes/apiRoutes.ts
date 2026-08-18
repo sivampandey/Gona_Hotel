@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { authenticateToken, requireAdmin } from '../middleware/auth';
 
 // Controllers
-import { registerUser, loginUser, getProfile, toggleWishlist } from '../controllers/authController';
+import { registerUser, loginUser, getProfile, toggleWishlist, forgotPassword, resetPassword } from '../controllers/authController';
 import { getRooms, getRoomBySlugOrId, createRoom, updateRoom, blockRoomDates } from '../controllers/roomController';
 import { getMenuItems, createMenuItem, updateMenuItem, deleteMenuItem } from '../controllers/foodController';
 import { createRoomBooking, getUserBookings, getAllBookingsAdmin, updateBookingStatusAdmin } from '../controllers/bookingController';
@@ -20,6 +20,8 @@ const router = Router();
 // Auth Routes
 router.post('/auth/register', registerUser);
 router.post('/auth/login', loginUser);
+router.post('/auth/forgot-password', forgotPassword);
+router.post('/auth/reset-password', resetPassword);
 router.get('/auth/profile', authenticateToken, getProfile);
 router.post('/auth/wishlist', authenticateToken, toggleWishlist);
 

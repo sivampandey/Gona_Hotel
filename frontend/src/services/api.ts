@@ -44,6 +44,24 @@ export const apiService = {
     return { data: await res.json(), status: res.status };
   },
 
+  forgotPassword: async (email: string) => {
+    const res = await fetch(`${API_BASE_URL}/auth/forgot-password`, {
+      method: 'POST',
+      headers: getHeaders(false),
+      body: JSON.stringify({ email })
+    });
+    return { data: await res.json(), status: res.status };
+  },
+
+  resetPassword: async (token: string, password: string) => {
+    const res = await fetch(`${API_BASE_URL}/auth/reset-password`, {
+      method: 'POST',
+      headers: getHeaders(false),
+      body: JSON.stringify({ token, password })
+    });
+    return { data: await res.json(), status: res.status };
+  },
+
   getProfile: async () => {
     const res = await fetch(`${API_BASE_URL}/auth/profile`, {
       headers: getHeaders(true)

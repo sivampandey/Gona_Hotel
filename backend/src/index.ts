@@ -6,6 +6,12 @@ import apiRoutes from './routes/apiRoutes';
 
 dotenv.config();
 
+// Requirement #29: Strict JWT_SECRET Verification on Backend Startup
+if (!process.env.JWT_SECRET || !process.env.JWT_SECRET.trim()) {
+  console.error('FATAL ERROR: JWT_SECRET environment variable is missing in deployment environment.');
+  process.exit(1);
+}
+
 const app = express();
 const PORT = process.env.PORT || 5000;
 

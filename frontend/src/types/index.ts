@@ -29,13 +29,13 @@ export interface Room {
   reviewCount: number;
 }
 
-export type PaymentStatus = 'PENDING_PAYMENT' | 'PAYMENT_SUBMITTED' | 'VERIFIED' | 'REJECTED' | 'pending' | 'paid' | 'failed' | 'refunded';
+export type PaymentStatus = 'PENDING_PAYMENT' | 'PAYMENT_SUBMITTED' | 'VERIFIED' | 'REJECTED';
 
-export type RoomBookingStatus = 'PENDING_PAYMENT' | 'PAYMENT_SUBMITTED' | 'CONFIRMED' | 'checked_in' | 'completed' | 'cancelled' | 'PAYMENT_REJECTED' | 'confirmed';
+export type RoomBookingStatus = 'PENDING_PAYMENT' | 'PAYMENT_SUBMITTED' | 'CONFIRMED' | 'CHECKED_IN' | 'CHECKED_OUT' | 'CANCELLED' | 'PAYMENT_REJECTED';
 
-export type FoodOrderStatus = 'PENDING_PAYMENT' | 'PAYMENT_SUBMITTED' | 'CONFIRMED' | 'PREPARING' | 'READY' | 'COMPLETED' | 'CANCELLED' | 'PAYMENT_REJECTED' | 'placed' | 'preparing' | 'out_for_delivery' | 'completed' | 'cancelled';
+export type FoodOrderStatus = 'PENDING_PAYMENT' | 'PAYMENT_SUBMITTED' | 'CONFIRMED' | 'PREPARING' | 'READY' | 'COMPLETED' | 'CANCELLED' | 'PAYMENT_REJECTED';
 
-export type FarmBookingStatus = 'PENDING_PAYMENT' | 'PAYMENT_SUBMITTED' | 'CONFIRMED' | 'COMPLETED' | 'CANCELLED' | 'PAYMENT_REJECTED' | 'confirmed' | 'completed' | 'cancelled';
+export type FarmBookingStatus = 'PENDING_PAYMENT' | 'PAYMENT_SUBMITTED' | 'CONFIRMED' | 'COMPLETED' | 'CANCELLED' | 'PAYMENT_REJECTED';
 
 export interface RoomBooking {
   id: string;

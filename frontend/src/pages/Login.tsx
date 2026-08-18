@@ -33,7 +33,7 @@ export const Login: React.FC = () => {
       const res = await login(input, password);
       if (res.success) {
         showToast(res.message || 'Signed in successfully!', 'success');
-        navigate(input.toLowerCase().includes('admin') ? '/admin' : '/profile');
+        navigate(res.role === 'admin' ? '/admin' : '/profile');
       } else {
         setError(res.message || 'Invalid email/phone number or password.');
         showToast(res.message || 'Login failed', 'error');
@@ -85,7 +85,12 @@ export const Login: React.FC = () => {
           </div>
 
           <div>
-            <label className="font-bold text-gray-700 block mb-0.5 sm:mb-1 text-[11px] sm:text-xs">Password</label>
+            <div className="flex items-center justify-between mb-0.5 sm:mb-1">
+              <label className="font-bold text-gray-700 block text-[11px] sm:text-xs">Password</label>
+              <Link to="/forgot-password" className="text-[11px] font-bold text-luxury-emerald hover:underline">
+                Forgot Password?
+              </Link>
+            </div>
             <div className="relative">
               <Lock className="w-4 h-4 text-gray-400 absolute left-3 top-2.5 sm:top-3" />
               <input

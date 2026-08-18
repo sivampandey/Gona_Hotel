@@ -5,6 +5,7 @@ import { apiService, checkBackendHealth } from '../services/api';
 export interface AuthResponse {
   success: boolean;
   message?: string;
+  role?: string;
 }
 
 interface AuthContextType {
@@ -85,7 +86,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setUser(res.data.user);
         setToken(res.data.token);
         setIsBackendConnected(true);
-        return { success: true, message: res.data.message || 'Login successful' };
+        return { success: true, message: res.data.message || 'Login successful', role: res.data.user?.role };
       }
       return { 
         success: false, 
