@@ -12,9 +12,10 @@ import { submitUtrProof, getPendingTransactionsAdmin, verifyOrRejectPaymentAdmin
 import { 
   getAdminAnalytics, getGalleryAdmin, addGalleryItemAdmin, deleteGalleryItemAdmin, 
   getReviewsAdmin, createReview, toggleReviewApprovalAdmin, getCouponsAdmin, 
-  addCouponAdmin, toggleCouponActiveAdmin, validateCouponPublic, getCustomersAdmin,
+  addCouponAdmin, toggleCouponActiveAdmin, deleteCouponAdmin, validateCouponPublic, getCustomersAdmin,
   deleteCustomerAdmin
 } from '../controllers/adminController';
+
 
 
 const router = Router();
@@ -81,7 +82,9 @@ router.put('/admin/reviews/:id/approval', authenticateToken, requireAdmin, toggl
 router.get('/admin/coupons', authenticateToken, requireAdmin, getCouponsAdmin);
 router.post('/admin/coupons', authenticateToken, requireAdmin, addCouponAdmin);
 router.put('/admin/coupons/:id/active', authenticateToken, requireAdmin, toggleCouponActiveAdmin);
+router.delete('/admin/coupons/:id', authenticateToken, requireAdmin, deleteCouponAdmin);
 router.get('/admin/customers', authenticateToken, requireAdmin, getCustomersAdmin);
+
 router.delete('/admin/customers/:id', authenticateToken, requireAdmin, deleteCustomerAdmin);
 
 export default router;

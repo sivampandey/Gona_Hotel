@@ -171,6 +171,24 @@ export const toggleCouponActiveAdmin = async (req: Request, res: Response) => {
   }
 };
 
+export const deleteCouponAdmin = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    await Coupon.findOneAndDelete({
+      $or: [
+        { code: id },
+        { code: String(id).toUpperCase() },
+        { id },
+        { _id: id.match(/^[0-9a-fA-F]{24}$/) ? id : null }
+      ]
+    });
+    return res.json({ success: true, message: 'Coupon deleted successfully' });
+  } catch (error: any) {
+    return res.status(500).json({ message: error.message || 'Server error' });
+  }
+};
+
+
 export const validateCouponPublic = async (req: Request, res: Response) => {
   try {
     const { code, amount } = req.body;

@@ -271,14 +271,8 @@ export const apiService = {
     return { data: await safeParseJson(res), status: res.status };
   },
 
-  getCouponsAdmin: async () => {
-    const res = await fetch(`${API_BASE_URL}/admin/coupons`, {
-      headers: getHeaders(true)
-    });
-    return { data: await safeParseJson(res), status: res.status };
-  },
-
   // Admin Analytics & Customers
+
   getAdminAnalytics: async () => {
     const res = await fetch(`${API_BASE_URL}/admin/analytics`, {
       headers: getHeaders(true)
@@ -298,6 +292,60 @@ export const apiService = {
       method: 'DELETE',
       headers: getHeaders(true)
     });
+  },
+
+  // Food Menu Management
+  createMenuItemAdmin: async (itemData: any) => {
+    return await safeFetch(`${API_BASE_URL}/food/menu`, {
+      method: 'POST',
+      headers: getHeaders(true),
+      body: JSON.stringify(itemData)
+    });
+  },
+
+  updateMenuItemAdmin: async (id: string, itemData: any) => {
+    return await safeFetch(`${API_BASE_URL}/food/menu/${id}`, {
+      method: 'PUT',
+      headers: getHeaders(true),
+      body: JSON.stringify(itemData)
+    });
+  },
+
+  deleteMenuItemAdmin: async (id: string) => {
+    return await safeFetch(`${API_BASE_URL}/food/menu/${id}`, {
+      method: 'DELETE',
+      headers: getHeaders(true)
+    });
+  },
+
+  // Coupon Management
+  getCouponsAdmin: async () => {
+    return await safeFetch(`${API_BASE_URL}/admin/coupons`, {
+      headers: getHeaders(true)
+    });
+  },
+
+  addCouponAdmin: async (couponData: any) => {
+    return await safeFetch(`${API_BASE_URL}/admin/coupons`, {
+      method: 'POST',
+      headers: getHeaders(true),
+      body: JSON.stringify(couponData)
+    });
+  },
+
+  toggleCouponActiveAdmin: async (id: string) => {
+    return await safeFetch(`${API_BASE_URL}/admin/coupons/${id}/active`, {
+      method: 'PUT',
+      headers: getHeaders(true)
+    });
+  },
+
+  deleteCouponAdmin: async (id: string) => {
+    return await safeFetch(`${API_BASE_URL}/admin/coupons/${id}`, {
+      method: 'DELETE',
+      headers: getHeaders(true)
+    });
   }
 };
+
 

@@ -24,7 +24,10 @@ export interface Room {
   amenities: string[];
   images: string[];
   isAvailable: boolean;
+  availableCount?: number;
+  totalRooms?: number;
   blockedDates: string[];
+
   rating: number;
   reviewCount: number;
 }

@@ -188,6 +188,85 @@ export const AdminDashboard: React.FC = () => {
     }
   };
 
+  // Food Menu Handlers
+  const handleToggleFoodAvailability = async (itemKey: string, currentStatus: boolean) => {
+    try {
+      const newStatus = !currentStatus;
+      const res = await apiService.updateMenuItemAdmin(itemKey, { isAvailable: newStatus });
+      if (res.status === 200 || res.ok) {
+        showToast(`Item set to ${newStatus ? 'Available' : 'Sold Out / Unavailable'}`, 'success');
+        setMenuItems(prev => prev.map(m => (m._id === itemKey || m.id === itemKey || m.name === itemKey) ? { ...m, isAvailable: newStatus } : m));
+      } else {
+        showToast(res.data?.message || 'Failed to update item availability', 'error');
+      }
+    } catch (err: any) {
+      showToast(err.message || 'Error updating item availability', 'error');
+    }
+  };
+
+  const handleUpdateFoodPrice = async (itemKey: string, price: number) => {
+    try {
+      const res = await apiService.updateMenuItemAdmin(itemKey, { price });
+      if (res.status === 200 || res.ok) {
+        showToast('Dish price updated & saved to database!', 'success');
+        setMenuItems(prev => prev.map(m => (m._id === itemKey || m.id === itemKey || m.name === itemKey) ? { ...m, price } : m));
+      } else {
+        showToast(res.data?.message || 'Failed to update dish price', 'error');
+      }
+    } catch (err: any) {
+      showToast(err.message || 'Error updating dish price', 'error');
+    }
+  };
+
+  const handleDeleteMenuItem = async (itemKey: string, name: string) => {
+    if (!window.confirm(`Are you sure you want to delete dish "${name}" from the menu?`)) return;
+
+    try {
+      const res = await apiService.deleteMenuItemAdmin(itemKey);
+      if (res.status === 200 || res.ok) {
+        showToast(`Dish "${name}" deleted from menu!`, 'success');
+        setMenuItems(prev => prev.filter(m => m._id !== itemKey && m.id !== itemKey && m.name !== name));
+      } else {
+        showToast(res.data?.message || 'Failed to delete dish', 'error');
+      }
+    } catch (err: any) {
+      showToast(err.message || 'Error deleting dish', 'error');
+    }
+  };
+
+  // Coupon Handlers
+  const handleToggleCouponStatus = async (couponKey: string, currentStatus: boolean) => {
+    try {
+      const res = await apiService.toggleCouponActiveAdmin(couponKey);
+      if (res.status === 200 || res.ok) {
+        const updated = res.data;
+        showToast(`Coupon status set to ${updated?.isActive ? 'Active' : 'Deactivated'}`, 'success');
+        setCoupons(prev => prev.map(c => (c._id === couponKey || c.code === couponKey || c.id === couponKey) ? { ...c, isActive: updated?.isActive ?? !currentStatus } : c));
+      } else {
+        showToast(res.data?.message || 'Failed to toggle coupon status', 'error');
+      }
+    } catch (err: any) {
+      showToast(err.message || 'Error toggling coupon', 'error');
+    }
+  };
+
+  const handleDeleteCoupon = async (couponKey: string, code: string) => {
+    if (!window.confirm(`Are you sure you want to delete promo coupon "${code}"?`)) return;
+
+    try {
+      const res = await apiService.deleteCouponAdmin(couponKey);
+      if (res.status === 200 || res.ok) {
+        showToast(`Coupon "${code}" deleted successfully!`, 'success');
+        setCoupons(prev => prev.filter(c => c._id !== couponKey && c.code !== couponKey && c.id !== couponKey));
+      } else {
+        showToast(res.data?.message || 'Failed to delete coupon', 'error');
+      }
+    } catch (err: any) {
+      showToast(err.message || 'Error deleting coupon', 'error');
+    }
+  };
+
+
 
 
 
@@ -628,25 +707,108 @@ export const AdminDashboard: React.FC = () => {
 
         {/* ──────────── RESTAURANT MENU ──────────── */}
         {activeTab === 'menu' && (
-          <div className="space-y-4">
-            <h3 className="font-serif text-xl font-bold text-[#0D3B29]">Restaurant Menu ({menuItems.length} items)</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {menuItems.map((item: any) => (
-                <div key={item._id || item.id} className="p-4 bg-white rounded-2xl border border-gray-200 shadow-sm flex items-center gap-3">
-                  <img src={item.image} alt={item.name} className="w-16 h-14 rounded-xl object-cover shadow-sm" />
-                  <div className="flex-1 min-w-0">
-                    <p className="font-bold text-[#0D3B29] text-sm truncate">{item.name}</p>
-                    <p className="text-xs text-gray-500">{item.category}</p>
-                    <p className="font-serif font-bold text-luxury-gold">₹{item.price}</p>
+          <div className="space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-5 rounded-3xl border border-gray-200 shadow-sm">
+              <div>
+                <h3 className="font-serif text-xl font-bold text-[#0D3B29]">Restaurant Food Menu ({menuItems.length} items)</h3>
+                <p className="text-xs text-gray-500">Toggle dish availability, update prices, or add/delete items on live restaurant menu</p>
+              </div>
+
+              <button
+                onClick={async () => {
+                  const name = prompt('Enter new dish name (e.g. Special Butter Paneer):');
+                  if (!name) return;
+                  const priceStr = prompt('Enter dish price (₹):', '150');
+                  if (!priceStr) return;
+                  const category = prompt('Enter category (e.g. Indian Main Course, Breakfast, Chinese, Beverages):', 'Indian Main Course') || 'Indian Main Course';
+
+                  try {
+                    const res = await apiService.createMenuItemAdmin({
+                      name,
+                      price: Number(priceStr) || 150,
+                      category,
+                      description: `${name} prepared fresh by Gona Hotel chefs.`,
+                      isVeg: true,
+                      isAvailable: true
+                    });
+                    if (res.status === 201 && res.data) {
+                      showToast(`Dish "${name}" added to menu!`, 'success');
+                      setMenuItems(prev => [...prev, res.data]);
+                    }
+                  } catch (err: any) {
+                    showToast('Failed to add dish', 'error');
+                  }
+                }}
+                className="px-4 py-2.5 rounded-2xl bg-[#0D3B29] text-white hover:bg-luxury-emerald font-bold text-xs flex items-center gap-1.5 shadow-md transition cursor-pointer shrink-0"
+              >
+                <Plus className="w-4 h-4 text-luxury-gold" /> Add New Dish
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {menuItems.map((item: any) => {
+                const itemKey = item._id || item.id || item.name;
+                const isAvailable = item.isAvailable !== false;
+
+                return (
+                  <div key={itemKey} className="p-5 bg-white rounded-3xl border border-gray-200 shadow-md space-y-3 flex flex-col justify-between">
+                    <div className="space-y-1.5">
+                      <div className="flex items-center justify-between gap-2">
+                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold border ${item.isVeg ? 'bg-green-50 border-green-600 text-green-700' : 'bg-red-50 border-red-600 text-red-700'}`}>
+                          {item.isVeg ? 'PURE VEG' : 'NON VEG'}
+                        </span>
+                        <span className="text-[11px] font-semibold text-gray-500">{item.category}</span>
+                      </div>
+
+                      <h4 className="font-serif font-bold text-[#0D3B29] text-base leading-snug">{item.name}</h4>
+                      <p className="text-xs text-gray-600 line-clamp-2">{item.description}</p>
+                    </div>
+
+                    <div className="pt-2 border-t border-gray-100 space-y-3">
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-1">
+                          <span className="text-xs font-bold text-gray-500">₹</span>
+                          <input
+                            type="number"
+                            defaultValue={item.price}
+                            onBlur={(e) => {
+                              const val = Number(e.target.value);
+                              if (val > 0 && val !== item.price) {
+                                handleUpdateFoodPrice(itemKey, val);
+                              }
+                            }}
+                            className="w-20 px-2 py-1 rounded-lg border border-gray-300 font-bold text-[#0D3B29] bg-white focus:outline-none focus:border-luxury-gold text-xs"
+                          />
+                        </div>
+
+                        {/* Availability Toggle */}
+                        <button
+                          onClick={() => handleToggleFoodAvailability(itemKey, isAvailable)}
+                          className={`px-3 py-1.5 rounded-full text-[11px] font-bold flex items-center gap-1 transition cursor-pointer ${
+                            isAvailable ? 'bg-green-100 text-green-800 border border-green-300' : 'bg-red-100 text-red-800 border border-red-300'
+                          }`}
+                        >
+                          {isAvailable ? <CheckCircle2 className="w-3.5 h-3.5" /> : <XCircle className="w-3.5 h-3.5" />}
+                          {isAvailable ? 'Available' : 'Sold Out'}
+                        </button>
+                      </div>
+
+                      <div className="flex justify-end pt-1">
+                        <button
+                          onClick={() => handleDeleteMenuItem(itemKey, item.name)}
+                          className="text-red-500 hover:text-red-700 text-xs font-bold flex items-center gap-1 p-1 hover:bg-red-50 rounded-lg transition cursor-pointer"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" /> Delete Dish
+                        </button>
+                      </div>
+                    </div>
                   </div>
-                  <span className={`px-3 py-1.5 rounded-full text-[11px] font-bold ${item.isAvailable !== false ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-                    {item.isAvailable !== false ? '✓ Available' : '✗ Sold Out'}
-                  </span>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         )}
+
 
         {/* ──────────── FOOD ORDERS ──────────── */}
         {activeTab === 'food-orders' && (
@@ -743,24 +905,89 @@ export const AdminDashboard: React.FC = () => {
 
         {/* ──────────── COUPONS ──────────── */}
         {activeTab === 'coupons' && (
-          <div className="space-y-4">
-            <h3 className="font-serif text-xl font-bold text-[#0D3B29]">Active Promo Coupons ({coupons.length})</h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {coupons.map((c: any) => (
-                <div key={c.code} className="p-5 rounded-3xl bg-white border border-gray-200 shadow-md flex items-center justify-between gap-4">
-                  <div>
-                    <span className="font-serif text-2xl font-bold text-luxury-gold">{c.code}</span>
-                    <p className="text-xs text-gray-600 mt-0.5">{c.discountPercentage}% OFF — up to ₹{c.maxDiscount}</p>
-                    <p className="text-[11px] text-gray-400">Min. spend ₹{c.minSpend} • Expires {c.validUntil}</p>
+          <div className="space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-5 rounded-3xl border border-gray-200 shadow-sm">
+              <div>
+                <h3 className="font-serif text-xl font-bold text-[#0D3B29]">Discount Promo Coupons ({coupons.length})</h3>
+                <p className="text-xs text-gray-500">Create new promo codes, activate/deactivate discounts, or delete expired coupons</p>
+              </div>
+
+              <button
+                onClick={async () => {
+                  const code = prompt('Enter Coupon Code (e.g. FESTIVE25):');
+                  if (!code) return;
+                  const pct = prompt('Enter Discount Percentage (%):', '20');
+                  if (!pct) return;
+                  const maxDisc = prompt('Enter Max Discount Amount (₹):', '500');
+                  const minSp = prompt('Enter Minimum Spend Amount (₹):', '1000');
+
+                  try {
+                    const res = await apiService.addCouponAdmin({
+                      code: code.toUpperCase(),
+                      discountPercentage: Number(pct) || 10,
+                      maxDiscount: Number(maxDisc) || 500,
+                      minSpend: Number(minSp) || 0,
+                      validUntil: '2026-12-31',
+                      isActive: true
+                    });
+                    if ((res.status === 201 || res.status === 200) && res.data) {
+                      showToast(`Coupon "${code.toUpperCase()}" created successfully!`, 'success');
+                      setCoupons(prev => [...prev, res.data]);
+                    }
+                  } catch (err: any) {
+                    showToast('Failed to create coupon', 'error');
+                  }
+                }}
+                className="px-4 py-2.5 rounded-2xl bg-[#0D3B29] text-white hover:bg-luxury-emerald font-bold text-xs flex items-center gap-1.5 shadow-md transition cursor-pointer shrink-0"
+              >
+                <Plus className="w-4 h-4 text-luxury-gold" /> Create New Coupon
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {coupons.map((c: any) => {
+                const couponKey = c._id || c.code || c.id;
+
+                return (
+                  <div key={couponKey} className="p-6 rounded-3xl bg-white border border-luxury-gold/30 shadow-md space-y-4 flex flex-col justify-between">
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="font-serif text-2xl font-bold text-luxury-gold tracking-wider">{c.code}</span>
+                        <span className={`px-3 py-1 rounded-full text-xs font-bold ${c.isActive ? 'bg-green-100 text-green-800 border border-green-300' : 'bg-gray-100 text-gray-600 border border-gray-300'}`}>
+                          {c.isActive ? 'Active' : 'Deactivated'}
+                        </span>
+                      </div>
+
+                      <p className="text-sm font-bold text-[#0D3B29]">{c.discountPercentage}% OFF Discount</p>
+                      <p className="text-xs text-gray-500">Max Savings: ₹{c.maxDiscount} • Min Spend: ₹{c.minSpend || 0}</p>
+                      <p className="text-xs text-gray-400">Valid Until: {c.validUntil || '2026-12-31'}</p>
+                    </div>
+
+                    <div className="pt-3 border-t border-gray-100 flex items-center justify-between gap-3">
+                      <button
+                        onClick={() => handleToggleCouponStatus(couponKey, c.isActive)}
+                        className={`px-3.5 py-1.5 rounded-xl font-bold text-xs transition cursor-pointer ${
+                          c.isActive ? 'bg-amber-100 text-amber-900 border border-amber-300' : 'bg-green-100 text-green-800 border border-green-300'
+                        }`}
+                      >
+                        {c.isActive ? 'Deactivate' : 'Activate Coupon'}
+                      </button>
+
+                      <button
+                        onClick={() => handleDeleteCoupon(couponKey, c.code)}
+                        className="p-2 rounded-xl bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 transition cursor-pointer text-xs font-bold flex items-center gap-1"
+                        title="Delete Coupon"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" /> Delete
+                      </button>
+                    </div>
                   </div>
-                  <span className={`px-3 py-1.5 rounded-full text-xs font-bold ${c.isActive ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-500'}`}>
-                    {c.isActive ? 'Active' : 'Off'}
-                  </span>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         )}
+
 
         {/* ──────────── CUSTOMERS ──────────── */}
         {activeTab === 'customers' && (

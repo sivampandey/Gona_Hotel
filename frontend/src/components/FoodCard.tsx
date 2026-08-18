@@ -18,7 +18,13 @@ export const FoodCard: React.FC<FoodCardProps> = ({ item }) => {
   const inCartQty = cartItem ? cartItem.quantity : 0;
   const wishlisted = isWishlisted(item.id, 'food');
 
+  const isItemAvailable = item.isAvailable !== false;
+
   const handleAddToCart = () => {
+    if (!isItemAvailable) {
+      showToast(`${item.name} is currently sold out / unavailable`, 'error');
+      return;
+    }
     addToCart(item, 1);
     showToast(`Added ${item.name} to cart`, 'success');
   };
@@ -40,7 +46,11 @@ export const FoodCard: React.FC<FoodCardProps> = ({ item }) => {
         </span>
 
         <div className="flex items-center gap-2">
-          {item.popular && (
+          {!isItemAvailable ? (
+            <span className="px-2.5 py-0.5 rounded-full bg-red-100 text-red-800 font-bold text-[10px] uppercase tracking-wider border border-red-300">
+              Sold Out
+            </span>
+          ) : item.popular && (
             <span className="px-2.5 py-0.5 rounded-full bg-luxury-gold/20 text-[#0D3B29] font-bold text-[10px] uppercase tracking-wider border border-luxury-gold/40">
               Chef's Special
             </span>
@@ -68,10 +78,18 @@ export const FoodCard: React.FC<FoodCardProps> = ({ item }) => {
       {/* Bottom Row: Price & Add Button */}
       <div className="pt-3 border-t border-gray-100 flex items-center justify-between">
         <span className="font-serif text-xl sm:text-2xl font-bold text-[#0D3B29]">₹{item.price}</span>
-        <button onClick={handleAddToCart} className={`px-4 py-2 rounded-xl text-xs font-bold tracking-wider flex items-center gap-1.5 transition-all shadow-md ${inCartQty > 0 ? 'bg-green-700 text-white hover:bg-green-800' : 'bg-[#0D3B29] hover:bg-[#134A35] text-white'}`}>
-          {inCartQty > 0 ? <><Check className="w-3.5 h-3.5" /> Added ({inCartQty})</> : <><Plus className="w-3.5 h-3.5" /> Add</>}
-        </button>
+        
+        {isItemAvailable ? (
+          <button onClick={handleAddToCart} className={`px-4 py-2 rounded-xl text-xs font-bold tracking-wider flex items-center gap-1.5 transition-all shadow-md cursor-pointer ${inCartQty > 0 ? 'bg-green-700 text-white hover:bg-green-800' : 'bg-[#0D3B29] hover:bg-[#134A35] text-white'}`}>
+            {inCartQty > 0 ? <><Check className="w-3.5 h-3.5" /> Added ({inCartQty})</> : <><Plus className="w-3.5 h-3.5" /> Add</>}
+          </button>
+        ) : (
+          <span className="px-3 py-1.5 rounded-xl bg-red-100 text-red-800 font-bold text-xs border border-red-300">
+            Unavailable / Sold Out
+          </span>
+        )}
       </div>
+
 
     </div>
   );

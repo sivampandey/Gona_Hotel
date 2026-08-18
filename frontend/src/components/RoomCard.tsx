@@ -75,13 +75,21 @@ export const RoomCard: React.FC<RoomCardProps> = ({ room }) => {
             </span>
             <span className="text-[11px] text-gray-500 ml-1">/ night</span>
           </div>
-          <Link
-            to={`/rooms/${room.slug}`}
-            className="px-4 py-2 rounded-xl bg-[#0D3B29] hover:bg-luxury-gold hover:text-[#0D3B29] text-white font-bold text-xs tracking-wide flex items-center gap-1 shadow transition-all duration-300"
-          >
-            Book Now <ArrowRight className="w-3 h-3" />
-          </Link>
+
+          {room.isAvailable !== false && (room.availableCount === undefined || room.availableCount > 0) ? (
+            <Link
+              to={`/rooms/${room.slug}`}
+              className="px-4 py-2 rounded-xl bg-[#0D3B29] hover:bg-luxury-gold hover:text-[#0D3B29] text-white font-bold text-xs tracking-wide flex items-center gap-1 shadow transition-all duration-300 cursor-pointer"
+            >
+              Book Now <ArrowRight className="w-3 h-3" />
+            </Link>
+          ) : (
+            <span className="px-3 py-1.5 rounded-xl bg-red-100 border border-red-300 text-red-800 font-bold text-xs">
+              Sold Out / Offline
+            </span>
+          )}
         </div>
+
       </div>
     </div>
   );
