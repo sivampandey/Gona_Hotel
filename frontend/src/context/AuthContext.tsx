@@ -24,16 +24,23 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  // Always start logged out by default on website load
-  const [user, setUser] = useState<User | null>(null);
-  const [token, setToken] = useState<string | null>(null);
+  // Load initial logged-in user state from localStorage
+  const [user, setUser] = useState<User | null>(() => {
+    try {
+      const savedUser = localStorage.getItem('gona_user');
+      return savedUser ? JSON.parse(savedUser) : null;
+    } catch {
+      return null;
+    }
+  });
+
+  const [token, setToken] = useState<string | null>(() => {
+    return localStorage.getItem('gona_token') || null;
+  });
 
   const [isBackendConnected, setIsBackendConnected] = useState<boolean>(false);
 
   useEffect(() => {
-    // Clear any residual demo auto-login session on load
-    localStorage.removeItem('gona_user');
-    localStorage.removeItem('gona_token');
     checkBackendHealth().then((connected) => {
       setIsBackendConnected(connected);
     });
@@ -79,27 +86,26 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         email: adminData.email,
         phone: adminData.phone,
         role: 'admin',
-        avatar: adminData.avatar,
+        avatar: adminData.avatar || '',
         wishlist: adminData.wishlist
       };
       setUser(adminUser);
       setToken('mock_jwt_token_admin_2026');
-      return { success: true, message: 'Signed in as Admin (Local Mode)' };
+      return { success: true, message: 'Signed in as Admin' };
     }
 
-    const guestData = initialSeedData.users[1];
     const normalUser: User = {
       id: 'usr_' + Date.now(),
       name: email.split('@')[0].replace('.', ' '),
       email,
       phone: '+91 98765 00000',
       role: 'user',
-      avatar: guestData.avatar,
+      avatar: '',
       wishlist: { rooms: [], food: [] }
     };
     setUser(normalUser);
     setToken('mock_jwt_token_' + Date.now());
-    return { success: true, message: 'Signed in successfully (Local Mode)' };
+    return { success: true, message: 'Signed in successfully' };
   };
 
   const register = async (name: string, email: string, password?: string, phone?: string): Promise<AuthResponse> => {
@@ -124,12 +130,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       email,
       phone: phone || '+91 98765 43210',
       role: 'user',
-      avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80',
+      avatar: '',
       wishlist: { rooms: [], food: [] }
     };
     setUser(newUser);
     setToken('mock_jwt_token_' + Date.now());
-    return { success: true, message: 'Registration successful (Local Mode)' };
+    return { success: true, message: 'Registration successful' };
   };
 
   const logout = () => {

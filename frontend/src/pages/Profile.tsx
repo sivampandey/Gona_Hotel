@@ -74,11 +74,17 @@ export const Profile: React.FC = () => {
         {/* User Header */}
         <div className="glass-panel p-8 rounded-3xl border border-luxury-gold/30 shadow-luxury flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-5">
-            <img
-              src={user.avatar}
-              alt={user.name}
-              className="w-20 h-20 rounded-full object-cover border-2 border-luxury-gold shadow-lg"
-            />
+            {user.avatar ? (
+              <img
+                src={user.avatar}
+                alt={user.name}
+                className="w-20 h-20 rounded-full object-cover border-2 border-luxury-gold shadow-lg"
+              />
+            ) : (
+              <div className="w-20 h-20 rounded-full bg-[#0D3B29] text-luxury-gold font-serif text-3xl font-bold flex items-center justify-center border-2 border-luxury-gold shadow-lg shrink-0">
+                {user.name.charAt(0).toUpperCase()}
+              </div>
+            )}
             <div>
               <div className="flex items-center gap-2">
                 <h1 className="font-serif text-3xl font-bold text-[#0D3B29]">{user.name}</h1>

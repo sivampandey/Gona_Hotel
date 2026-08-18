@@ -37,7 +37,7 @@ export const registerUser = async (req: Request, res: Response) => {
 
     const passwordHash = await bcrypt.hash(password, 10);
     const userId = 'usr_' + Date.now();
-    const avatar = 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80';
+    const avatar = req.body.avatar || '';
 
     const newUser = {
       id: userId,
