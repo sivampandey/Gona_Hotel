@@ -2,13 +2,14 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { 
   ShoppingBag, Bike, Utensils, Store, ArrowLeft, Lock, Tag, 
-  CheckCircle2, Clock, MapPin, Phone, ShieldCheck
+  CheckCircle2, Clock, MapPin, Phone, ShieldCheck, Loader2
 } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { useNotification } from '../context/NotificationContext';
 import { PaymentModal } from '../components/PaymentModal';
 import { InvoiceModal } from '../components/InvoiceModal';
+import { apiService } from '../services/api';
 
 export const FoodCheckout: React.FC = () => {
   const {
@@ -33,6 +34,9 @@ export const FoodCheckout: React.FC = () => {
 
   const [userName, setUserName] = useState(user?.name || '');
   const [userPhone, setUserPhone] = useState(user?.phone || '');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const [pendingOrder, setPendingOrder] = useState<any>(null);
   const [isPaymentOpen, setIsPaymentOpen] = useState(false);
   const [isInvoiceOpen, setIsInvoiceOpen] = useState(false);
   const [confirmedOrder, setConfirmedOrder] = useState<any>(null);
@@ -52,39 +56,70 @@ export const FoodCheckout: React.FC = () => {
     );
   }
 
-  const handlePlaceOrder = (e: React.FormEvent) => {
+  const handlePlaceOrder = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsPaymentOpen(true);
+
+    setIsSubmitting(true);
+    try {
+      const res = await apiService.createFoodOrder({
+        items: cart.map(i => ({
+          itemId: i.id,
+          quantity: i.quantity,
+          name: i.name,
+          price: i.price
+        })),
+        orderType,
+        tableNumber,
+        deliveryAddress,
+        userName,
+        userPhone,
+        userEmail: user?.email,
+        couponCode
+      });
+
+      if (res.status === 201 && res.data?.order) {
+        setPendingOrder(res.data.order);
+        setIsPaymentOpen(true);
+      } else {
+        showToast(res.data?.message || 'Failed to place food order', 'error');
+      }
+    } catch (err: any) {
+      showToast(err.message || 'Server error placing food order', 'error');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
-  const handlePaymentSuccess = (paymentId: string) => {
+  const handlePaymentSuccess = (paymentRefId: string, utrNumber?: string) => {
     setIsPaymentOpen(false);
 
     const invoiceData = {
-      invoiceId: 'INV-FOOD-' + Date.now().toString().slice(-6),
+      invoiceId: pendingOrder?.invoiceId || ('INV-FOOD-' + Date.now().toString().slice(-6)),
       title: `Gona Restaurant Food Order (${orderType.toUpperCase()})`,
       type: 'food' as const,
       date: new Date().toISOString(),
       customerName: userName,
       customerEmail: user?.email || 'guest@gonahotel.com',
       customerPhone: userPhone,
-      paymentId,
+      paymentId: paymentRefId,
+      utrNumber: utrNumber || paymentRefId,
+      paymentStatus: 'PAYMENT_SUBMITTED',
       items: cart.map(i => ({ description: `${i.name} (${i.quantity}x)`, quantity: i.quantity, amount: i.price * i.quantity })),
-      subtotal,
-      tax,
-      discount: discountAmount,
-      totalAmount
+      subtotal: pendingOrder?.subtotal || subtotal,
+      tax: pendingOrder?.tax || tax,
+      discount: pendingOrder?.discount || discountAmount,
+      totalAmount: pendingOrder?.totalAmount || totalAmount
     };
 
     setConfirmedOrder({
-      id: 'ord_' + Date.now(),
-      orderStatus: 'preparing',
-      paymentId,
+      id: pendingOrder?.orderId || ('ord_' + Date.now()),
+      orderStatus: 'PAYMENT_SUBMITTED',
+      paymentId: paymentRefId,
       invoiceData
     });
 
     clearCart();
-    showToast('Food order placed successfully! Kitchen is preparing your meal.', 'success');
+    showToast('Food order submitted for verification! Kitchen notified.', 'success');
   };
 
   return (
@@ -99,28 +134,28 @@ export const FoodCheckout: React.FC = () => {
           /* Live Order Tracking View */
           <div className="glass-panel p-8 rounded-3xl border border-luxury-gold/40 shadow-2xl space-y-8 animate-in fade-in">
             <div className="text-center space-y-3">
-              <div className="w-16 h-16 rounded-full bg-green-100 text-green-700 flex items-center justify-center mx-auto">
-                <CheckCircle2 className="w-10 h-10" />
+              <div className="w-16 h-16 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center mx-auto">
+                <Clock className="w-10 h-10" />
               </div>
-              <h2 className="font-serif text-3xl font-bold text-luxury-emerald-dark">Order Confirmed & Preparing</h2>
-              <p className="text-xs text-gray-600">Order Ref: <strong>{confirmedOrder.id}</strong> • Paid via Razorpay</p>
+              <h2 className="font-serif text-3xl font-bold text-luxury-emerald-dark">Order Submitted & Awaiting Verification</h2>
+              <p className="text-xs text-gray-600">Order Ref: <strong>{confirmedOrder.id}</strong> • Status: <strong>Pending UTR Verification</strong></p>
             </div>
 
-            {/* Live Status Step Progress */}
+            {/* Status Step Progress */}
             <div className="p-6 rounded-2xl bg-luxury-emerald-dark text-white space-y-4">
-              <h3 className="font-serif text-base font-bold text-gold-gradient">Live Kitchen Status Tracker</h3>
+              <h3 className="font-serif text-base font-bold text-gold-gradient">Live Kitchen & Payment Status</h3>
               <div className="grid grid-cols-4 gap-2 text-center text-xs">
                 <div className="space-y-1">
                   <div className="w-8 h-8 rounded-full bg-luxury-gold text-luxury-emerald-dark font-bold flex items-center justify-center mx-auto">✓</div>
                   <span className="text-luxury-gold font-bold">Placed</span>
                 </div>
                 <div className="space-y-1">
-                  <div className="w-8 h-8 rounded-full bg-luxury-gold text-luxury-emerald-dark font-bold flex items-center justify-center mx-auto animate-ping">●</div>
-                  <span className="text-luxury-gold font-bold">Preparing</span>
+                  <div className="w-8 h-8 rounded-full bg-amber-400 text-amber-950 font-bold flex items-center justify-center mx-auto animate-pulse">●</div>
+                  <span className="text-amber-300 font-bold">UTR Submitted</span>
                 </div>
                 <div className="space-y-1">
                   <div className="w-8 h-8 rounded-full bg-gray-700 text-gray-400 font-bold flex items-center justify-center mx-auto">3</div>
-                  <span className="text-gray-400">On The Way</span>
+                  <span className="text-gray-400">Preparing</span>
                 </div>
                 <div className="space-y-1">
                   <div className="w-8 h-8 rounded-full bg-gray-700 text-gray-400 font-bold flex items-center justify-center mx-auto">4</div>
@@ -134,13 +169,13 @@ export const FoodCheckout: React.FC = () => {
                 onClick={() => setIsInvoiceOpen(true)}
                 className="px-6 py-3 rounded-full bg-luxury-gold text-luxury-emerald-dark font-bold text-xs"
               >
-                View / Print Official Bill
+                View / Download Bill
               </button>
               <Link
                 to="/profile?tab=orders"
                 className="px-6 py-3 rounded-full border border-luxury-emerald text-luxury-emerald font-bold text-xs"
               >
-                Go to Food History
+                Go to Order History
               </Link>
             </div>
 
@@ -256,9 +291,18 @@ export const FoodCheckout: React.FC = () => {
 
                 <button
                   type="submit"
-                  className="w-full py-4 rounded-xl bg-luxury-gold hover:bg-luxury-gold-light text-luxury-emerald-dark font-bold text-base tracking-wider flex items-center justify-center gap-2 shadow-xl"
+                  disabled={isSubmitting}
+                  className="w-full py-4 rounded-xl bg-luxury-gold hover:bg-luxury-gold-light text-luxury-emerald-dark font-bold text-base tracking-wider flex items-center justify-center gap-2 shadow-xl disabled:opacity-50"
                 >
-                  <Lock className="w-4 h-4" /> Pay ₹{totalAmount} via Razorpay
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 className="w-5 h-5 animate-spin" /> Validating Order...
+                    </>
+                  ) : (
+                    <>
+                      <Lock className="w-4 h-4" /> Pay ₹{totalAmount} via Client UPI QR
+                    </>
+                  )}
                 </button>
 
               </form>
@@ -306,9 +350,11 @@ export const FoodCheckout: React.FC = () => {
       <PaymentModal
         isOpen={isPaymentOpen}
         onClose={() => setIsPaymentOpen(false)}
-        amount={totalAmount}
+        amount={pendingOrder?.totalAmount || totalAmount}
         title="Gona Restaurant Food Order"
         description={`${cart.length} item(s) • ${orderType.toUpperCase()}`}
+        orderId={pendingOrder?.orderId || pendingOrder?._id}
+        bookingType="food"
         onSuccess={handlePaymentSuccess}
       />
     </div>

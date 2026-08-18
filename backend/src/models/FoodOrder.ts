@@ -1,9 +1,11 @@
 import mongoose, { Schema, Document } from 'mongoose';
 
 export interface IFoodOrder extends Document {
+  orderId: string;
   userId: string;
   userName: string;
   userPhone: string;
+  userEmail: string;
   items: Array<{
     itemId: string;
     name: string;
@@ -19,17 +21,26 @@ export interface IFoodOrder extends Document {
   tax: number;
   discount: number;
   totalAmount: number;
-  paymentStatus: 'pending' | 'paid';
-  orderStatus: 'placed' | 'preparing' | 'out_for_delivery' | 'completed' | 'cancelled';
+  paymentMethod: string;
+  paymentStatus: 'PENDING_PAYMENT' | 'PAYMENT_SUBMITTED' | 'VERIFIED' | 'REJECTED';
+  orderStatus: 'PENDING_PAYMENT' | 'PAYMENT_SUBMITTED' | 'CONFIRMED' | 'PREPARING' | 'READY' | 'COMPLETED' | 'CANCELLED' | 'PAYMENT_REJECTED';
+  utrNumber?: string;
+  payerName?: string;
+  verifiedBy?: string;
+  verifiedAt?: Date;
+  rejectionReason?: string;
   paymentId?: string;
   invoiceId: string;
   createdAt: Date;
+  updatedAt: Date;
 }
 
 const FoodOrderSchema: Schema = new Schema({
+  orderId: { type: String, required: true, unique: true },
   userId: { type: String, required: true },
   userName: { type: String, required: true },
   userPhone: { type: String, default: '' },
+  userEmail: { type: String, default: '' },
   items: [{
     itemId: { type: String, required: true },
     name: { type: String, required: true },
@@ -45,12 +56,22 @@ const FoodOrderSchema: Schema = new Schema({
   tax: { type: Number, required: true },
   discount: { type: Number, default: 0 },
   totalAmount: { type: Number, required: true },
-  paymentStatus: { type: String, enum: ['pending', 'paid'], default: 'paid' },
+  paymentMethod: { type: String, default: 'UPI_QR' },
+  paymentStatus: { 
+    type: String, 
+    enum: ['PENDING_PAYMENT', 'PAYMENT_SUBMITTED', 'VERIFIED', 'REJECTED'], 
+    default: 'PENDING_PAYMENT' 
+  },
   orderStatus: { 
     type: String, 
-    enum: ['placed', 'preparing', 'out_for_delivery', 'completed', 'cancelled'], 
-    default: 'placed' 
+    enum: ['PENDING_PAYMENT', 'PAYMENT_SUBMITTED', 'CONFIRMED', 'PREPARING', 'READY', 'COMPLETED', 'CANCELLED', 'PAYMENT_REJECTED'], 
+    default: 'PENDING_PAYMENT' 
   },
+  utrNumber: { type: String, default: '' },
+  payerName: { type: String, default: '' },
+  verifiedBy: { type: String, default: '' },
+  verifiedAt: { type: Date },
+  rejectionReason: { type: String, default: '' },
   paymentId: { type: String, default: '' },
   invoiceId: { type: String, required: true }
 }, { timestamps: true });

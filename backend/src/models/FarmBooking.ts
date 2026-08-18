@@ -1,40 +1,65 @@
 import mongoose, { Schema, Document } from 'mongoose';
 
 export interface IFarmBooking extends Document {
+  bookingId: string;
   userId: string;
   userName: string;
   userEmail: string;
   userPhone: string;
   visitDate: string;
   visitorCount: number;
-  packageType: 'standard' | 'guided_tour' | 'picnic_lunch' | 'vip_experience';
+  packageType: string;
   specialRequests?: string;
   pricePerVisitor: number;
+  subtotal: number;
+  tax: number;
+  discount: number;
   totalAmount: number;
-  paymentStatus: 'pending' | 'paid';
-  status: 'confirmed' | 'completed' | 'cancelled';
+  paymentMethod: string;
+  paymentStatus: 'PENDING_PAYMENT' | 'PAYMENT_SUBMITTED' | 'VERIFIED' | 'REJECTED';
+  status: 'PENDING_PAYMENT' | 'PAYMENT_SUBMITTED' | 'CONFIRMED' | 'COMPLETED' | 'CANCELLED' | 'PAYMENT_REJECTED';
+  utrNumber?: string;
+  payerName?: string;
+  verifiedBy?: string;
+  verifiedAt?: Date;
+  rejectionReason?: string;
   paymentId?: string;
   invoiceId: string;
   createdAt: Date;
+  updatedAt: Date;
 }
 
 const FarmBookingSchema: Schema = new Schema({
+  bookingId: { type: String, required: true, unique: true },
   userId: { type: String, required: true },
   userName: { type: String, required: true },
   userEmail: { type: String, required: true },
   userPhone: { type: String, required: true },
   visitDate: { type: String, required: true },
   visitorCount: { type: Number, required: true },
-  packageType: { 
-    type: String, 
-    enum: ['standard', 'guided_tour', 'picnic_lunch', 'vip_experience'], 
-    default: 'guided_tour' 
-  },
+  packageType: { type: String, required: true },
   specialRequests: { type: String, default: '' },
-  pricePerVisitor: { type: Number, required: true },
+  pricePerVisitor: { type: Number, default: 0 },
+  subtotal: { type: Number, required: true },
+  tax: { type: Number, default: 0 },
+  discount: { type: Number, default: 0 },
   totalAmount: { type: Number, required: true },
-  paymentStatus: { type: String, enum: ['pending', 'paid'], default: 'paid' },
-  status: { type: String, enum: ['confirmed', 'completed', 'cancelled'], default: 'confirmed' },
+  paymentMethod: { type: String, default: 'UPI_QR' },
+  paymentStatus: { 
+    type: String, 
+    enum: ['PENDING_PAYMENT', 'PAYMENT_SUBMITTED', 'VERIFIED', 'REJECTED'], 
+    default: 'PENDING_PAYMENT' 
+  },
+  status: { 
+    type: String, 
+    enum: ['PENDING_PAYMENT', 'PAYMENT_SUBMITTED', 'CONFIRMED', 'COMPLETED', 'CANCELLED', 'PAYMENT_REJECTED'], 
+    default: 'PENDING_PAYMENT' 
+  },
+  utrNumber: { type: String, default: '' },
+  payerName: { type: String, default: '' },
+  verifiedBy: { type: String, default: '' },
+  verifiedAt: { type: Date },
+  rejectionReason: { type: String, default: '' },
   paymentId: { type: String, default: '' },
   invoiceId: { type: String, required: true }
 }, { timestamps: true });

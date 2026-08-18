@@ -1,34 +1,87 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
-  LayoutDashboard, Hotel, Utensils, Tag, Users,
-  Edit3, CheckCircle2, TrendingUp, Lock, Plus, Trash2,
-  ShoppingBag, Star, IndianRupee, Calendar, Phone, Mail, Printer
+  LayoutDashboard, Hotel, Utensils, Tag, Users, ShieldCheck,
+  Edit3, CheckCircle2, TrendingUp, Lock, Plus, Trash2, XCircle,
+  ShoppingBag, Star, Calendar, Phone, Mail, Printer, Clock, AlertTriangle, RefreshCw
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import { initialSeedData } from '../data/seedData';
-import { memoryRoomBookings, memoryFoodOrders } from '../data/mockBookings';
 import { useNotification } from '../context/NotificationContext';
 import { InvoiceModal } from '../components/InvoiceModal';
+import { apiService } from '../services/api';
 
-type AdminTab = 'analytics' | 'rooms' | 'bookings' | 'menu' | 'food-orders' | 'coupons' | 'customers';
+type AdminTab = 'analytics' | 'payments' | 'rooms' | 'bookings' | 'menu' | 'food-orders' | 'farm-bookings' | 'coupons' | 'customers';
 
 export const AdminDashboard: React.FC = () => {
   const { isAdmin } = useAuth();
   const { showToast } = useNotification();
+
   const [activeTab, setActiveTab] = useState<AdminTab>('analytics');
   const [selectedInvoice, setSelectedInvoice] = useState<any>(null);
+  const [loading, setLoading] = useState(false);
 
-  const [rooms, setRooms] = useState([...initialSeedData.rooms]);
-  const [menuItems, setMenuItems] = useState([...initialSeedData.menuItems]);
-  const [roomBookings] = useState([...memoryRoomBookings]);
-  const [foodOrders, setFoodOrders] = useState([...memoryFoodOrders]);
-  const [coupons, setCoupons] = useState([...initialSeedData.coupons]);
+  const [analytics, setAnalytics] = useState<any>(null);
+  const [pendingPayments, setPendingPayments] = useState<any[]>([]);
+  const [rooms, setRooms] = useState<any[]>([]);
+  const [roomBookings, setRoomBookings] = useState<any[]>([]);
+  const [menuItems, setMenuItems] = useState<any[]>([]);
+  const [foodOrders, setFoodOrders] = useState<any[]>([]);
+  const [farmBookings, setFarmBookings] = useState<any[]>([]);
+  const [coupons, setCoupons] = useState<any[]>([]);
+  const [customers, setCustomers] = useState<any[]>([]);
 
   const [editingRoomId, setEditingRoomId] = useState<string | null>(null);
   const [newPrice, setNewPrice] = useState<number>(0);
   const [newCouponCode, setNewCouponCode] = useState('');
   const [newCouponDiscount, setNewCouponDiscount] = useState(10);
   const [showAddCoupon, setShowAddCoupon] = useState(false);
+  const [rejectionReason, setRejectionReason] = useState<Record<string, string>>({});
+
+  const loadData = async () => {
+    setLoading(true);
+    try {
+      const [
+        analyticsRes,
+        pendingRes,
+        roomsRes,
+        roomBookingsRes,
+        menuRes,
+        foodOrdersRes,
+        farmRes,
+        couponsRes,
+        customersRes
+      ] = await Promise.all([
+        apiService.getAdminAnalytics(),
+        apiService.getPendingPaymentsAdmin(),
+        apiService.getRooms(),
+        apiService.getAllRoomBookingsAdmin(),
+        apiService.getMenu(),
+        apiService.getAllFoodOrdersAdmin(),
+        apiService.getAllFarmBookingsAdmin(),
+        apiService.getCouponsAdmin(),
+        apiService.getCustomersAdmin()
+      ]);
+
+      if (analyticsRes.status === 200) setAnalytics(analyticsRes.data);
+      if (pendingRes.status === 200) setPendingPayments(pendingRes.data || []);
+      if (roomsRes.status === 200) setRooms(roomsRes.data || []);
+      if (roomBookingsRes.status === 200) setRoomBookings(roomBookingsRes.data || []);
+      if (menuRes.status === 200) setMenuItems(menuRes.data || []);
+      if (foodOrdersRes.status === 200) setFoodOrders(foodOrdersRes.data || []);
+      if (farmRes.status === 200) setFarmBookings(farmRes.data || []);
+      if (couponsRes.status === 200) setCoupons(couponsRes.data || []);
+      if (customersRes.status === 200) setCustomers(customersRes.data || []);
+    } catch (err) {
+      console.warn('Error loading admin dashboard data:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (isAdmin) {
+      loadData();
+    }
+  }, [isAdmin]);
 
   if (!isAdmin) {
     return (
@@ -40,61 +93,79 @@ export const AdminDashboard: React.FC = () => {
     );
   }
 
-  // ─── Stats ───
-  const roomRev = roomBookings.reduce((s, b) => s + b.totalAmount, 0);
-  const foodRev = foodOrders.reduce((s, o) => s + o.totalAmount, 0);
-  const totalRev = roomRev + foodRev;
+  // Handle Verify Payment Action
+  const handleVerifyPayment = async (txnId: string, bType?: string) => {
+    try {
+      const res = await apiService.verifyOrRejectPaymentAdmin(txnId, { action: 'verify', bookingType: bType });
+      if (res.status === 200) {
+        showToast(res.data.message || 'Payment verified and booking confirmed!', 'success');
+        loadData();
+      } else {
+        showToast(res.data.message || 'Failed to verify payment', 'error');
+      }
+    } catch (err: any) {
+      showToast(err.message || 'Error verifying payment', 'error');
+    }
+  };
 
-  const tabs: { id: AdminTab; label: string; icon: React.FC<any> }[] = [
-    { id: 'analytics',   label: 'Overview',       icon: TrendingUp },
-    { id: 'rooms',       label: 'Rooms',          icon: Hotel },
-    { id: 'bookings',    label: 'Room Bookings',  icon: Calendar },
-    { id: 'menu',        label: 'Restaurant Menu',icon: Utensils },
-    { id: 'food-orders', label: 'Food Orders',    icon: ShoppingBag },
-    { id: 'coupons',     label: 'Coupons',        icon: Tag },
-    { id: 'customers',   label: 'Customers',      icon: Users },
+  // Handle Reject Payment Action
+  const handleRejectPayment = async (txnId: string, bType?: string) => {
+    const reason = rejectionReason[txnId] || 'Invalid UTR or payment not received in bank account';
+    try {
+      const res = await apiService.verifyOrRejectPaymentAdmin(txnId, { action: 'reject', rejectionReason: reason, bookingType: bType });
+      if (res.status === 200) {
+        showToast(res.data.message || 'Payment rejected.', 'info');
+        loadData();
+      } else {
+        showToast(res.data.message || 'Failed to reject payment', 'error');
+      }
+    } catch (err: any) {
+      showToast(err.message || 'Error rejecting payment', 'error');
+    }
+  };
+
+  const updateFoodStatus = async (id: string, status: string) => {
+    try {
+      await apiService.updateFoodOrderStatusAdmin(id, { orderStatus: status });
+      setFoodOrders(prev => prev.map(o => o.orderId === id || o.id === id ? { ...o, orderStatus: status } : o));
+      showToast(`Order status updated to ${status}`, 'success');
+    } catch (err) {
+      showToast('Failed to update food order status', 'error');
+    }
+  };
+
+  const updateRoomBookingStatus = async (id: string, bookingStatus: string) => {
+    try {
+      await apiService.updateRoomBookingStatusAdmin(id, { bookingStatus });
+      setRoomBookings(prev => prev.map(b => b.bookingId === id || b.id === id ? { ...b, bookingStatus } : b));
+      showToast(`Booking status updated to ${bookingStatus}`, 'success');
+    } catch (err) {
+      showToast('Failed to update booking status', 'error');
+    }
+  };
+
+  const pendingSubmissions = pendingPayments.filter(p => p.status === 'PAYMENT_SUBMITTED');
+
+  const tabs: { id: AdminTab; label: string; icon: React.FC<any>; count?: number }[] = [
+    { id: 'analytics',     label: 'Overview',            icon: TrendingUp },
+    { id: 'payments',      label: 'Payment Verification', icon: ShieldCheck, count: pendingSubmissions.length },
+    { id: 'rooms',         label: 'Rooms',               icon: Hotel },
+    { id: 'bookings',      label: 'Room Bookings',       icon: Calendar, count: roomBookings.length },
+    { id: 'menu',          label: 'Restaurant Menu',     icon: Utensils },
+    { id: 'food-orders',   label: 'Food Orders',         icon: ShoppingBag, count: foodOrders.length },
+    { id: 'farm-bookings', label: 'Farm House Bookings', icon: Hotel, count: farmBookings.length },
+    { id: 'coupons',       label: 'Coupons',             icon: Tag },
+    { id: 'customers',     label: 'Customers',           icon: Users, count: customers.length },
   ];
 
-  // ─── Handlers ───
-  const updateRoomPrice = (roomId: string) => {
-    setRooms(p => p.map(r => r.id === roomId ? { ...r, pricePerNight: newPrice } : r));
-    setEditingRoomId(null);
-    showToast('Room price updated!', 'success');
+  const metrics = analytics?.metrics || {
+    totalRevenue: roomBookings.filter(b => b.paymentStatus === 'VERIFIED' || b.paymentStatus === 'paid').reduce((s, b) => s + b.totalAmount, 0) +
+                  foodOrders.filter(o => o.paymentStatus === 'VERIFIED' || o.paymentStatus === 'paid').reduce((s, o) => s + o.totalAmount, 0),
+    roomRevenue: roomBookings.filter(b => b.paymentStatus === 'VERIFIED' || b.paymentStatus === 'paid').reduce((s, b) => s + b.totalAmount, 0),
+    foodRevenue: foodOrders.filter(o => o.paymentStatus === 'VERIFIED' || o.paymentStatus === 'paid').reduce((s, o) => s + o.totalAmount, 0),
+    farmRevenue: farmBookings.filter(f => f.paymentStatus === 'VERIFIED' || f.paymentStatus === 'paid').reduce((s, f) => s + f.totalAmount, 0)
   };
 
-  const toggleMenuAvailability = (id: string) => {
-    setMenuItems(p => p.map(m => m.id === id ? { ...m, isAvailable: !m.isAvailable } : m));
-    showToast('Menu item status updated!', 'success');
-  };
-
-  const updateFoodStatus = (id: string, status: string) => {
-    setFoodOrders((p: any[]) => p.map((o: any) => o.id === id ? { ...o, orderStatus: status } : o));
-    showToast(`Order status → ${status}`, 'success');
-  };
-
-  const toggleCoupon = (code: string) => {
-    setCoupons(p => p.map(c => c.code === code ? { ...c, isActive: !c.isActive } : c));
-    showToast('Coupon status toggled', 'success');
-  };
-
-  const deleteCoupon = (code: string) => {
-    setCoupons(p => p.filter(c => c.code !== code));
-    showToast('Coupon deleted', 'success');
-  };
-
-  const addCoupon = () => {
-    if (!newCouponCode.trim()) return;
-    setCoupons(p => [...p, {
-      id: `c_${Date.now()}`, code: newCouponCode.toUpperCase(),
-      discountPercentage: newCouponDiscount, maxDiscount: 1000, minSpend: 500,
-      validUntil: '2026-12-31', isActive: true
-    }]);
-    setNewCouponCode('');
-    setShowAddCoupon(false);
-    showToast('New coupon created!', 'success');
-  };
-
-  // ─── Status badge helper ───
   const statusColor = (s: string) => {
     const m: Record<string, string> = {
       placed: 'bg-blue-100 text-blue-800',
@@ -103,8 +174,14 @@ export const AdminDashboard: React.FC = () => {
       completed: 'bg-green-100 text-green-800',
       cancelled: 'bg-red-100 text-red-800',
       confirmed: 'bg-green-100 text-green-800',
+      CONFIRMED: 'bg-green-100 text-green-800',
       pending: 'bg-yellow-100 text-yellow-800',
       paid: 'bg-green-100 text-green-800',
+      VERIFIED: 'bg-green-100 text-green-800 border border-green-300',
+      PAYMENT_SUBMITTED: 'bg-amber-100 text-amber-800 border border-amber-300',
+      PENDING_PAYMENT: 'bg-yellow-100 text-yellow-800',
+      REJECTED: 'bg-red-100 text-red-800 border border-red-300',
+      PAYMENT_REJECTED: 'bg-red-100 text-red-800 border border-red-300'
     };
     return m[s] ?? 'bg-gray-100 text-gray-700';
   };
@@ -116,22 +193,33 @@ export const AdminDashboard: React.FC = () => {
         {/* Header */}
         <div className="bg-white rounded-3xl border border-luxury-gold/30 shadow-md p-6 flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-2xl bg-[#0D3B29] text-luxury-gold flex items-center justify-center">
+            <div className="w-12 h-12 rounded-2xl bg-[#0D3B29] text-luxury-gold flex items-center justify-center shadow-lg">
               <LayoutDashboard className="w-6 h-6" />
             </div>
             <div>
               <h1 className="font-serif text-2xl font-bold text-[#0D3B29]">Gona Admin Portal</h1>
-              <p className="text-xs text-gray-500">Full control over Gona Hotel & Restaurant</p>
+              <p className="text-xs text-gray-500">Live Management & Banking UTR Verification Desk</p>
             </div>
           </div>
-          <span className="px-3 py-1.5 rounded-full bg-green-100 text-green-800 text-xs font-bold flex items-center gap-1.5">
-            <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" /> System Online
-          </span>
+
+          <div className="flex items-center gap-3">
+            <button
+              onClick={loadData}
+              disabled={loading}
+              className="p-2.5 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-xs flex items-center gap-1.5 transition"
+            >
+              <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} /> Refresh Data
+            </button>
+
+            <span className="px-3.5 py-1.5 rounded-full bg-green-100 text-green-800 text-xs font-bold flex items-center gap-1.5 border border-green-200">
+              <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" /> Production Backend Connected
+            </span>
+          </div>
         </div>
 
-        {/* Tabs */}
-        <div className="flex items-center gap-2 overflow-x-auto pb-1">
-          {tabs.map(({ id, label, icon: Icon }) => (
+        {/* Navigation Tabs */}
+        <div className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar">
+          {tabs.map(({ id, label, icon: Icon, count }) => (
             <button
               key={id}
               onClick={() => setActiveTab(id)}
@@ -142,6 +230,13 @@ export const AdminDashboard: React.FC = () => {
               }`}
             >
               <Icon className="w-3.5 h-3.5" /> {label}
+              {count !== undefined && count > 0 && (
+                <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                  id === 'payments' ? 'bg-amber-400 text-amber-950 animate-pulse' : 'bg-luxury-gold/20 text-luxury-gold'
+                }`}>
+                  {count}
+                </span>
+              )}
             </button>
           ))}
         </div>
@@ -151,9 +246,9 @@ export const AdminDashboard: React.FC = () => {
           <div className="space-y-6">
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
               {[
-                { label: 'Total Revenue', value: `₹${totalRev.toLocaleString('en-IN')}`, sub: '+18.4% this month', color: 'text-[#0D3B29]' },
-                { label: 'Room Revenue', value: `₹${roomRev.toLocaleString('en-IN')}`, sub: `${roomBookings.length} bookings`, color: 'text-luxury-gold' },
-                { label: 'Food Revenue', value: `₹${foodRev.toLocaleString('en-IN')}`, sub: `${foodOrders.length} orders`, color: 'text-[#0D3B29]' },
+                { label: 'Verified Paid Revenue', value: `₹${(metrics.totalRevenue || 0).toLocaleString('en-IN')}`, sub: 'Only verified payments count as revenue', color: 'text-[#0D3B29]' },
+                { label: 'Room Revenue', value: `₹${(metrics.roomRevenue || 0).toLocaleString('en-IN')}`, sub: `${roomBookings.length} total bookings`, color: 'text-luxury-gold' },
+                { label: 'Food Revenue', value: `₹${(metrics.foodRevenue || 0).toLocaleString('en-IN')}`, sub: `${foodOrders.length} food orders`, color: 'text-[#0D3B29]' },
               ].map(s => (
                 <div key={s.label} className="p-6 rounded-3xl bg-white border border-luxury-gold/20 shadow-md">
                   <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">{s.label}</p>
@@ -163,21 +258,147 @@ export const AdminDashboard: React.FC = () => {
               ))}
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
               {[
-                { label: 'Total Rooms', value: rooms.length, icon: Hotel, color: 'bg-blue-50 text-blue-700' },
-                { label: 'Menu Items', value: menuItems.length, icon: Utensils, color: 'bg-green-50 text-green-700' },
-                { label: 'Active Coupons', value: coupons.filter(c => c.isActive).length, icon: Tag, color: 'bg-amber-50 text-amber-700' },
+                { label: 'Pending Payment Verification', value: pendingSubmissions.length, icon: Clock, color: 'bg-amber-50 text-amber-800 border-amber-200' },
+                { label: 'Total Rooms', value: rooms.length, icon: Hotel, color: 'bg-blue-50 text-blue-700 border-blue-200' },
+                { label: 'Menu Items', value: menuItems.length, icon: Utensils, color: 'bg-green-50 text-green-700 border-green-200' },
+                { label: 'Registered Customers', value: customers.length, icon: Users, color: 'bg-purple-50 text-purple-700 border-purple-200' },
               ].map(s => (
-                <div key={s.label} className={`p-6 rounded-3xl ${s.color} border border-current/10 shadow-md flex items-center gap-4`}>
-                  <s.icon className="w-10 h-10 opacity-60" />
+                <div key={s.label} className={`p-5 rounded-3xl ${s.color} border shadow-sm flex items-center gap-4`}>
+                  <s.icon className="w-8 h-8 opacity-70 shrink-0" />
                   <div>
-                    <p className="text-xs font-semibold opacity-70 uppercase">{s.label}</p>
-                    <h3 className="font-serif text-4xl font-bold">{s.value}</h3>
+                    <p className="text-xs font-semibold opacity-80 uppercase">{s.label}</p>
+                    <h3 className="font-serif text-3xl font-bold">{s.value}</h3>
                   </div>
                 </div>
               ))}
             </div>
+          </div>
+        )}
+
+        {/* ──────────── PAYMENT VERIFICATION SECTION ──────────── */}
+        {activeTab === 'payments' && (
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="font-serif text-xl font-bold text-[#0D3B29]">Client UPI Payment Verification Desk</h3>
+                <p className="text-xs text-gray-500">Match customer UTR numbers against your Punjab National Bank / UPI app statement</p>
+              </div>
+              <span className="px-3 py-1 rounded-full bg-amber-100 text-amber-800 text-xs font-bold">
+                {pendingPayments.length} Total Submission(s)
+              </span>
+            </div>
+
+            {pendingPayments.length === 0 ? (
+              <div className="p-12 text-center bg-white rounded-3xl border border-gray-200 space-y-3">
+                <ShieldCheck className="w-12 h-12 text-green-600 mx-auto" />
+                <h4 className="font-serif text-lg font-bold text-[#0D3B29]">No Pending Payment Submissions</h4>
+                <p className="text-xs text-gray-500">All submitted UTR numbers have been verified or resolved.</p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {pendingPayments.map((txn: any) => {
+                  const isPending = txn.status === 'PAYMENT_SUBMITTED';
+                  const isVerified = txn.status === 'VERIFIED';
+                  const isRejected = txn.status === 'REJECTED';
+
+                  return (
+                    <div key={txn.transactionId || txn._id} className="p-6 rounded-3xl bg-white border border-luxury-gold/30 shadow-md space-y-4">
+                      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-gray-100 pb-3">
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <span className="font-bold text-sm text-[#0D3B29]">
+                              Transaction Ref: {txn.transactionId || txn.utrNumber}
+                            </span>
+                            <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase ${statusColor(txn.status)}`}>
+                              {txn.status}
+                            </span>
+                          </div>
+                          <p className="text-xs text-gray-600 mt-1">
+                            Type: <strong className="uppercase">{txn.bookingType}</strong> • Related ID: <strong>{txn.bookingId || txn.orderId}</strong>
+                          </p>
+                          <p className="text-xs text-gray-500">
+                            Submitted: {new Date(txn.createdAt).toLocaleString('en-IN')}
+                          </p>
+                        </div>
+
+                        <div className="text-right">
+                          <span className="font-serif text-2xl font-bold text-luxury-gold block">
+                            ₹{txn.amount.toLocaleString('en-IN')}
+                          </span>
+                          <span className="text-xs text-gray-500">Expected Bank Credit</span>
+                        </div>
+                      </div>
+
+                      {/* Details Grid */}
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs bg-amber-50/60 p-4 rounded-2xl border border-luxury-gold/20">
+                        <div>
+                          <span className="text-gray-500 font-bold block uppercase text-[10px]">Customer Details</span>
+                          <p className="font-bold text-gray-900">{txn.userName}</p>
+                          <p className="text-gray-600">{txn.userEmail}</p>
+                          {txn.userPhone && <p className="text-gray-600">Ph: {txn.userPhone}</p>}
+                        </div>
+
+                        <div>
+                          <span className="text-gray-500 font-bold block uppercase text-[10px]">Payment Proof Details</span>
+                          <p className="font-mono font-bold text-[#0D3B29] text-sm">UTR: {txn.utrNumber}</p>
+                          <p className="text-gray-600">Payer: {txn.payerName || 'Not specified'}</p>
+                          <p className="text-gray-600">Method: {txn.method || 'UPI_QR'}</p>
+                        </div>
+
+                        <div>
+                          <span className="text-gray-500 font-bold block uppercase text-[10px]">Verification Action</span>
+                          {isVerified && (
+                            <p className="text-green-700 font-bold flex items-center gap-1 mt-1">
+                              <CheckCircle2 className="w-4 h-4" /> Verified by {txn.verifiedBy || 'Admin'}
+                            </p>
+                          )}
+                          {isRejected && (
+                            <p className="text-red-700 font-bold flex items-center gap-1 mt-1">
+                              <XCircle className="w-4 h-4" /> Rejected ({txn.rejectionReason})
+                            </p>
+                          )}
+                          {isPending && (
+                            <p className="text-amber-800 font-bold flex items-center gap-1 mt-1">
+                              <Clock className="w-4 h-4" /> Awaiting Bank Match Confirmation
+                            </p>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Admin Decision Actions */}
+                      {isPending && (
+                        <div className="flex flex-col sm:flex-row items-center gap-3 pt-2">
+                          <button
+                            onClick={() => handleVerifyPayment(txn.transactionId || txn.utrNumber, txn.bookingType)}
+                            className="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-green-700 hover:bg-green-800 text-white font-bold text-xs flex items-center justify-center gap-2 shadow transition"
+                          >
+                            <CheckCircle2 className="w-4 h-4" /> VERIFY PAYMENT (Confirm Stay/Order)
+                          </button>
+
+                          <div className="flex-1 flex gap-2 w-full">
+                            <input
+                              type="text"
+                              placeholder="Rejection reason (e.g. UTR not found in PNB statement)"
+                              value={rejectionReason[txn.transactionId || txn.utrNumber] || ''}
+                              onChange={e => setRejectionReason({ ...rejectionReason, [txn.transactionId || txn.utrNumber]: e.target.value })}
+                              className="flex-1 px-3 py-2 border border-gray-300 rounded-xl text-xs focus:outline-none focus:border-red-500"
+                            />
+                            <button
+                              onClick={() => handleRejectPayment(txn.transactionId || txn.utrNumber, txn.bookingType)}
+                              className="px-4 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 text-white font-bold text-xs flex items-center gap-1.5 shadow transition shrink-0"
+                            >
+                              <XCircle className="w-4 h-4" /> REJECT PAYMENT
+                            </button>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
         )}
 
@@ -186,50 +407,25 @@ export const AdminDashboard: React.FC = () => {
           <div className="space-y-4">
             <h3 className="font-serif text-xl font-bold text-[#0D3B29]">Hotel Rooms & Pricing</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {rooms.map(room => (
-                <div key={room.id} className="p-5 rounded-3xl bg-white border border-gray-200 shadow-md">
+              {rooms.map((room: any) => (
+                <div key={room._id || room.id} className="p-5 rounded-3xl bg-white border border-gray-200 shadow-md">
                   <div className="flex items-center gap-4">
-                    <img src={room.images[0]} alt={room.title} className="w-24 h-20 rounded-2xl object-cover shadow" />
+                    <img src={room.images?.[0]} alt={room.title} className="w-24 h-20 rounded-2xl object-cover shadow" />
                     <div className="flex-1">
                       <h4 className="font-serif text-lg font-bold text-[#0D3B29]">{room.title}</h4>
                       <p className="text-xs text-gray-500">{room.category} • Max {room.maxGuests} Guests • {room.sizeSqFt} sq ft</p>
-                      <p className="text-xs text-gray-500 mt-0.5">{room.bedType}</p>
 
-                      {editingRoomId === room.id ? (
-                        <div className="flex items-center gap-2 mt-2">
-                          <span className="text-xs text-gray-600">₹</span>
-                          <input
-                            type="number"
-                            value={newPrice}
-                            onChange={e => setNewPrice(Number(e.target.value))}
-                            className="w-28 px-3 py-1.5 text-sm border border-luxury-gold rounded-lg focus:outline-none"
-                          />
-                          <button onClick={() => updateRoomPrice(room.id)}
-                            className="px-3 py-1.5 bg-[#0D3B29] text-luxury-gold font-bold text-xs rounded-lg">
-                            Save
-                          </button>
-                          <button onClick={() => setEditingRoomId(null)}
-                            className="px-3 py-1.5 bg-gray-100 text-gray-700 font-bold text-xs rounded-lg">
-                            Cancel
-                          </button>
-                        </div>
-                      ) : (
-                        <div className="flex items-center gap-3 mt-1.5">
-                          <span className="font-serif text-xl font-bold text-luxury-gold">₹{room.pricePerNight.toLocaleString('en-IN')}<span className="text-xs text-gray-400 font-normal"> /night</span></span>
-                          <button onClick={() => { setEditingRoomId(room.id); setNewPrice(room.pricePerNight); }}
-                            className="p-1.5 rounded-lg hover:bg-luxury-gold/10 text-gray-500 hover:text-luxury-gold transition">
-                            <Edit3 className="w-4 h-4" />
-                          </button>
-                        </div>
-                      )}
+                      <div className="flex items-center gap-3 mt-1.5">
+                        <span className="font-serif text-xl font-bold text-luxury-gold">₹{room.pricePerNight?.toLocaleString('en-IN')}<span className="text-xs text-gray-400 font-normal"> /night</span></span>
+                      </div>
                     </div>
                   </div>
 
                   <div className="mt-3 flex items-center gap-1.5">
                     <Star className="w-3.5 h-3.5 fill-luxury-gold text-luxury-gold" />
-                    <span className="text-xs font-bold text-gray-700">{room.rating}</span>
-                    <span className="text-xs text-gray-400">({room.reviewCount} reviews)</span>
-                    <span className={`ml-auto text-[11px] font-bold px-2 py-0.5 rounded-full ${room.isAvailable ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                    <span className="text-xs font-bold text-gray-700">{room.rating || 4.9}</span>
+                    <span className="text-xs text-gray-400">({room.reviewCount || 24} reviews)</span>
+                    <span className={`ml-auto text-[11px] font-bold px-2.5 py-0.5 rounded-full ${room.isAvailable ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
                       {room.isAvailable ? 'Available' : 'Unavailable'}
                     </span>
                   </div>
@@ -243,110 +439,77 @@ export const AdminDashboard: React.FC = () => {
         {activeTab === 'bookings' && (
           <div className="space-y-4">
             <h3 className="font-serif text-xl font-bold text-[#0D3B29]">Room Stay Bookings ({roomBookings.length})</h3>
-            {roomBookings.map((b: any) => {
-              const isCancelled = b.bookingStatus === 'cancelled';
-
-              return (
-                <div key={b.id} className="p-5 rounded-3xl bg-white border border-gray-200 shadow-md">
-                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                    <div className="flex items-center gap-4">
-                      <img src={b.roomImage} alt={b.roomName} className="w-20 h-16 rounded-xl object-cover shadow" />
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <p className="font-bold text-[#0D3B29] text-sm">{b.roomName}</p>
-                          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
-                            isCancelled ? 'bg-red-100 text-red-800 border border-red-200' : 'bg-green-100 text-green-800'
-                          }`}>
-                            {isCancelled ? 'CANCELLED' : b.bookingStatus.toUpperCase()}
-                          </span>
-                        </div>
-                        <p className="text-xs text-gray-600 font-semibold">{b.userName} • <span className="text-gray-500">{b.userEmail}</span></p>
-                        <p className="text-xs text-gray-500 mt-0.5">📅 {b.checkIn} → {b.checkOut} • {b.totalNights} nights • {b.guests.adults} adults</p>
-                        {isCancelled && (
-                          <p className="text-xs font-bold text-red-600 mt-1">
-                            Refund Amount: ₹{b.refundAmount?.toLocaleString('en-IN')} • Fee Charged: ₹{b.cancellationFee?.toLocaleString('en-IN')} (Reason: {b.cancellationReason || 'User Cancellation'})
-                          </p>
-                        )}
-                      </div>
-                    </div>
-                    <div className="text-right space-y-1.5 flex-shrink-0">
-                      <p className={`font-serif text-xl font-bold ${isCancelled ? 'text-gray-400 line-through' : 'text-[#0D3B29]'}`}>
-                        ₹{b.totalAmount.toLocaleString('en-IN')}
-                      </p>
-                      <p className="text-[11px] text-gray-400">{b.invoiceId}</p>
-                      <div className="flex gap-2 justify-end flex-wrap items-center">
-                        <span className={`text-[11px] font-bold px-2 py-0.5 rounded-full ${statusColor(b.paymentStatus)}`}>
-                          {isCancelled ? 'REFUNDED' : b.paymentStatus.toUpperCase()}
+            {roomBookings.map((b: any) => (
+              <div key={b._id || b.bookingId || b.id} className="p-5 rounded-3xl bg-white border border-gray-200 shadow-md">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                  <div className="flex items-center gap-4">
+                    <img src={b.roomImage} alt={b.roomName} className="w-20 h-16 rounded-xl object-cover shadow" />
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <p className="font-bold text-[#0D3B29] text-sm">{b.roomName}</p>
+                        <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full ${statusColor(b.bookingStatus)}`}>
+                          {b.bookingStatus}
                         </span>
-                        <button
-                          onClick={() => {
-                            setSelectedInvoice({
-                              invoiceId: b.invoiceId || `INV-ROOM-${b.id}`,
-                              title: `Room Stay: ${b.roomName}`,
-                              type: 'room',
-                              date: b.checkIn || new Date().toISOString(),
-                              customerName: b.userName,
-                              customerEmail: b.userEmail || 'guest@gonahotel.com',
-                              customerPhone: b.userPhone || '+91 96966 31621',
-                              paymentId: b.paymentId || 'PAY-ONLINE-UPI',
-                              items: [
-                                {
-                                  description: `Room Stay: ${b.roomName} (${b.totalNights} Nights)`,
-                                  quantity: b.totalNights,
-                                  amount: b.totalAmount
-                                }
-                              ],
-                              subtotal: Math.round(b.totalAmount / 1.05),
-                              tax: Math.round(b.totalAmount - (b.totalAmount / 1.05)),
-                              totalAmount: b.totalAmount
-                            });
-                          }}
-                          className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-luxury-gold text-[#0D3B29] font-bold text-xs hover:bg-[#F3E5AB] transition shadow-sm"
-                        >
-                          <Printer className="w-3.5 h-3.5" /> Print / Download GST Bill
-                        </button>
                       </div>
+                      <p className="text-xs text-gray-600 font-semibold">{b.userName} • <span className="text-gray-500">{b.userEmail}</span></p>
+                      <p className="text-xs text-gray-500 mt-0.5">📅 {b.checkIn} → {b.checkOut} • {b.nights || b.totalNights} night(s) • UTR: {b.utrNumber || 'N/A'}</p>
+                    </div>
+                  </div>
+
+                  <div className="text-right space-y-1.5 flex-shrink-0">
+                    <p className="font-serif text-xl font-bold text-[#0D3B29]">₹{b.totalAmount?.toLocaleString('en-IN')}</p>
+                    <p className="text-[11px] text-gray-400">{b.invoiceId}</p>
+                    <div className="flex gap-2 justify-end flex-wrap items-center">
+                      <span className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full ${statusColor(b.paymentStatus)}`}>
+                        {b.paymentStatus}
+                      </span>
+                      <button
+                        onClick={() => setSelectedInvoice({
+                          invoiceId: b.invoiceId || `INV-ROOM-${b.bookingId || b.id}`,
+                          title: `Room Stay: ${b.roomName}`,
+                          type: 'room',
+                          date: b.createdAt || b.checkIn,
+                          customerName: b.userName,
+                          customerEmail: b.userEmail,
+                          customerPhone: b.userPhone,
+                          utrNumber: b.utrNumber,
+                          paymentStatus: b.paymentStatus,
+                          items: [{ description: `Room Stay: ${b.roomName} (${b.nights || b.totalNights} Nights)`, quantity: b.nights || b.totalNights, amount: b.totalAmount }],
+                          subtotal: b.subtotal || b.totalAmount,
+                          tax: b.tax || 0,
+                          totalAmount: b.totalAmount
+                        })}
+                        className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-luxury-gold text-[#0D3B29] font-bold text-xs hover:bg-[#F3E5AB] transition shadow-sm"
+                      >
+                        <Printer className="w-3.5 h-3.5" /> GST Bill
+                      </button>
                     </div>
                   </div>
                 </div>
-              );
-            })}
+              </div>
+            ))}
           </div>
         )}
 
-        {/* ──────────── MENU MANAGEMENT ──────────── */}
+        {/* ──────────── RESTAURANT MENU ──────────── */}
         {activeTab === 'menu' && (
           <div className="space-y-4">
             <h3 className="font-serif text-xl font-bold text-[#0D3B29]">Restaurant Menu ({menuItems.length} items)</h3>
-            {(['Breakfast', 'Indian Main Course', 'Rice & Biryani', 'Chinese', 'South Indian', 'Snacks & Thali', 'Salad & Crispy', 'Beverages'] as const).map(cat => {
-              const catItems = menuItems.filter(m => m.category === cat);
-              if (!catItems.length) return null;
-              return (
-                <div key={cat}>
-                  <h4 className="font-bold text-[#0D3B29] text-sm mb-2 px-1">{cat}</h4>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    {catItems.map(item => (
-                      <div key={item.id} className="p-4 bg-white rounded-2xl border border-gray-200 shadow-sm flex items-center gap-3">
-                        <img src={item.image} alt={item.name} className="w-16 h-14 rounded-xl object-cover shadow-sm" />
-                        <div className="flex-1 min-w-0">
-                          <p className="font-bold text-[#0D3B29] text-sm truncate">{item.name}</p>
-                          <p className="text-xs text-gray-500">{item.category}</p>
-                          <p className="font-serif font-bold text-luxury-gold">₹{item.price}</p>
-                        </div>
-                        <button
-                          onClick={() => toggleMenuAvailability(item.id)}
-                          className={`px-3 py-1.5 rounded-full text-[11px] font-bold flex-shrink-0 ${
-                            item.isAvailable ? 'bg-green-100 text-green-800 hover:bg-green-200' : 'bg-red-100 text-red-800 hover:bg-red-200'
-                          }`}
-                        >
-                          {item.isAvailable ? '✓ Available' : '✗ Hidden'}
-                        </button>
-                      </div>
-                    ))}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {menuItems.map((item: any) => (
+                <div key={item._id || item.id} className="p-4 bg-white rounded-2xl border border-gray-200 shadow-sm flex items-center gap-3">
+                  <img src={item.image} alt={item.name} className="w-16 h-14 rounded-xl object-cover shadow-sm" />
+                  <div className="flex-1 min-w-0">
+                    <p className="font-bold text-[#0D3B29] text-sm truncate">{item.name}</p>
+                    <p className="text-xs text-gray-500">{item.category}</p>
+                    <p className="font-serif font-bold text-luxury-gold">₹{item.price}</p>
                   </div>
+                  <span className={`px-3 py-1.5 rounded-full text-[11px] font-bold ${item.isAvailable !== false ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                    {item.isAvailable !== false ? '✓ Available' : '✗ Sold Out'}
+                  </span>
                 </div>
-              );
-            })}
+              ))}
+            </div>
           </div>
         )}
 
@@ -354,17 +517,16 @@ export const AdminDashboard: React.FC = () => {
         {activeTab === 'food-orders' && (
           <div className="space-y-4">
             <h3 className="font-serif text-xl font-bold text-[#0D3B29]">Live Food Orders ({foodOrders.length})</h3>
-            {foodOrders.map(o => (
-              <div key={o.id} className="p-5 rounded-3xl bg-white border border-gray-200 shadow-md space-y-3">
+            {foodOrders.map((o: any) => (
+              <div key={o._id || o.orderId || o.id} className="p-5 rounded-3xl bg-white border border-gray-200 shadow-md space-y-3">
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
                   <div>
-                    <p className="font-bold text-[#0D3B29] text-sm">Order #{o.id} — {o.userName}</p>
-                    <p className="text-xs text-gray-500 mt-0.5">📍 {o.deliveryAddress} • {o.orderType.replace('_', ' ').toUpperCase()}</p>
+                    <p className="font-bold text-[#0D3B29] text-sm">Order #{o.orderId || o.id} — {o.userName}</p>
+                    <p className="text-xs text-gray-500 mt-0.5">📍 {o.deliveryAddress || o.tableNumber} • {(o.orderType || 'delivery').toUpperCase()}</p>
                     <div className="flex flex-wrap gap-1.5 mt-2">
-                      {o.items.map(i => (
-                        <div key={i.itemId} className="flex items-center gap-1.5 bg-gray-50 rounded-lg px-2 py-1 border border-gray-200">
-                          <img src={i.image} alt={i.name} className="w-6 h-6 rounded object-cover" />
-                          <span className="text-[11px] font-semibold text-gray-700">{i.name} ×{i.quantity}</span>
+                      {o.items?.map((i: any, idx: number) => (
+                        <div key={idx} className="flex items-center gap-1.5 bg-gray-50 rounded-lg px-2 py-1 border border-gray-200">
+                          <span className="text-[11px] font-semibold text-gray-700">{i.name} ×{i.quantity} (₹{i.price * i.quantity})</span>
                         </div>
                       ))}
                     </div>
@@ -372,44 +534,42 @@ export const AdminDashboard: React.FC = () => {
                   <div className="text-right space-y-2 flex-shrink-0">
                     <p className="font-serif text-xl font-bold text-[#0D3B29]">₹{o.totalAmount}</p>
                     <span className={`text-[11px] font-bold px-2 py-0.5 rounded-full ${statusColor(o.paymentStatus)}`}>
-                      {o.paymentStatus.toUpperCase()}
+                      {o.paymentStatus}
                     </span>
                     <div className="mt-2 flex items-center justify-end gap-2 flex-wrap">
                       <button
-                        onClick={() => {
-                          setSelectedInvoice({
-                            invoiceId: o.invoiceId || `INV-FOOD-${o.id}`,
-                            title: `Gona Restaurant Food Order (${(o.orderType || 'delivery').toUpperCase()})`,
-                            type: 'food',
-                            date: o.createdAt || new Date().toISOString(),
-                            customerName: o.userName,
-                            customerEmail: o.userEmail || 'guest@gonahotel.com',
-                            customerPhone: o.userPhone || '+91 96966 31621',
-                            paymentId: o.paymentId || 'PAY-ONLINE-UPI',
-                            items: o.items.map((i: any) => ({
-                              description: i.name,
-                              quantity: i.quantity,
-                              amount: i.price * i.quantity
-                            })),
-                            subtotal: o.subtotal || Math.round(o.totalAmount / 1.05),
-                            tax: o.tax || Math.round(o.totalAmount - (o.totalAmount / 1.05)),
-                            totalAmount: o.totalAmount
-                          });
-                        }}
+                        onClick={() => setSelectedInvoice({
+                          invoiceId: o.invoiceId || `INV-FOOD-${o.orderId || o.id}`,
+                          title: `Gona Restaurant Food Order (${(o.orderType || 'delivery').toUpperCase()})`,
+                          type: 'food',
+                          date: o.createdAt,
+                          customerName: o.userName,
+                          customerEmail: o.userEmail,
+                          customerPhone: o.userPhone,
+                          utrNumber: o.utrNumber,
+                          paymentStatus: o.paymentStatus,
+                          items: o.items?.map((i: any) => ({ description: i.name, quantity: i.quantity, amount: i.price * i.quantity })),
+                          subtotal: o.subtotal,
+                          tax: o.tax,
+                          discount: o.discount,
+                          totalAmount: o.totalAmount
+                        })}
                         className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-luxury-gold text-[#0D3B29] font-bold text-xs hover:bg-[#F3E5AB] transition shadow-sm"
                       >
-                        <Printer className="w-3.5 h-3.5" /> Print / Download GST Bill
+                        <Printer className="w-3.5 h-3.5" /> GST Bill
                       </button>
                       <select
                         value={o.orderStatus}
-                        onChange={e => updateFoodStatus(o.id, e.target.value)}
+                        onChange={e => updateFoodStatus(o.orderId || o.id, e.target.value)}
                         className="px-3 py-1.5 rounded-xl bg-[#0D3B29] text-white font-bold text-xs"
                       >
-                        <option value="placed">Placed</option>
-                        <option value="preparing">Preparing</option>
-                        <option value="out_for_delivery">Out for Delivery</option>
-                        <option value="completed">Completed ✓</option>
-                        <option value="cancelled">Cancelled ✗</option>
+                        <option value="PENDING_PAYMENT">Pending Payment</option>
+                        <option value="PAYMENT_SUBMITTED">Payment Submitted</option>
+                        <option value="CONFIRMED">Confirmed</option>
+                        <option value="PREPARING">Preparing</option>
+                        <option value="READY">Ready</option>
+                        <option value="COMPLETED">Completed ✓</option>
+                        <option value="CANCELLED">Cancelled ✗</option>
                       </select>
                     </div>
                   </div>
@@ -419,53 +579,48 @@ export const AdminDashboard: React.FC = () => {
           </div>
         )}
 
+        {/* ──────────── FARM BOOKINGS ──────────── */}
+        {activeTab === 'farm-bookings' && (
+          <div className="space-y-4">
+            <h3 className="font-serif text-xl font-bold text-[#0D3B29]">Farm House Reservations ({farmBookings.length})</h3>
+            {farmBookings.map((f: any) => (
+              <div key={f._id || f.bookingId || f.id} className="p-5 rounded-3xl bg-white border border-gray-200 shadow-md flex items-center justify-between">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <p className="font-bold text-[#0D3B29] text-sm">{f.packageType}</p>
+                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${statusColor(f.status)}`}>
+                      {f.status}
+                    </span>
+                  </div>
+                  <p className="text-xs text-gray-600 font-semibold">{f.userName} • {f.userEmail} • {f.userPhone}</p>
+                  <p className="text-xs text-gray-500 mt-0.5">📅 Date: {f.visitDate} • {f.visitorCount} Guests • UTR: {f.utrNumber || 'N/A'}</p>
+                </div>
+                <div className="text-right">
+                  <p className="font-serif text-xl font-bold text-luxury-gold">₹{f.totalAmount?.toLocaleString('en-IN')}</p>
+                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${statusColor(f.paymentStatus)}`}>
+                    {f.paymentStatus}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
         {/* ──────────── COUPONS ──────────── */}
         {activeTab === 'coupons' && (
           <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <h3 className="font-serif text-xl font-bold text-[#0D3B29]">Promo Coupons</h3>
-              <button onClick={() => setShowAddCoupon(!showAddCoupon)}
-                className="px-4 py-2 rounded-xl bg-[#0D3B29] text-luxury-gold font-bold text-xs flex items-center gap-2">
-                <Plus className="w-4 h-4" /> Add Coupon
-              </button>
-            </div>
-
-            {showAddCoupon && (
-              <div className="p-5 rounded-2xl bg-white border border-luxury-gold/40 shadow-md flex flex-col md:flex-row gap-3 items-end">
-                <div>
-                  <label className="text-xs font-bold text-gray-600 block mb-1">Coupon Code</label>
-                  <input value={newCouponCode} onChange={e => setNewCouponCode(e.target.value.toUpperCase())}
-                    placeholder="e.g. DIWALI30"
-                    className="px-3 py-2 border border-gray-300 rounded-xl text-sm font-mono uppercase focus:outline-none focus:border-luxury-gold" />
-                </div>
-                <div>
-                  <label className="text-xs font-bold text-gray-600 block mb-1">Discount %</label>
-                  <input type="number" min={1} max={90} value={newCouponDiscount} onChange={e => setNewCouponDiscount(Number(e.target.value))}
-                    className="px-3 py-2 border border-gray-300 rounded-xl text-sm w-20 focus:outline-none focus:border-luxury-gold" />
-                </div>
-                <button onClick={addCoupon} className="px-5 py-2 bg-luxury-gold text-[#0D3B29] font-bold text-xs rounded-xl">
-                  Create
-                </button>
-              </div>
-            )}
-
+            <h3 className="font-serif text-xl font-bold text-[#0D3B29]">Active Promo Coupons ({coupons.length})</h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {coupons.map(c => (
+              {coupons.map((c: any) => (
                 <div key={c.code} className="p-5 rounded-3xl bg-white border border-gray-200 shadow-md flex items-center justify-between gap-4">
                   <div>
                     <span className="font-serif text-2xl font-bold text-luxury-gold">{c.code}</span>
                     <p className="text-xs text-gray-600 mt-0.5">{c.discountPercentage}% OFF — up to ₹{c.maxDiscount}</p>
                     <p className="text-[11px] text-gray-400">Min. spend ₹{c.minSpend} • Expires {c.validUntil}</p>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <button onClick={() => toggleCoupon(c.code)}
-                      className={`px-3 py-1.5 rounded-full text-xs font-bold ${c.isActive ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-500'}`}>
-                      {c.isActive ? 'Active' : 'Off'}
-                    </button>
-                    <button onClick={() => deleteCoupon(c.code)} className="p-1.5 rounded-full hover:bg-red-50 text-gray-400 hover:text-red-500">
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
+                  <span className={`px-3 py-1.5 rounded-full text-xs font-bold ${c.isActive ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-500'}`}>
+                    {c.isActive ? 'Active' : 'Off'}
+                  </span>
                 </div>
               ))}
             </div>
@@ -475,22 +630,20 @@ export const AdminDashboard: React.FC = () => {
         {/* ──────────── CUSTOMERS ──────────── */}
         {activeTab === 'customers' && (
           <div className="space-y-4">
-            <h3 className="font-serif text-xl font-bold text-[#0D3B29]">Registered Customers</h3>
+            <h3 className="font-serif text-xl font-bold text-[#0D3B29]">Registered Customers ({customers.length})</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {initialSeedData.users.map(u => (
-                <div key={u.id} className="p-5 rounded-3xl bg-white border border-gray-200 shadow-md flex items-center gap-4">
-                  <img src={u.avatar} alt={u.name} className="w-16 h-16 rounded-full object-cover border-2 border-luxury-gold/30 shadow" />
+              {customers.map((u: any) => (
+                <div key={u.id || u._id} className="p-5 rounded-3xl bg-white border border-gray-200 shadow-md flex items-center gap-4">
+                  <div className="w-14 h-14 rounded-full bg-[#0D3B29] text-luxury-gold font-serif text-xl font-bold flex items-center justify-center border-2 border-luxury-gold shrink-0">
+                    {u.name?.charAt(0).toUpperCase() || 'U'}
+                  </div>
                   <div className="flex-1 min-w-0">
                     <p className="font-serif font-bold text-[#0D3B29]">{u.name}</p>
                     <p className="text-xs text-gray-500 flex items-center gap-1 mt-0.5"><Mail className="w-3 h-3" /> {u.email}</p>
-                    <p className="text-xs text-gray-500 flex items-center gap-1 mt-0.5"><Phone className="w-3 h-3" /> {u.phone}</p>
-                    <span className={`mt-1.5 inline-block text-[11px] font-bold px-2 py-0.5 rounded-full ${u.role === 'admin' ? 'bg-purple-100 text-purple-800' : 'bg-blue-100 text-blue-800'}`}>
-                      {u.role.toUpperCase()}
+                    <p className="text-xs text-gray-500 flex items-center gap-1 mt-0.5"><Phone className="w-3 h-3" /> {u.phone || 'N/A'}</p>
+                    <span className={`mt-1.5 inline-block text-[11px] font-bold px-2.5 py-0.5 rounded-full ${u.role === 'admin' ? 'bg-purple-100 text-purple-800' : 'bg-blue-100 text-blue-800'}`}>
+                      {u.role?.toUpperCase() || 'USER'}
                     </span>
-                  </div>
-                  <div className="text-right text-xs text-gray-500 flex-shrink-0">
-                    <p className="font-bold">{u.wishlist.rooms.length} <span className="font-normal">saved rooms</span></p>
-                    <p className="font-bold mt-0.5">{u.wishlist.food.length} <span className="font-normal">saved dishes</span></p>
                   </div>
                 </div>
               ))}
@@ -500,7 +653,7 @@ export const AdminDashboard: React.FC = () => {
 
       </div>
 
-      {/* Invoice Modal for Admin Print / Download */}
+      {/* Invoice Modal */}
       {selectedInvoice && (
         <InvoiceModal
           isOpen={!!selectedInvoice}

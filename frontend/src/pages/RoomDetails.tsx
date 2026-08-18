@@ -2,13 +2,14 @@ import React, { useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { 
   Star, Users, Maximize, Bed, CheckCircle2, ArrowLeft, Heart, Lock, 
-  Wifi, Tv, Wind, Coffee, ShieldCheck
+  Wifi, Tv, Wind, Coffee, ShieldCheck, Loader2
 } from 'lucide-react';
 import { initialSeedData } from '../data/seedData';
 import { PaymentModal } from '../components/PaymentModal';
 import { InvoiceModal } from '../components/InvoiceModal';
 import { useAuth } from '../context/AuthContext';
 import { useNotification } from '../context/NotificationContext';
+import { apiService } from '../services/api';
 
 export const RoomDetails: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -26,7 +27,9 @@ export const RoomDetails: React.FC = () => {
   const [checkOut, setCheckOut] = useState(getTomorrowStr());
   const [guests, setGuests] = useState(room.maxGuests <= 2 ? room.maxGuests : 2);
   const [specialRequests, setSpecialRequests] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const [pendingBooking, setPendingBooking] = useState<any>(null);
   const [isPaymentOpen, setIsPaymentOpen] = useState(false);
   const [isInvoiceOpen, setIsInvoiceOpen] = useState(false);
   const [confirmedInvoice, setConfirmedInvoice] = useState<any>(null);
@@ -38,53 +41,77 @@ export const RoomDetails: React.FC = () => {
   const diffDays = Math.round((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
   const totalNights = diffDays > 0 ? diffDays : 1;
   const subtotal = room.pricePerNight * totalNights;
-  const tax = 0;
   const totalAmount = subtotal;
 
-  const handleBookingSubmit = (e: React.FormEvent) => {
+  const handleBookingSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!isAuthenticated) {
       showToast('Please sign in to complete your stay booking', 'info');
       navigate('/login');
       return;
     }
-    setIsPaymentOpen(true);
+
+    setIsSubmitting(true);
+    try {
+      const res = await apiService.createRoomBooking({
+        roomId: room.id,
+        checkIn,
+        checkOut,
+        guests: { adults: guests, children: 0 },
+        userName: user?.name,
+        userEmail: user?.email,
+        userPhone: user?.phone,
+        specialRequests
+      });
+
+      if (res.status === 201 && res.data?.booking) {
+        setPendingBooking(res.data.booking);
+        setIsPaymentOpen(true);
+      } else {
+        showToast(res.data?.message || 'Failed to create room booking', 'error');
+      }
+    } catch (err: any) {
+      showToast(err.message || 'Server error creating booking', 'error');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
-  const handlePaymentSuccess = (paymentId: string) => {
+  const handlePaymentSuccess = (paymentRefId: string, utrNumber?: string) => {
     setIsPaymentOpen(false);
 
     const invoiceData = {
-      invoiceId: 'INV-ROOM-' + Date.now().toString().slice(-6),
+      invoiceId: pendingBooking?.invoiceId || ('INV-ROOM-' + Date.now().toString().slice(-6)),
       title: `${room.title} Stay Reservation`,
       type: 'room' as const,
       date: new Date().toISOString(),
       customerName: user?.name || '',
       customerEmail: user?.email || '',
       customerPhone: user?.phone || '',
-      paymentId,
+      paymentId: paymentRefId,
+      utrNumber: utrNumber || paymentRefId,
+      paymentStatus: 'PAYMENT_SUBMITTED',
       items: [
         {
           description: `${room.title} (${totalNights} Night Stay from ${checkIn} to ${checkOut})`,
           quantity: totalNights,
-          amount: subtotal
+          amount: pendingBooking?.subtotal || subtotal
         }
       ],
-      subtotal,
-      tax,
-      totalAmount
+      subtotal: pendingBooking?.subtotal || subtotal,
+      tax: pendingBooking?.tax || 0,
+      totalAmount: pendingBooking?.totalAmount || totalAmount
     };
 
     setConfirmedInvoice(invoiceData);
     setIsInvoiceOpen(true);
-    showToast('Room booking confirmed! Instant invoice generated.', 'success');
   };
 
   return (
     <div className="min-h-screen bg-[#F7F4EB] text-luxury-obsidian pt-28 pb-24">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
         
-        {/* Breadcrumb matching UI Image 2 */}
+        {/* Breadcrumb */}
         <div className="flex items-center justify-between text-xs text-gray-500">
           <div className="flex items-center gap-2">
             <Link to="/" className="hover:text-luxury-emerald">Home</Link>
@@ -99,10 +126,10 @@ export const RoomDetails: React.FC = () => {
           </Link>
         </div>
 
-        {/* Room View & Booking Panel Matching UI Image 2 */}
+        {/* Room View & Booking Panel */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           
-          {/* Main Large Image & 4 Thumbnails (Left 2 cols) */}
+          {/* Main Large Image & Thumbnails */}
           <div className="lg:col-span-2 space-y-4">
             <div className="relative aspect-[16/10] rounded-3xl overflow-hidden shadow-2xl bg-black border border-gray-200">
               <img
@@ -121,7 +148,7 @@ export const RoomDetails: React.FC = () => {
               </button>
             </div>
 
-            {/* 4 Thumbnail Row */}
+            {/* Thumbnail Row */}
             <div className="grid grid-cols-4 gap-4">
               {room.images.map((img, idx) => (
                 <button
@@ -137,7 +164,7 @@ export const RoomDetails: React.FC = () => {
             </div>
           </div>
 
-          {/* Right Sticky Booking Card Matching UI Image 2 */}
+          {/* Right Sticky Booking Card */}
           <div className="lg:col-span-1">
             <div className="bg-white p-6 sm:p-8 rounded-3xl border border-gray-200 shadow-2xl space-y-6 sticky top-28">
               
@@ -154,7 +181,7 @@ export const RoomDetails: React.FC = () => {
                 </p>
               </div>
 
-              {/* Amenity Icons Grid */}
+              {/* Amenity Grid */}
               <div className="grid grid-cols-3 gap-2 text-[11px] text-gray-700 font-semibold py-2 border-b border-gray-100">
                 <div className="flex items-center gap-1.5"><Users className="w-3.5 h-3.5 text-luxury-gold" /> {room.maxGuests} Guests</div>
                 <div className="flex items-center gap-1.5"><Bed className="w-3.5 h-3.5 text-luxury-gold" /> {room.bedType}</div>
@@ -225,9 +252,16 @@ export const RoomDetails: React.FC = () => {
 
                 <button
                   type="submit"
-                  className="w-full py-3.5 rounded-xl bg-[#0D3B29] hover:bg-[#134A35] text-white font-bold text-sm tracking-wider shadow-lg flex items-center justify-center gap-2 transition-all"
+                  disabled={isSubmitting}
+                  className="w-full py-3.5 rounded-xl bg-[#0D3B29] hover:bg-[#134A35] text-white font-bold text-sm tracking-wider shadow-lg flex items-center justify-center gap-2 transition-all disabled:opacity-50"
                 >
-                  Check Availability & Book
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" /> Verifying Availability...
+                    </>
+                  ) : (
+                    'Check Availability & Book'
+                  )}
                 </button>
 
               </form>
@@ -242,9 +276,11 @@ export const RoomDetails: React.FC = () => {
       <PaymentModal
         isOpen={isPaymentOpen}
         onClose={() => setIsPaymentOpen(false)}
-        amount={totalAmount}
+        amount={pendingBooking?.totalAmount || totalAmount}
         title={`Book ${room.title}`}
         description={`${totalNights} Night Stay (${checkIn} to ${checkOut})`}
+        bookingId={pendingBooking?.bookingId || pendingBooking?._id}
+        bookingType="room"
         onSuccess={handlePaymentSuccess}
       />
 

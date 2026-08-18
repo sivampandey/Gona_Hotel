@@ -1,24 +1,28 @@
 import React, { useState } from 'react';
-import { useSearchParams, Link } from 'react-router-dom';
-import { Home as HomeIcon, Lock, ArrowLeft, Ticket } from 'lucide-react';
+import { useSearchParams, Link, useNavigate } from 'react-router-dom';
+import { Home as HomeIcon, Lock, ArrowLeft, Ticket, Loader2 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useNotification } from '../context/NotificationContext';
 import { PaymentModal } from '../components/PaymentModal';
 import { InvoiceModal } from '../components/InvoiceModal';
+import { apiService } from '../services/api';
 
 export const FarmBookingPage: React.FC = () => {
   const [searchParams] = useSearchParams();
-  const { user } = useAuth();
+  const { user, isAuthenticated } = useAuth();
   const { showToast } = useNotification();
+  const navigate = useNavigate();
 
   const [visitDate, setVisitDate] = useState('2026-08-15');
   const [guestCount, setGuestCount] = useState(4);
   const [packageType, setPackageType] = useState(searchParams.get('package') || 'Full Farm House Overnight Stay');
-  const [userName, setUserName] = useState(user?.name || 'Alexander Wright');
-  const [userEmail, setUserEmail] = useState(user?.email || 'guest@gonahotel.com');
-  const [userPhone, setUserPhone] = useState(user?.phone || '+91 98765 12345');
+  const [userName, setUserName] = useState(user?.name || '');
+  const [userEmail, setUserEmail] = useState(user?.email || '');
+  const [userPhone, setUserPhone] = useState(user?.phone || '');
   const [specialRequests, setSpecialRequests] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const [pendingBooking, setPendingBooking] = useState<any>(null);
   const [isPaymentOpen, setIsPaymentOpen] = useState(false);
   const [isInvoiceOpen, setIsInvoiceOpen] = useState(false);
   const [confirmedTicket, setConfirmedTicket] = useState<any>(null);
@@ -34,42 +38,72 @@ export const FarmBookingPage: React.FC = () => {
   const tax = Math.round(subtotal * 0.05);
   const totalAmount = subtotal + tax;
 
-  const handleBookingSubmit = (e: React.FormEvent) => {
+  const handleBookingSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsPaymentOpen(true);
+    if (!isAuthenticated) {
+      showToast('Please sign in to reserve the farm house', 'info');
+      navigate('/login');
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      const res = await apiService.createFarmBooking({
+        visitDate,
+        visitorCount: guestCount,
+        packageType,
+        userName: userName || user?.name,
+        userEmail: userEmail || user?.email,
+        userPhone: userPhone || user?.phone,
+        specialRequests
+      });
+
+      if (res.status === 201 && res.data?.booking) {
+        setPendingBooking(res.data.booking);
+        setIsPaymentOpen(true);
+      } else {
+        showToast(res.data?.message || 'Failed to reserve farm house', 'error');
+      }
+    } catch (err: any) {
+      showToast(err.message || 'Server error creating farm booking', 'error');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
-  const handlePaymentSuccess = (paymentId: string) => {
+  const handlePaymentSuccess = (paymentRefId: string, utrNumber?: string) => {
     setIsPaymentOpen(false);
 
     const invoiceData = {
-      invoiceId: 'INV-[#0D3B29]FH-' + Date.now().toString().slice(-6),
+      invoiceId: pendingBooking?.invoiceId || ('INV-FH-' + Date.now().toString().slice(-6)),
       title: `Gona Private Farm House Reservation (${packageType})`,
       type: 'farm' as const,
       date: new Date().toISOString(),
-      customerName: userName,
-      customerEmail: userEmail,
-      customerPhone: userPhone,
-      paymentId,
+      customerName: userName || user?.name || '',
+      customerEmail: userEmail || user?.email || '',
+      customerPhone: userPhone || user?.phone || '',
+      paymentId: paymentRefId,
+      utrNumber: utrNumber || paymentRefId,
+      paymentStatus: 'PAYMENT_SUBMITTED',
       items: [
         {
           description: `${packageType} for ${guestCount} Guest(s) on ${visitDate}`,
           quantity: 1,
-          amount: subtotal
+          amount: pendingBooking?.subtotal || subtotal
         }
       ],
-      subtotal,
-      tax,
-      totalAmount
+      subtotal: pendingBooking?.subtotal || subtotal,
+      tax: pendingBooking?.tax || tax,
+      totalAmount: pendingBooking?.totalAmount || totalAmount
     };
 
     setConfirmedTicket({
-      id: 'fh_' + Date.now(),
-      paymentId,
+      id: pendingBooking?.bookingId || ('fh_' + Date.now()),
+      paymentId: paymentRefId,
       invoiceData
     });
 
-    showToast('Farm House reservation confirmed! Printable invoice ready.', 'success');
+    showToast('Farm House reservation submitted for verification! Invoice ready.', 'success');
   };
 
   return (
@@ -85,7 +119,7 @@ export const FarmBookingPage: React.FC = () => {
             <div className="w-16 h-16 rounded-full bg-green-100 text-green-700 flex items-center justify-center mx-auto">
               <Ticket className="w-10 h-10" />
             </div>
-            <h2 className="font-serif text-3xl font-bold text-[#0D3B29]">Farm House Reservation Confirmed</h2>
+            <h2 className="font-serif text-3xl font-bold text-[#0D3B29]">Farm House Reservation Submitted</h2>
             <p className="text-xs text-gray-600">Booking Ref: <strong>{confirmedTicket.id}</strong> • Reserved Date: <strong>{visitDate}</strong></p>
 
             <div className="flex justify-center gap-4 pt-4">
@@ -93,7 +127,7 @@ export const FarmBookingPage: React.FC = () => {
                 onClick={() => setIsInvoiceOpen(true)}
                 className="px-6 py-3 rounded-full bg-luxury-gold text-[#0D3B29] font-bold text-xs"
               >
-                View / Print GST Invoice
+                View / Download GST Invoice
               </button>
               <Link
                 to="/profile?tab=farm"
@@ -223,9 +257,18 @@ export const FarmBookingPage: React.FC = () => {
 
               <button
                 type="submit"
-                className="w-full py-4 rounded-xl bg-luxury-gold hover:bg-luxury-gold-light text-[#0D3B29] font-bold text-base tracking-wider flex items-center justify-center gap-2 shadow-xl"
+                disabled={isSubmitting}
+                className="w-full py-4 rounded-xl bg-luxury-gold hover:bg-luxury-gold-light text-[#0D3B29] font-bold text-base tracking-wider flex items-center justify-center gap-2 shadow-xl disabled:opacity-50"
               >
-                <Lock className="w-4 h-4" /> Pay ₹{totalAmount.toLocaleString('en-IN')} & Confirm Reservation
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="w-5 h-5 animate-spin" /> Reserving Farm House...
+                  </>
+                ) : (
+                  <>
+                    <Lock className="w-4 h-4" /> Pay ₹{totalAmount.toLocaleString('en-IN')} & Confirm Reservation
+                  </>
+                )}
               </button>
 
             </form>
@@ -237,9 +280,11 @@ export const FarmBookingPage: React.FC = () => {
       <PaymentModal
         isOpen={isPaymentOpen}
         onClose={() => setIsPaymentOpen(false)}
-        amount={totalAmount}
+        amount={pendingBooking?.totalAmount || totalAmount}
         title="Gona Private Farm House Reservation"
         description={`${packageType} on ${visitDate}`}
+        bookingId={pendingBooking?.bookingId || pendingBooking?._id}
+        bookingType="farm"
         onSuccess={handlePaymentSuccess}
       />
     </div>

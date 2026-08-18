@@ -8,7 +8,7 @@ import { getMenuItems, createMenuItem, updateMenuItem, deleteMenuItem } from '..
 import { createRoomBooking, getUserBookings, getAllBookingsAdmin, updateBookingStatusAdmin } from '../controllers/bookingController';
 import { createFoodOrder, getUserFoodOrders, getFoodOrderById, getAllFoodOrdersAdmin, updateFoodOrderStatusAdmin } from '../controllers/foodOrderController';
 import { createFarmBooking, getUserFarmBookings, getAllFarmBookingsAdmin, updateFarmBookingStatusAdmin } from '../controllers/farmController';
-import { createRazorpayOrder, verifyRazorpayPayment } from '../controllers/paymentController';
+import { submitUtrProof, getPendingTransactionsAdmin, verifyOrRejectPaymentAdmin, createRazorpayOrder, verifyRazorpayPayment } from '../controllers/paymentController';
 import { 
   getAdminAnalytics, getGalleryAdmin, addGalleryItemAdmin, deleteGalleryItemAdmin, 
   getReviewsAdmin, createReview, toggleReviewApprovalAdmin, getCouponsAdmin, 
@@ -30,32 +30,41 @@ router.post('/rooms', authenticateToken, requireAdmin, createRoom);
 router.put('/rooms/:id', authenticateToken, requireAdmin, updateRoom);
 router.post('/rooms/:id/block-dates', authenticateToken, requireAdmin, blockRoomDates);
 
-// Room Booking Routes
+// Room Booking Routes (Canonical + Alias)
 router.post('/bookings/rooms', authenticateToken, createRoomBooking);
+router.post('/bookings/room', authenticateToken, createRoomBooking); // Alias
 router.get('/bookings/rooms/my', authenticateToken, getUserBookings);
 router.get('/admin/bookings/rooms', authenticateToken, requireAdmin, getAllBookingsAdmin);
 router.put('/admin/bookings/rooms/:id', authenticateToken, requireAdmin, updateBookingStatusAdmin);
 
-// Restaurant & Menu Routes
+// Restaurant & Menu Routes (Canonical + Alias)
 router.get('/food/menu', getMenuItems);
+router.get('/menu', getMenuItems); // Alias
 router.post('/food/menu', authenticateToken, requireAdmin, createMenuItem);
 router.put('/food/menu/:id', authenticateToken, requireAdmin, updateMenuItem);
 router.delete('/food/menu/:id', authenticateToken, requireAdmin, deleteMenuItem);
 
-// Food Order Routes
+// Food Order Routes (Canonical + Alias)
 router.post('/food/orders', authenticateToken, createFoodOrder);
+router.post('/orders/food', authenticateToken, createFoodOrder); // Alias
 router.get('/food/orders/my', authenticateToken, getUserFoodOrders);
 router.get('/food/orders/track/:id', getFoodOrderById);
 router.get('/admin/food/orders', authenticateToken, requireAdmin, getAllFoodOrdersAdmin);
 router.put('/admin/food/orders/:id', authenticateToken, requireAdmin, updateFoodOrderStatusAdmin);
 
-// Farm Booking Routes
+// Farm Booking Routes (Canonical + Alias)
 router.post('/farm/bookings', authenticateToken, createFarmBooking);
+router.post('/bookings/farm', authenticateToken, createFarmBooking); // Alias
 router.get('/farm/bookings/my', authenticateToken, getUserFarmBookings);
 router.get('/admin/farm/bookings', authenticateToken, requireAdmin, getAllFarmBookingsAdmin);
 router.put('/admin/farm/bookings/:id', authenticateToken, requireAdmin, updateFarmBookingStatusAdmin);
 
 // Payment Routes
+router.post('/payments/submit-utr', authenticateToken, submitUtrProof);
+router.get('/admin/payments/pending', authenticateToken, requireAdmin, getPendingTransactionsAdmin);
+router.put('/admin/payments/verify/:id', authenticateToken, requireAdmin, verifyOrRejectPaymentAdmin);
+
+// Legacy/Mock Razorpay Routes
 router.post('/payment/razorpay/order', createRazorpayOrder);
 router.post('/payment/razorpay/verify', verifyRazorpayPayment);
 

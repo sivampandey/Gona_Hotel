@@ -1,5 +1,18 @@
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
+const getHeaders = (includeAuth = true) => {
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json'
+  };
+  if (includeAuth) {
+    const token = localStorage.getItem('gona_token');
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+  }
+  return headers;
+};
+
 export const checkBackendHealth = async (): Promise<boolean> => {
   try {
     const res = await fetch(`${API_BASE_URL}/health`, { method: 'GET' });
@@ -16,7 +29,7 @@ export const apiService = {
   login: async (email: string, password?: string) => {
     const res = await fetch(`${API_BASE_URL}/auth/login`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: getHeaders(false),
       body: JSON.stringify({ email, password })
     });
     return { data: await res.json(), status: res.status };
@@ -25,8 +38,15 @@ export const apiService = {
   register: async (name: string, email: string, password?: string, phone?: string) => {
     const res = await fetch(`${API_BASE_URL}/auth/register`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: getHeaders(false),
       body: JSON.stringify({ name, email, password, phone })
+    });
+    return { data: await res.json(), status: res.status };
+  },
+
+  getProfile: async () => {
+    const res = await fetch(`${API_BASE_URL}/auth/profile`, {
+      headers: getHeaders(true)
     });
     return { data: await res.json(), status: res.status };
   },
@@ -37,48 +57,176 @@ export const apiService = {
     return { data: await res.json(), status: res.status };
   },
 
-  // Food Menu API
-  getMenu: async () => {
-    const res = await fetch(`${API_BASE_URL}/menu`);
+  getRoomById: async (identifier: string) => {
+    const res = await fetch(`${API_BASE_URL}/rooms/${identifier}`);
     return { data: await res.json(), status: res.status };
   },
 
-  // Bookings API
+  // Food Menu API
+  getMenu: async () => {
+    const res = await fetch(`${API_BASE_URL}/food/menu`);
+    return { data: await res.json(), status: res.status };
+  },
+
+  // Room Bookings API
   createRoomBooking: async (bookingData: any) => {
-    const token = localStorage.getItem('gona_token');
-    const res = await fetch(`${API_BASE_URL}/bookings/room`, {
+    const res = await fetch(`${API_BASE_URL}/bookings/rooms`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      },
+      headers: getHeaders(true),
       body: JSON.stringify(bookingData)
     });
     return { data: await res.json(), status: res.status };
   },
 
+  getUserRoomBookings: async () => {
+    const res = await fetch(`${API_BASE_URL}/bookings/rooms/my`, {
+      headers: getHeaders(true)
+    });
+    return { data: await res.json(), status: res.status };
+  },
+
+  getAllRoomBookingsAdmin: async () => {
+    const res = await fetch(`${API_BASE_URL}/admin/bookings/rooms`, {
+      headers: getHeaders(true)
+    });
+    return { data: await res.json(), status: res.status };
+  },
+
+  updateRoomBookingStatusAdmin: async (id: string, statusData: any) => {
+    const res = await fetch(`${API_BASE_URL}/admin/bookings/rooms/${id}`, {
+      method: 'PUT',
+      headers: getHeaders(true),
+      body: JSON.stringify(statusData)
+    });
+    return { data: await res.json(), status: res.status };
+  },
+
+  // Food Orders API
   createFoodOrder: async (orderData: any) => {
-    const token = localStorage.getItem('gona_token');
-    const res = await fetch(`${API_BASE_URL}/orders/food`, {
+    const res = await fetch(`${API_BASE_URL}/food/orders`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      },
+      headers: getHeaders(true),
       body: JSON.stringify(orderData)
     });
     return { data: await res.json(), status: res.status };
   },
 
+  getUserFoodOrders: async () => {
+    const res = await fetch(`${API_BASE_URL}/food/orders/my`, {
+      headers: getHeaders(true)
+    });
+    return { data: await res.json(), status: res.status };
+  },
+
+  getAllFoodOrdersAdmin: async () => {
+    const res = await fetch(`${API_BASE_URL}/admin/food/orders`, {
+      headers: getHeaders(true)
+    });
+    return { data: await res.json(), status: res.status };
+  },
+
+  updateFoodOrderStatusAdmin: async (id: string, statusData: any) => {
+    const res = await fetch(`${API_BASE_URL}/admin/food/orders/${id}`, {
+      method: 'PUT',
+      headers: getHeaders(true),
+      body: JSON.stringify(statusData)
+    });
+    return { data: await res.json(), status: res.status };
+  },
+
+  // Farm Bookings API
   createFarmBooking: async (farmData: any) => {
-    const token = localStorage.getItem('gona_token');
-    const res = await fetch(`${API_BASE_URL}/bookings/farm`, {
+    const res = await fetch(`${API_BASE_URL}/farm/bookings`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      },
+      headers: getHeaders(true),
       body: JSON.stringify(farmData)
+    });
+    return { data: await res.json(), status: res.status };
+  },
+
+  getUserFarmBookings: async () => {
+    const res = await fetch(`${API_BASE_URL}/farm/bookings/my`, {
+      headers: getHeaders(true)
+    });
+    return { data: await res.json(), status: res.status };
+  },
+
+  getAllFarmBookingsAdmin: async () => {
+    const res = await fetch(`${API_BASE_URL}/admin/farm/bookings`, {
+      headers: getHeaders(true)
+    });
+    return { data: await res.json(), status: res.status };
+  },
+
+  updateFarmBookingStatusAdmin: async (id: string, statusData: any) => {
+    const res = await fetch(`${API_BASE_URL}/admin/farm/bookings/${id}`, {
+      method: 'PUT',
+      headers: getHeaders(true),
+      body: JSON.stringify(statusData)
+    });
+    return { data: await res.json(), status: res.status };
+  },
+
+  // Payment UTR Proof API
+  submitUtrProof: async (paymentData: {
+    bookingId?: string;
+    orderId?: string;
+    bookingType: 'room' | 'food' | 'farm';
+    utrNumber: string;
+    payerName?: string;
+  }) => {
+    const res = await fetch(`${API_BASE_URL}/payments/submit-utr`, {
+      method: 'POST',
+      headers: getHeaders(true),
+      body: JSON.stringify(paymentData)
+    });
+    return { data: await res.json(), status: res.status };
+  },
+
+  getPendingPaymentsAdmin: async () => {
+    const res = await fetch(`${API_BASE_URL}/admin/payments/pending`, {
+      headers: getHeaders(true)
+    });
+    return { data: await res.json(), status: res.status };
+  },
+
+  verifyOrRejectPaymentAdmin: async (id: string, actionData: { action: 'verify' | 'reject'; rejectionReason?: string; bookingType?: string }) => {
+    const res = await fetch(`${API_BASE_URL}/admin/payments/verify/${id}`, {
+      method: 'PUT',
+      headers: getHeaders(true),
+      body: JSON.stringify(actionData)
+    });
+    return { data: await res.json(), status: res.status };
+  },
+
+  // Coupons API
+  validateCoupon: async (code: string, amount: number) => {
+    const res = await fetch(`${API_BASE_URL}/coupons/validate`, {
+      method: 'POST',
+      headers: getHeaders(false),
+      body: JSON.stringify({ code, amount })
+    });
+    return { data: await res.json(), status: res.status };
+  },
+
+  getCouponsAdmin: async () => {
+    const res = await fetch(`${API_BASE_URL}/admin/coupons`, {
+      headers: getHeaders(true)
+    });
+    return { data: await res.json(), status: res.status };
+  },
+
+  // Admin Analytics & Customers
+  getAdminAnalytics: async () => {
+    const res = await fetch(`${API_BASE_URL}/admin/analytics`, {
+      headers: getHeaders(true)
+    });
+    return { data: await res.json(), status: res.status };
+  },
+
+  getCustomersAdmin: async () => {
+    const res = await fetch(`${API_BASE_URL}/admin/customers`, {
+      headers: getHeaders(true)
     });
     return { data: await res.json(), status: res.status };
   }

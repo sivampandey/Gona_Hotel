@@ -1,66 +1,60 @@
 import { Request, Response } from 'express';
-
-export interface MemoryFarmBooking {
-  id: string;
-  userId: string;
-  userName: string;
-  userEmail: string;
-  userPhone: string;
-  visitDate: string;
-  visitorCount: number;
-  packageType: 'standard' | 'guided_tour' | 'picnic_lunch' | 'vip_experience';
-  specialRequests?: string;
-  pricePerVisitor: number;
-  totalAmount: number;
-  paymentStatus: 'pending' | 'paid';
-  status: 'confirmed' | 'completed' | 'cancelled';
-  paymentId: string;
-  invoiceId: string;
-  createdAt: string;
-}
-
-export let memoryFarmBookings: MemoryFarmBooking[] = [];
+import FarmBooking from '../models/FarmBooking';
 
 export const createFarmBooking = async (req: any, res: Response) => {
   try {
-    const userId = req.user?.id || 'usr_guest';
-    const { visitDate, visitorCount, packageType, userName, userEmail, userPhone, specialRequests, paymentId } = req.body;
+    const userId = req.user?.id;
+    if (!userId) {
+      return res.status(401).json({ message: 'Authentication required' });
+    }
+
+    const { 
+      visitDate, visitorCount, packageType, 
+      userName, userEmail, userPhone, specialRequests 
+    } = req.body;
 
     const packagePrices: Record<string, number> = {
-      standard: 800,
-      guided_tour: 1200,
-      picnic_lunch: 1500,
-      vip_experience: 2500
+      'Full Farm House Overnight Stay': 18000,
+      'Day Pool & Lawn Picnic Package': 6500,
+      'Night Bonfire & BBQ Party': 8500,
+      'Private Celebration & Birthday Lawn': 12500,
+      'standard': 800,
+      'guided_tour': 1200,
+      'picnic_lunch': 1500,
+      'vip_experience': 2500
     };
 
     const count = Number(visitorCount) || 1;
-    const pricePerVisitor = packagePrices[packageType] || 1200;
-    const totalAmount = count * pricePerVisitor;
+    const pkg = packageType || 'Full Farm House Overnight Stay';
+    const subtotal = packagePrices[pkg] || 18000;
+    const tax = Math.round(subtotal * 0.05); // 5% GST
+    const totalAmount = subtotal + tax;
     const invoiceId = 'INV-FARM-' + Date.now().toString().slice(-6);
+    const bookingId = 'fh_' + Date.now();
 
-    const booking: MemoryFarmBooking = {
-      id: 'farm_' + Date.now(),
+    const booking = await FarmBooking.create({
+      bookingId,
       userId,
-      userName: userName || 'Valued Visitor',
-      userEmail: userEmail || 'guest@gonahotel.com',
-      userPhone: userPhone || '+91 98765 00000',
+      userName: userName || req.user.name || 'Valued Visitor',
+      userEmail: userEmail || req.user.email || 'guest@gonahotel.com',
+      userPhone: userPhone || req.user.phone || '+91 96966 31621',
       visitDate,
       visitorCount: count,
-      packageType: packageType || 'guided_tour',
+      packageType: pkg,
       specialRequests: specialRequests || '',
-      pricePerVisitor,
+      pricePerVisitor: subtotal,
+      subtotal,
+      tax,
+      discount: 0,
       totalAmount,
-      paymentStatus: 'paid',
-      status: 'confirmed',
-      paymentId: paymentId || 'pay_rzp_mock_' + Date.now(),
-      invoiceId,
-      createdAt: new Date().toISOString()
-    };
-
-    memoryFarmBookings.unshift(booking);
+      paymentMethod: 'UPI_QR',
+      paymentStatus: 'PENDING_PAYMENT',
+      status: 'PENDING_PAYMENT',
+      invoiceId
+    });
 
     return res.status(201).json({
-      message: 'Farm visit booked successfully!',
+      message: 'Pending farm booking created successfully',
       booking
     });
   } catch (error: any) {
@@ -70,8 +64,10 @@ export const createFarmBooking = async (req: any, res: Response) => {
 
 export const getUserFarmBookings = async (req: any, res: Response) => {
   try {
-    const userId = req.user.id;
-    const userBookings = memoryFarmBookings.filter(b => b.userId === userId);
+    const userId = req.user?.id;
+    if (!userId) return res.status(401).json({ message: 'Unauthorized' });
+
+    const userBookings = await FarmBooking.find({ userId }).sort({ createdAt: -1 });
     return res.json(userBookings);
   } catch (error: any) {
     return res.status(500).json({ message: error.message || 'Server error' });
@@ -80,7 +76,8 @@ export const getUserFarmBookings = async (req: any, res: Response) => {
 
 export const getAllFarmBookingsAdmin = async (req: Request, res: Response) => {
   try {
-    return res.json(memoryFarmBookings);
+    const bookings = await FarmBooking.find({}).sort({ createdAt: -1 });
+    return res.json(bookings);
   } catch (error: any) {
     return res.status(500).json({ message: error.message || 'Server error' });
   }
@@ -90,13 +87,16 @@ export const updateFarmBookingStatusAdmin = async (req: Request, res: Response) 
   try {
     const { id } = req.params;
     const { status, paymentStatus } = req.body;
-    const booking = memoryFarmBookings.find(b => b.id === id);
-    if (!booking) return res.status(404).json({ message: 'Booking not found' });
+
+    const booking = await FarmBooking.findOne({ $or: [{ bookingId: id }, { _id: id.match(/^[0-9a-fA-F]{24}$/) ? id : null }] });
+    if (!booking) return res.status(404).json({ message: 'Farm booking not found' });
 
     if (status) booking.status = status;
     if (paymentStatus) booking.paymentStatus = paymentStatus;
 
-    return res.json({ message: 'Farm booking status updated', booking });
+    await booking.save();
+
+    return res.json({ message: 'Farm booking status updated successfully', booking });
   } catch (error: any) {
     return res.status(500).json({ message: error.message || 'Server error' });
   }

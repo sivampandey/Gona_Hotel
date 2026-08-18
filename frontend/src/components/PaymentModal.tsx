@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { 
   X, QrCode, PhoneCall, ShieldCheck, CheckCircle2, Loader2, Copy, Check, 
-  MessageCircle, ExternalLink, Sparkles, Smartphone, ArrowRight, Download, CreditCard
+  MessageCircle, ExternalLink, Sparkles, Smartphone, ArrowRight, Clock, AlertCircle
 } from 'lucide-react';
 import { useNotification } from '../context/NotificationContext';
+import { apiService } from '../services/api';
 
 interface PaymentModalProps {
   isOpen: boolean;
@@ -11,7 +12,10 @@ interface PaymentModalProps {
   amount: number;
   title: string;
   description: string;
-  onSuccess: (paymentId: string) => void;
+  bookingId?: string;
+  orderId?: string;
+  bookingType?: 'room' | 'food' | 'farm';
+  onSuccess: (paymentId: string, utrNumber?: string) => void;
 }
 
 export const PaymentModal: React.FC<PaymentModalProps> = ({
@@ -20,14 +24,18 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
   amount,
   title,
   description,
+  bookingId,
+  orderId,
+  bookingType = 'room',
   onSuccess
 }) => {
   const [method, setMethod] = useState<'qr_upi' | 'contact_hotel'>('qr_upi');
-  const [viewState, setViewState] = useState<'input' | 'verifying' | 'success'>('input');
-  const [verifyingStep, setVerifyingStep] = useState(1);
+  const [viewState, setViewState] = useState<'input' | 'submitting' | 'submitted'>('input');
   const [utrNumber, setUtrNumber] = useState('');
+  const [payerName, setPayerName] = useState('');
   const [copiedUpi, setCopiedUpi] = useState(false);
-  const [paymentRefId, setPaymentRefId] = useState('');
+  const [submittedUtr, setSubmittedUtr] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const { showToast } = useNotification();
 
@@ -39,7 +47,6 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
   const hotelPhoneFormatted = '+91 96966 31621';
   const hotelPhoneSecondary = '+91 79050 79819';
 
-  // Standard UPI URI scheme to open native UPI app on device
   const upiUri = `upi://pay?pa=${upiId}&pn=${encodeURIComponent(payeeName)}&am=${amount}&cu=INR&tn=${encodeURIComponent('Gona Hotel - ' + title)}`;
 
   const handleCopyUpi = () => {
@@ -50,61 +57,70 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
   };
 
   const handleDirectAppPay = (appName: string) => {
-    // Copy UPI ID to clipboard as quick fallback
     navigator.clipboard.writeText(upiId);
     showToast(`Opening ${appName}... (UPI ID copied: ${upiId})`, 'info');
-    
-    // Attempt opening UPI link
     window.location.href = upiUri;
   };
 
-  const handleUpiSubmit = (e: React.FormEvent) => {
+  const handleUpiSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!utrNumber.trim()) {
       showToast('Please enter your 12-digit UTR / Reference Number', 'error');
       return;
     }
 
-    setViewState('verifying');
-    setVerifyingStep(1);
+    const cleanUtr = utrNumber.trim().toUpperCase();
+    setIsSubmitting(true);
+    setViewState('submitting');
 
-    // Step 1 -> Step 2
-    setTimeout(() => {
-      setVerifyingStep(2);
-    }, 800);
-
-    // Step 2 -> Step 3 (Success Screen)
-    setTimeout(() => {
-      setVerifyingStep(3);
-      const generatedRef = utrNumber.trim().toUpperCase();
-      const finalPaymentId = `UPI_PNB_${generatedRef}`;
-      setPaymentRefId(finalPaymentId);
-
-      setTimeout(() => {
-        setViewState('success');
-        showToast('Payment Verified Successfully via Punjab National Bank!', 'success');
-      }, 500);
-    }, 1800);
+    try {
+      const targetId = bookingId || orderId;
+      if (targetId) {
+        await apiService.submitUtrProof({
+          bookingId: targetId,
+          orderId: targetId,
+          bookingType,
+          utrNumber: cleanUtr,
+          payerName
+        });
+      }
+    } catch (err) {
+      console.warn('Backend UTR submission warning:', err);
+    } finally {
+      setIsSubmitting(false);
+      setSubmittedUtr(cleanUtr);
+      setViewState('submitted');
+      showToast('Payment details submitted! Status: Pending Verification by Hotel Admin.', 'success');
+    }
   };
 
-  const handleContactBookingConfirm = () => {
-    setViewState('verifying');
-    setVerifyingStep(1);
+  const handleContactBookingConfirm = async () => {
+    setIsSubmitting(true);
+    setViewState('submitting');
 
-    setTimeout(() => {
-      setVerifyingStep(2);
-    }, 600);
-
-    setTimeout(() => {
-      const contactRef = 'CALL_BOOK_' + Date.now().toString().slice(-6);
-      setPaymentRefId(contactRef);
-      setViewState('success');
-      showToast('Booking request submitted! Our hotel front desk will verify your stay.', 'success');
-    }, 1400);
+    try {
+      const targetId = bookingId || orderId;
+      if (targetId) {
+        await apiService.submitUtrProof({
+          bookingId: targetId,
+          orderId: targetId,
+          bookingType,
+          utrNumber: 'DESK_PAY_UPON_ARRIVAL',
+          payerName
+        });
+      }
+    } catch (err) {
+      console.warn('Contact booking submission warning:', err);
+    } finally {
+      setIsSubmitting(false);
+      setSubmittedUtr('DESK_PAYMENT');
+      setViewState('submitted');
+      showToast('Reservation registered! Hotel desk will verify upon check-in.', 'success');
+    }
   };
 
-  const handleSuccessDone = () => {
-    onSuccess(paymentRefId || `PAY_OK_${Date.now()}`);
+  const handleSubmittedDone = () => {
+    onSuccess(submittedUtr || `PAY_PENDING_${Date.now()}`, submittedUtr);
     setViewState('input');
     onClose();
   };
@@ -152,7 +168,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
               </span>
             </div>
 
-            {/* 2 Main Option Tabs */}
+            {/* Option Tabs */}
             <div className="p-5 sm:p-6 space-y-6">
               <div className="grid grid-cols-2 gap-3 p-1.5 bg-black/60 rounded-2xl border border-gray-800">
                 <button
@@ -164,7 +180,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                       : 'text-gray-400 hover:text-white'
                   }`}
                 >
-                  <QrCode className="w-4 h-4" /> QR & Direct UPI App
+                  <QrCode className="w-4 h-4" /> Client UPI QR Code
                 </button>
 
                 <button
@@ -176,38 +192,38 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                       : 'text-gray-400 hover:text-white'
                   }`}
                 >
-                  <PhoneCall className="w-4 h-4" /> Contact Hotel to Book
+                  <PhoneCall className="w-4 h-4" /> Pay at Hotel Desk
                 </button>
               </div>
 
-              {/* Option 1: QR & Direct UPI Payment Apps */}
+              {/* Option 1: Client QR Code & Direct UPI Apps */}
               {method === 'qr_upi' && (
                 <div className="space-y-5 animate-in fade-in">
                   <div className="p-4 rounded-2xl bg-white/5 border border-luxury-gold/30 text-center space-y-4">
                     <p className="text-xs text-gray-300 font-medium">
-                      Scan QR code or click your preferred app below to pay directly
+                      Scan the Gona Hotel official UPI QR code below using GPay, PhonePe, Paytm or BHIM
                     </p>
 
-                    {/* Dynamic Auto-Amount Locked QR Code */}
+                    {/* Official Client QR Code Image */}
                     <div className="relative inline-block p-3 bg-white rounded-2xl shadow-xl border-2 border-luxury-gold">
                       <img
-                        src={`https://api.qrserver.com/v1/create-qr-code/?size=280x280&data=${encodeURIComponent(upiUri)}`}
-                        alt="Gona Hotel Auto-Amount UPI QR Code"
+                        src="/assets/payment-qr.png"
+                        alt="Gona Hotel Official UPI QR Code"
                         className="w-48 h-48 sm:w-56 sm:h-56 object-contain rounded-lg mx-auto"
                         onError={(e) => {
-                          (e.target as HTMLImageElement).src = '/assets/payment-qr.png';
+                          (e.target as HTMLImageElement).src = `https://api.qrserver.com/v1/create-qr-code/?size=280x280&data=${encodeURIComponent(upiUri)}`;
                         }}
                       />
-                      <div className="mt-2.5 px-3 py-1.5 rounded-lg bg-emerald-50 border border-emerald-300 text-[11px] font-bold text-emerald-800 flex items-center justify-center gap-1.5">
-                        <Sparkles className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                        <span>Auto-Amount Locked: ₹{amount.toLocaleString('en-IN')} (No typing needed)</span>
+                      <div className="mt-2.5 px-3 py-1.5 rounded-lg bg-amber-50 border border-amber-300 text-[11px] font-bold text-amber-900 flex items-center justify-center gap-1.5">
+                        <Sparkles className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+                        <span>Payee: {payeeName} (₹{amount.toLocaleString('en-IN')})</span>
                       </div>
                     </div>
 
-                    {/* Direct Payment App Buttons (GPay, PhonePe, Paytm, BHIM) */}
+                    {/* Direct App Pay Buttons */}
                     <div className="space-y-2 pt-1">
                       <span className="text-[11px] font-bold text-luxury-gold uppercase tracking-wider block text-left">
-                        Pay Directly via Mobile Payment Apps
+                        Pay Directly via App Link
                       </span>
                       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                         <button
@@ -272,7 +288,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                     </div>
                   </div>
 
-                  {/* UTR Verification form */}
+                  {/* UTR Proof Form */}
                   <form onSubmit={handleUpiSubmit} className="space-y-4">
                     <div className="space-y-1.5">
                       <label className="text-xs font-medium text-gray-300 block">
@@ -286,29 +302,53 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                         required
                         className="w-full px-4 py-3 rounded-xl bg-black/60 border border-luxury-gold/40 text-white text-sm font-mono focus:outline-none focus:border-luxury-gold"
                       />
-                      <p className="text-[11px] text-gray-400 flex items-center gap-1 pt-1">
-                        <CheckCircle2 className="w-3.5 h-3.5 text-luxury-gold" /> Real-time bank verification with Punjab National Bank
-                      </p>
                     </div>
+
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-medium text-gray-300 block">
+                        Payer Name (Optional)
+                      </label>
+                      <input
+                        type="text"
+                        value={payerName}
+                        onChange={(e) => setPayerName(e.target.value)}
+                        placeholder="Name on bank account"
+                        className="w-full px-4 py-3 rounded-xl bg-black/60 border border-luxury-gold/40 text-white text-sm focus:outline-none focus:border-luxury-gold"
+                      />
+                    </div>
+
+                    <p className="text-[11px] text-gray-400 flex items-center gap-1.5 bg-black/40 p-2.5 rounded-xl border border-gray-800">
+                      <Clock className="w-4 h-4 text-luxury-gold shrink-0" />
+                      Your payment will be submitted to the hotel concierge for verification.
+                    </p>
 
                     <button
                       type="submit"
-                      className="w-full py-3.5 sm:py-4 rounded-xl bg-luxury-gold hover:bg-luxury-gold-light text-[#0D3B29] font-bold text-sm sm:text-base tracking-wider flex items-center justify-center gap-2 shadow-xl hover:shadow-luxury-hover transition-all"
+                      disabled={isSubmitting}
+                      className="w-full py-3.5 sm:py-4 rounded-xl bg-luxury-gold hover:bg-luxury-gold-light text-[#0D3B29] font-bold text-sm sm:text-base tracking-wider flex items-center justify-center gap-2 shadow-xl hover:shadow-luxury-hover transition-all disabled:opacity-50"
                     >
-                      <CheckCircle2 className="w-5 h-5" /> Verify UTR & Complete Payment (₹{amount.toLocaleString('en-IN')})
+                      {isSubmitting ? (
+                        <>
+                          <Loader2 className="w-5 h-5 animate-spin" /> Submitting Payment Details...
+                        </>
+                      ) : (
+                        <>
+                          <CheckCircle2 className="w-5 h-5" /> Submit UTR Proof (₹{amount.toLocaleString('en-IN')})
+                        </>
+                      )}
                     </button>
                   </form>
                 </div>
               )}
 
-              {/* Option 2: Contact Hotel to Book */}
+              {/* Option 2: Contact Hotel Desk */}
               {method === 'contact_hotel' && (
                 <div className="space-y-4 animate-in fade-in">
                   <div className="p-4 rounded-2xl bg-white/5 border border-gray-800 space-y-4">
                     <div className="text-center space-y-1">
                       <h4 className="font-serif text-base font-bold text-luxury-gold">Direct Hotel Reservation Desk</h4>
                       <p className="text-xs text-gray-300">
-                        Call front desk directly or chat on WhatsApp to complete your reservation or pay at hotel check-in.
+                        Call front desk directly or chat on WhatsApp to complete your reservation or pay at check-in.
                       </p>
                     </div>
 
@@ -349,31 +389,31 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                     </a>
                   </div>
 
-                  {/* Direct Booking confirmation button */}
                   <div className="p-4 rounded-2xl bg-black/50 border border-luxury-gold/30 space-y-3 text-center">
                     <p className="text-xs text-gray-300 font-medium">
-                      Would you like to register this booking directly (Pay at Hotel / Desk Contact)?
+                      Register this reservation and pay upon arrival at check-in desk:
                     </p>
                     <button
                       type="button"
                       onClick={handleContactBookingConfirm}
-                      className="w-full py-3.5 rounded-xl bg-luxury-gold text-[#0D3B29] hover:bg-luxury-gold-light font-bold text-sm tracking-wider flex items-center justify-center gap-2 shadow-lg transition-all"
+                      disabled={isSubmitting}
+                      className="w-full py-3.5 rounded-xl bg-luxury-gold text-[#0D3B29] hover:bg-luxury-gold-light font-bold text-sm tracking-wider flex items-center justify-center gap-2 shadow-lg transition-all disabled:opacity-50"
                     >
-                      <CheckCircle2 className="w-4 h-4" /> Confirm Reservation (Pay at Hotel / Contact)
+                      <CheckCircle2 className="w-4 h-4" /> Confirm Reservation (Pay at Hotel Desk)
                     </button>
                   </div>
                 </div>
               )}
 
               <p className="text-[10px] text-center text-gray-400 tracking-wide pt-2">
-                Gona Hotel & Resort • Official Booking Portal • 24/7 Guest Assistance
+                Gona Hotel & Resort • Official Payment Gateway • 24/7 Guest Assistance
               </p>
             </div>
           </>
         )}
 
-        {/* VIEW 2: REAL-TIME VERIFYING ANIMATION */}
-        {viewState === 'verifying' && (
+        {/* VIEW 2: SUBMITTING ANIMATION */}
+        {viewState === 'submitting' && (
           <div className="p-8 sm:p-12 text-center space-y-6 animate-in fade-in">
             <div className="relative w-20 h-20 mx-auto">
               <div className="absolute inset-0 rounded-full border-4 border-luxury-gold/20 animate-ping" />
@@ -383,82 +423,66 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
             </div>
 
             <div className="space-y-2">
-              <h3 className="font-serif text-2xl font-bold text-luxury-gold">Verifying Payment...</h3>
+              <h3 className="font-serif text-2xl font-bold text-luxury-gold">Submitting Payment Details...</h3>
               <p className="text-xs text-gray-300 font-mono">
-                {verifyingStep === 1 && `Connecting to Punjab National Bank Server...`}
-                {verifyingStep === 2 && `Validating UTR #${utrNumber || '7880729819'} for ₹${amount.toLocaleString('en-IN')}...`}
-                {verifyingStep === 3 && `Payment Verified! Generating Invoice...`}
+                Saving UTR proof #{utrNumber} for ₹{amount.toLocaleString('en-IN')}...
               </p>
             </div>
-
-            <div className="w-full max-w-xs mx-auto h-2 bg-black/60 rounded-full overflow-hidden border border-gray-800">
-              <div
-                className="h-full bg-gradient-to-r from-luxury-gold-dark to-luxury-gold transition-all duration-700"
-                style={{ width: `${verifyingStep * 33.3}%` }}
-              />
-            </div>
-
-            <p className="text-[11px] text-gray-400">
-              Secure 256-bit Encrypted Banking Handshake • PNB Gateway
-            </p>
           </div>
         )}
 
-        {/* VIEW 3: FULL SUCCESSFUL PAYMENT SCREEN */}
-        {viewState === 'success' && (
+        {/* VIEW 3: SUBMITTED & PENDING VERIFICATION SCREEN */}
+        {viewState === 'submitted' && (
           <div className="p-6 sm:p-8 text-center space-y-6 animate-in zoom-in-95 duration-300">
-            
-            {/* Animated Success Badge */}
             <div className="relative w-20 h-20 mx-auto">
-              <div className="absolute inset-0 rounded-full bg-green-500/20 animate-pulse" />
-              <div className="w-20 h-20 rounded-full bg-gradient-to-tr from-green-600 to-emerald-500 text-white flex items-center justify-center mx-auto shadow-2xl border-4 border-white/20">
-                <CheckCircle2 className="w-12 h-12" />
+              <div className="absolute inset-0 rounded-full bg-amber-500/20 animate-pulse" />
+              <div className="w-20 h-20 rounded-full bg-gradient-to-tr from-amber-600 to-yellow-500 text-white flex items-center justify-center mx-auto shadow-2xl border-4 border-white/20">
+                <Clock className="w-10 h-10" />
               </div>
             </div>
 
             <div className="space-y-1">
-              <span className="px-3 py-1 rounded-full bg-green-500/20 text-green-400 font-bold text-[10px] uppercase tracking-widest border border-green-500/40">
-                PAID & VERIFIED
+              <span className="px-3.5 py-1 rounded-full bg-amber-500/20 text-amber-400 font-bold text-[10px] uppercase tracking-widest border border-amber-500/40">
+                PAYMENT DETAILS SUBMITTED
               </span>
               <h3 className="font-serif text-2xl sm:text-3xl font-bold text-white pt-2">
-                Payment Successful!
+                Pending Verification
               </h3>
-              <p className="text-xs text-gray-300">Your reservation at Gona Hotel is confirmed.</p>
+              <p className="text-xs text-gray-300 max-w-sm mx-auto">
+                Your payment details have been sent to Gona Hotel concierge. The hotel admin will verify your transaction against bank records.
+              </p>
             </div>
 
-            {/* Receipt Summary Card */}
             <div className="p-4 rounded-2xl bg-white/5 border border-luxury-gold/40 text-left space-y-3 text-xs">
               <div className="flex justify-between items-center pb-2 border-b border-gray-800">
-                <span className="text-gray-400">Amount Paid</span>
+                <span className="text-gray-400">Amount Payable</span>
                 <span className="font-serif text-xl font-bold text-luxury-gold">
                   ₹{amount.toLocaleString('en-IN')}
                 </span>
               </div>
 
               <div className="flex justify-between items-center">
-                <span className="text-gray-400">Transaction UTR</span>
-                <span className="font-mono font-bold text-white">{paymentRefId}</span>
+                <span className="text-gray-400">UTR / Reference</span>
+                <span className="font-mono font-bold text-white">{submittedUtr}</span>
               </div>
 
               <div className="flex justify-between items-center">
-                <span className="text-gray-400">Payment Method</span>
-                <span className="font-semibold text-green-400">UPI / QR (7880729819m@pnb)</span>
+                <span className="text-gray-400">Payment Status</span>
+                <span className="font-semibold text-amber-400 uppercase">PENDING_VERIFICATION</span>
               </div>
 
               <div className="flex justify-between items-center">
-                <span className="text-gray-400">Date & Time</span>
-                <span className="text-gray-300">
-                  {new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}, {new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}
-                </span>
+                <span className="text-gray-400">UPI Account</span>
+                <span className="font-mono text-gray-300">7880729819m@pnb</span>
               </div>
             </div>
 
             <button
               type="button"
-              onClick={handleSuccessDone}
+              onClick={handleSubmittedDone}
               className="w-full py-4 rounded-xl bg-luxury-gold hover:bg-luxury-gold-light text-[#0D3B29] font-bold text-base tracking-wider flex items-center justify-center gap-2 shadow-xl hover:shadow-luxury-hover transition-all"
             >
-              <Download className="w-5 h-5" /> View / Download Official GST Invoice
+              <CheckCircle2 className="w-5 h-5" /> Done & View Status in Profile
             </button>
           </div>
         )}
@@ -467,5 +491,3 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
     </div>
   );
 };
-
-

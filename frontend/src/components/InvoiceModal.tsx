@@ -1,5 +1,7 @@
-import React from 'react';
-import { X, Printer, Sparkles, CheckCircle2, ShieldCheck } from 'lucide-react';
+import React, { useState } from 'react';
+import { X, Printer, Download, Sparkles, CheckCircle2, ShieldCheck, Loader2 } from 'lucide-react';
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
 
 interface InvoiceModalProps {
   isOpen: boolean;
@@ -12,7 +14,9 @@ interface InvoiceModalProps {
     customerName: string;
     customerEmail: string;
     customerPhone?: string;
-    paymentId: string;
+    paymentId?: string;
+    utrNumber?: string;
+    paymentStatus?: string;
     items: Array<{ description: string; quantity?: number; amount: number }>;
     subtotal: number;
     tax?: number;
@@ -22,20 +26,53 @@ interface InvoiceModalProps {
 }
 
 export const InvoiceModal: React.FC<InvoiceModalProps> = ({ isOpen, onClose, invoiceData }) => {
+  const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
+
   if (!isOpen || !invoiceData) return null;
 
   const handlePrint = () => {
     window.print();
   };
 
+  const handleDownloadPdf = async () => {
+    const invoiceElem = document.getElementById('printable-invoice');
+    if (!invoiceElem) return;
+
+    try {
+      setIsGeneratingPdf(true);
+      const canvas = await html2canvas(invoiceElem, {
+        scale: 2,
+        useCORS: true,
+        logging: false,
+        backgroundColor: '#ffffff'
+      });
+
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: 'a4'
+      });
+
+      const imgWidth = 210; // A4 width in mm
+      const pageHeight = 297; // A4 height in mm
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+      pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, Math.min(imgHeight, pageHeight));
+      pdf.save(`Gona_Hotel_Tax_Invoice_${invoiceData.invoiceId}.pdf`);
+    } catch (err) {
+      console.error('PDF download error:', err);
+      window.print();
+    } finally {
+      setIsGeneratingPdf(false);
+    }
+  };
+
   const discountVal = invoiceData.discount || 0;
   const taxableAmount = Math.max(0, invoiceData.subtotal - discountVal);
-  // 5% GST total
-  const calculatedTax = invoiceData.tax !== undefined && invoiceData.tax > 0 
-    ? invoiceData.tax 
-    : Math.round(taxableAmount * 0.05);
-
-  const grandTotal = taxableAmount + calculatedTax;
+  const calculatedTax = invoiceData.tax !== undefined ? invoiceData.tax : 0;
+  const grandTotal = invoiceData.totalAmount || (taxableAmount + calculatedTax);
+  const statusStr = (invoiceData.paymentStatus || 'VERIFIED').toUpperCase();
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/80 backdrop-blur-md animate-in fade-in overflow-y-auto print:p-0 print:bg-white print:static">
@@ -74,15 +111,22 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({ isOpen, onClose, inv
           <div className="flex items-center gap-2">
             <Sparkles className="w-4 h-4 text-luxury-gold" />
             <span className="text-[10px] sm:text-xs font-bold text-luxury-gold uppercase tracking-widest">
-              Gona Hotel & Restaurant Tax Bill
+              Gona Hotel & Restaurant Official Invoice
             </span>
           </div>
           <div className="flex items-center gap-2 sm:gap-3">
             <button
-              onClick={handlePrint}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-luxury-gold text-[#0D3B29] font-bold text-xs hover:bg-[#F3E5AB] transition-colors shadow"
+              onClick={handleDownloadPdf}
+              disabled={isGeneratingPdf}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-luxury-gold text-[#0D3B29] font-bold text-xs hover:bg-[#F3E5AB] transition-colors shadow disabled:opacity-50"
             >
-              <Printer className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> Print / Download PDF Bill
+              {isGeneratingPdf ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Download className="w-3.5 h-3.5" />} Download PDF
+            </button>
+            <button
+              onClick={handlePrint}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white font-bold text-xs transition-colors border border-white/20"
+            >
+              <Printer className="w-3.5 h-3.5" /> Print
             </button>
             <button
               onClick={onClose}
@@ -123,17 +167,26 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({ isOpen, onClose, inv
               <div className="pt-1.5 pl-10 flex flex-wrap gap-2 text-[10px] font-mono font-bold text-[#0D3B29]">
                 <span className="bg-amber-100 px-2.5 py-0.5 rounded border border-amber-300">GSTIN: 09AAKHM1332D1ZH</span>
                 <span className="bg-emerald-100 px-2.5 py-0.5 rounded border border-emerald-300">SAC Code: 9963</span>
-                <span className="bg-blue-100 px-2.5 py-0.5 rounded border border-blue-300">Form GST REG-06</span>
               </div>
             </div>
 
             <div className="text-left sm:text-right shrink-0 border-l sm:border-l-0 border-gray-200 pl-3 sm:pl-0">
-              <span className="inline-block px-3.5 py-1 bg-green-700 text-white font-bold text-[11px] rounded-full mb-1.5 uppercase tracking-wider shadow-sm">
-                OFFICIAL TAX INVOICE
+              <span className={`inline-block px-3.5 py-1 text-white font-bold text-[11px] rounded-full mb-1.5 uppercase tracking-wider shadow-sm ${
+                statusStr === 'VERIFIED' || statusStr === 'PAID' || statusStr === 'CONFIRMED'
+                  ? 'bg-green-700'
+                  : statusStr === 'PAYMENT_SUBMITTED'
+                  ? 'bg-amber-600'
+                  : 'bg-red-600'
+              }`}>
+                {statusStr === 'VERIFIED' || statusStr === 'PAID' ? 'OFFICIAL TAX INVOICE' : `STATUS: ${statusStr}`}
               </span>
               <h3 className="font-serif text-base sm:text-lg font-bold text-gray-900 font-mono">{invoiceData.invoiceId}</h3>
-              <p className="text-[11px] text-gray-500">Date: {new Date(invoiceData.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</p>
-              <p className="text-[11px] text-gray-500 font-mono">Payment Ref: {invoiceData.paymentId}</p>
+              <p className="text-[11px] text-gray-500">
+                Date: {invoiceData.date ? new Date(invoiceData.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : new Date().toLocaleDateString('en-IN')}
+              </p>
+              {(invoiceData.utrNumber || invoiceData.paymentId) && (
+                <p className="text-[11px] text-gray-500 font-mono">UTR / Payment Ref: {invoiceData.utrNumber || invoiceData.paymentId}</p>
+              )}
             </div>
           </div>
 
@@ -149,7 +202,11 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({ isOpen, onClose, inv
               <span className="font-bold text-[#0D3B29] uppercase tracking-wider block mb-1">Hotel Service / Booking</span>
               <p className="font-bold text-sm text-[#0D3B29] capitalize">{invoiceData.title}</p>
               <p className="text-gray-600">Type: {invoiceData.type.toUpperCase()}</p>
-              <p className="text-gray-600 font-semibold text-emerald-700">Payment Status: PAID ✓</p>
+              <p className={`font-semibold ${
+                statusStr === 'VERIFIED' || statusStr === 'PAID' ? 'text-emerald-700' : 'text-amber-700'
+              }`}>
+                Payment Status: {statusStr}
+              </p>
             </div>
           </div>
 
@@ -190,8 +247,8 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({ isOpen, onClose, inv
               <p className="font-bold text-[#0D3B29] flex items-center gap-1">
                 <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" /> Tax Declaration
               </p>
-              <p>Total GST Applied: <strong>5%</strong></p>
-              <p>GST Amount Included: ₹{calculatedTax.toLocaleString('en-IN')}</p>
+              <p>Total GST Applied: <strong>{calculatedTax > 0 ? '5%' : '0%'}</strong></p>
+              <p>GST Amount: ₹{calculatedTax.toLocaleString('en-IN')}</p>
               <p className="text-[10px] text-gray-400 pt-1 border-t border-gray-200">Official Computer Generated Bill from Gona Hotel & Restaurant.</p>
             </div>
 
@@ -204,7 +261,7 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({ isOpen, onClose, inv
               
               {discountVal > 0 && (
                 <div className="flex justify-between text-emerald-700 font-medium">
-                  <span>Promo Discount</span>
+                  <span>Discount</span>
                   <span>-₹{discountVal.toLocaleString('en-IN')}</span>
                 </div>
               )}
@@ -214,13 +271,15 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({ isOpen, onClose, inv
                 <span className="font-semibold text-gray-900">₹{taxableAmount.toLocaleString('en-IN')}</span>
               </div>
 
-              <div className="flex justify-between text-gray-700 font-semibold pt-1 border-t border-gray-200">
-                <span>GST (5%)</span>
-                <span className="text-[#0D3B29]">₹{calculatedTax.toLocaleString('en-IN')}</span>
-              </div>
+              {calculatedTax > 0 && (
+                <div className="flex justify-between text-gray-700 font-semibold pt-1 border-t border-gray-200">
+                  <span>GST (5%)</span>
+                  <span className="text-[#0D3B29]">₹{calculatedTax.toLocaleString('en-IN')}</span>
+                </div>
+              )}
 
               <div className="flex justify-between text-sm sm:text-base font-serif font-bold text-[#0D3B29] pt-2 border-t-2 border-[#0D3B29]">
-                <span>Grand Total Paid</span>
+                <span>Grand Total</span>
                 <span className="text-emerald-700">₹{grandTotal.toLocaleString('en-IN')}</span>
               </div>
             </div>
@@ -247,4 +306,3 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({ isOpen, onClose, inv
     </div>
   );
 };
-
