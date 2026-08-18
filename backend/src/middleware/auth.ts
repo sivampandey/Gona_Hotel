@@ -6,6 +6,8 @@ export interface AuthRequest extends Request {
     id: string;
     email: string;
     role: 'user' | 'admin';
+    name?: string;
+    phone?: string;
   };
 }
 
@@ -17,9 +19,14 @@ export const authenticateToken = (req: AuthRequest, res: Response, next: NextFun
     return res.status(401).json({ message: 'Access token missing' });
   }
 
+  const jwtSecret = process.env.JWT_SECRET;
+  if (!jwtSecret) {
+    console.error('FATAL: JWT_SECRET environment variable is not configured');
+    return res.status(500).json({ message: 'Server security configuration error: JWT_SECRET missing' });
+  }
+
   try {
-    const secret = process.env.JWT_SECRET || 'gona_hotel_super_secret_key_2026';
-    const decoded = jwt.verify(token, secret) as any;
+    const decoded = jwt.verify(token, jwtSecret) as any;
     req.user = decoded;
     next();
   } catch (err) {

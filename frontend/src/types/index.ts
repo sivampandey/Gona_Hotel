@@ -29,8 +29,17 @@ export interface Room {
   reviewCount: number;
 }
 
+export type PaymentStatus = 'PENDING_PAYMENT' | 'PAYMENT_SUBMITTED' | 'VERIFIED' | 'REJECTED' | 'pending' | 'paid' | 'failed' | 'refunded';
+
+export type RoomBookingStatus = 'PENDING_PAYMENT' | 'PAYMENT_SUBMITTED' | 'CONFIRMED' | 'checked_in' | 'completed' | 'cancelled' | 'PAYMENT_REJECTED' | 'confirmed';
+
+export type FoodOrderStatus = 'PENDING_PAYMENT' | 'PAYMENT_SUBMITTED' | 'CONFIRMED' | 'PREPARING' | 'READY' | 'COMPLETED' | 'CANCELLED' | 'PAYMENT_REJECTED' | 'placed' | 'preparing' | 'out_for_delivery' | 'completed' | 'cancelled';
+
+export type FarmBookingStatus = 'PENDING_PAYMENT' | 'PAYMENT_SUBMITTED' | 'CONFIRMED' | 'COMPLETED' | 'CANCELLED' | 'PAYMENT_REJECTED' | 'confirmed' | 'completed' | 'cancelled';
+
 export interface RoomBooking {
   id: string;
+  bookingId?: string;
   userId: string;
   userName: string;
   userEmail: string;
@@ -42,10 +51,13 @@ export interface RoomBooking {
   guests: { adults: number; children: number };
   totalNights: number;
   pricePerNight: number;
+  subtotal?: number;
+  tax?: number;
   totalAmount: number;
-  paymentStatus: 'pending' | 'paid' | 'failed' | 'refunded';
-  bookingStatus: 'confirmed' | 'checked_in' | 'completed' | 'cancelled';
-  paymentId: string;
+  paymentStatus: PaymentStatus;
+  bookingStatus: RoomBookingStatus;
+  paymentId?: string;
+  utrNumber?: string;
   invoiceId: string;
   createdAt: string;
 }
@@ -70,6 +82,7 @@ export interface CartItem extends MenuItem {
 
 export interface FoodOrder {
   id: string;
+  orderId?: string;
   userId: string;
   userName: string;
   userPhone: string;
@@ -88,28 +101,33 @@ export interface FoodOrder {
   tax: number;
   discount: number;
   totalAmount: number;
-  paymentStatus: 'pending' | 'paid';
-  orderStatus: 'placed' | 'preparing' | 'out_for_delivery' | 'completed' | 'cancelled';
-  paymentId: string;
+  paymentStatus: PaymentStatus;
+  orderStatus: FoodOrderStatus;
+  paymentId?: string;
+  utrNumber?: string;
   invoiceId: string;
   createdAt: string;
 }
 
 export interface FarmBooking {
   id: string;
+  bookingId?: string;
   userId: string;
   userName: string;
   userEmail: string;
   userPhone: string;
   visitDate: string;
   visitorCount: number;
-  packageType: 'standard' | 'guided_tour' | 'picnic_lunch' | 'vip_experience';
+  packageType: string;
   specialRequests?: string;
-  pricePerVisitor: number;
+  pricePerVisitor?: number;
+  subtotal?: number;
+  tax?: number;
   totalAmount: number;
-  paymentStatus: 'pending' | 'paid';
-  status: 'confirmed' | 'completed' | 'cancelled';
-  paymentId: string;
+  paymentStatus: PaymentStatus;
+  status: FarmBookingStatus;
+  paymentId?: string;
+  utrNumber?: string;
   invoiceId: string;
   createdAt: string;
 }

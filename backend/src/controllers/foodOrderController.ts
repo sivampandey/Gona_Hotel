@@ -136,7 +136,16 @@ export const getFoodOrderById = async (req: Request, res: Response) => {
     const { id } = req.params;
     const order = await FoodOrder.findOne({ $or: [{ orderId: id }, { _id: id.match(/^[0-9a-fA-F]{24}$/) ? id : null }] });
     if (!order) return res.status(404).json({ message: 'Order not found' });
-    return res.json(order);
+
+    // Return only safe, non-sensitive tracking fields
+    return res.json({
+      orderId: order.orderId,
+      orderStatus: order.orderStatus,
+      paymentStatus: order.paymentStatus,
+      orderType: order.orderType,
+      items: order.items?.map((i: any) => ({ name: i.name, quantity: i.quantity })),
+      createdAt: order.createdAt
+    });
   } catch (error: any) {
     return res.status(500).json({ message: error.message || 'Server error' });
   }

@@ -56,7 +56,10 @@ export const registerUser = async (req: Request, res: Response) => {
       wishlist: { rooms: [], food: [] }
     });
 
-    const jwtSecret = process.env.JWT_SECRET || 'gona_hotel_super_secret_key_2026';
+    const jwtSecret = process.env.JWT_SECRET;
+    if (!jwtSecret) {
+      return res.status(500).json({ success: false, message: 'Server configuration error: JWT_SECRET missing' });
+    }
     const token = jwt.sign(
       { id: newUser._id.toString(), email: newUser.email, role: newUser.role },
       jwtSecret,
@@ -115,7 +118,10 @@ export const loginUser = async (req: Request, res: Response) => {
       return res.status(400).json({ success: false, message: 'Invalid email/phone number or password' });
     }
 
-    const jwtSecret = process.env.JWT_SECRET || 'gona_hotel_super_secret_key_2026';
+    const jwtSecret = process.env.JWT_SECRET;
+    if (!jwtSecret) {
+      return res.status(500).json({ success: false, message: 'Server configuration error: JWT_SECRET missing' });
+    }
     const token = jwt.sign(
       { id: user._id.toString(), email: user.email, role: user.role },
       jwtSecret,
