@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Plus, Clock, Star, Heart, Check } from 'lucide-react';
 import { MenuItem } from '../types';
 import { useCart } from '../context/CartContext';
@@ -13,6 +13,7 @@ export const FoodCard: React.FC<FoodCardProps> = ({ item }) => {
   const { addToCart, cart } = useCart();
   const { toggleWishlist, isWishlisted } = useAuth();
   const { showToast } = useNotification();
+  const [imgSrc, setImgSrc] = useState<string>(item.image || '/images/food/placeholder.jpg');
 
   const cartItem = cart.find(i => i.id === item.id);
   const inCartQty = cartItem ? cartItem.quantity : 0;
@@ -29,15 +30,22 @@ export const FoodCard: React.FC<FoodCardProps> = ({ item }) => {
     showToast(wishlisted ? 'Removed from food wishlist' : 'Saved to food wishlist', 'success');
   };
 
+  const handleImageError = () => {
+    if (imgSrc !== '/images/food/placeholder.jpg') {
+      setImgSrc('/images/food/placeholder.jpg');
+    }
+  };
+
   return (
     <div className="group rounded-3xl bg-white border border-gray-200 overflow-hidden shadow-md hover:shadow-2xl transition-all duration-300 flex flex-col justify-between">
       
-      {/* Image */}
-      <div className="relative overflow-hidden bg-gray-100" style={{ aspectRatio: '4/3' }}>
+      {/* Image Container with fixed ratio & fallback */}
+      <div className="relative w-full overflow-hidden bg-gray-100" style={{ aspectRatio: '4/3' }}>
         <img
-          src={item.image}
+          src={imgSrc}
           alt={item.name}
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+          onError={handleImageError}
+          className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500"
           loading="lazy"
         />
 

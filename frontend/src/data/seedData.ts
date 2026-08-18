@@ -44,7 +44,7 @@ const IMG = {
   paneer_dosa:      'https://images.unsplash.com/photo-1630383249896-424e482df921?w=800&q=90&fit=crop',
 
   // SNACKS & THALI
-  chole_bhature:    'https://images.unsplash.com/photo-1626132647523-66e2bf7cd555?w=800&q=90&fit=crop',
+  chole_bhature:    'https://images.unsplash.com/photo-1626777552726-4a6b54c97e46?w=800&q=90&fit=crop',
   paneer_pakoda:    'https://images.unsplash.com/photo-1601050690597-df0568f70950?w=800&q=90&fit=crop',
   sada_thali:       'https://images.unsplash.com/photo-1610192244261-3f33de3f55e4?w=800&q=90&fit=crop',
 
@@ -54,7 +54,7 @@ const IMG = {
   // BEVERAGES
   chai:             'https://images.unsplash.com/photo-1576092768241-dec231879fc3?w=800&q=90&fit=crop',
   coffee:           'https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=800&q=90&fit=crop',
-  water:            'https://images.unsplash.com/photo-1548839140-29a749e1bc4e?w=800&q=90&fit=crop',
+  water:            'https://images.unsplash.com/photo-1523362628745-0c100150b504?w=800&q=90&fit=crop',
 
   // ROOMS
   room1:            'https://images.unsplash.com/photo-1611892440504-42a792e24d32?w=1200&q=90&fit=crop',

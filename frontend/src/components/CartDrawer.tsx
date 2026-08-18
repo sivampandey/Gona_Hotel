@@ -168,8 +168,9 @@ export const CartDrawer: React.FC = () => {
                       className="flex items-center gap-3 p-3 rounded-xl bg-white/5 border border-gray-800 hover:border-luxury-gold/30 transition-colors"
                     >
                       <img
-                        src={item.image}
+                        src={item.image || '/images/food/placeholder.jpg'}
                         alt={item.name}
+                        onError={(e) => { e.currentTarget.src = '/images/food/placeholder.jpg'; }}
                         className="w-16 h-16 rounded-lg object-cover shrink-0"
                       />
                       <div className="flex-1 min-w-0">
