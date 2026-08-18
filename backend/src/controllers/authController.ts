@@ -238,7 +238,10 @@ export const forgotPassword = async (req: Request, res: Response) => {
     await user.save();
 
     // Dispatch email
-    await sendPasswordResetEmail(user.email, rawResetToken);
+    const emailSent = await sendPasswordResetEmail(user.email, rawResetToken);
+    if (!emailSent) {
+      console.warn(`[SECURITY WARN] Password reset requested for ${user.email}, but email dispatch was disabled or failed.`);
+    }
 
     return res.status(200).json({
       success: true,

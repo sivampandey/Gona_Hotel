@@ -10,15 +10,9 @@ export const sendPasswordResetEmail = async (userEmail: string, resetToken: stri
 
   const resetLink = `${frontendUrl.replace(/\/$/, '')}/reset-password?token=${resetToken}`;
 
-  console.log(`=======================================================`);
-  console.log(`[PASSWORD RESET REQUESTED]`);
-  console.log(`Recipient Email: ${userEmail}`);
-  console.log(`Reset Token Link: ${resetLink}`);
-  console.log(`=======================================================`);
-
   if (!smtpHost || !smtpUser || !smtpPass) {
-    console.warn('⚠️ SMTP server configuration missing. Email dispatch skipped in local/dev mode.');
-    return true;
+    console.warn('⚠️ [SMTP CONFIG] SMTP server configuration is incomplete in environment variables. Email dispatch skipped.');
+    return false;
   }
 
   try {
