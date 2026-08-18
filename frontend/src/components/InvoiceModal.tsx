@@ -105,37 +105,71 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({ isOpen, onClose, inv
   const statusStr = (invoiceData.paymentStatus || 'VERIFIED').toUpperCase();
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/85 backdrop-blur-md animate-in fade-in overflow-y-auto print:p-0 print:bg-white print:static">
-      
+    <div className="invoice-modal-overlay fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/85 backdrop-blur-md animate-in fade-in overflow-y-auto print:p-0 print:bg-white print:static print:max-h-none print:overflow-visible">
+
       {/* Print CSS Override */}
       <style>{`
         @media print {
-          body * {
-            visibility: hidden;
+          @page {
+            size: A4 portrait;
+            margin: 10mm;
           }
-          #printable-invoice, #printable-invoice * {
-            visibility: visible;
+
+          /* Hide background website elements */
+          body > * {
+            visibility: hidden !important;
           }
-          #printable-invoice {
-            position: absolute;
-            left: 0;
-            top: 0;
-            width: 100%;
-            margin: 0;
-            padding: 24px;
+
+          /* Reset Modal Overlay Container for Print */
+          .invoice-modal-overlay,
+          div:has(#printable-invoice) {
+            visibility: visible !important;
+            position: absolute !important;
+            left: 0 !important;
+            top: 0 !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: none !important;
+            margin: 0 !important;
+            padding: 0 !important;
             background: white !important;
-            color: black !important;
-            border: none !important;
+            overflow: visible !important;
             box-shadow: none !important;
+            border: none !important;
           }
+
+          /* Force all children inside invoice to be visible */
+          .invoice-modal-overlay *,
+          div:has(#printable-invoice) *,
+          #printable-invoice,
+          #printable-invoice * {
+            visibility: visible !important;
+          }
+
           .print-hide {
             display: none !important;
+          }
+
+          #printable-invoice {
+            position: static !important;
+            width: 100% !important;
+            height: auto !important;
+            max-height: none !important;
+            margin: 0 !important;
+            padding: 10px !important;
+            background: white !important;
+            color: black !important;
+            overflow: visible !important;
+            box-shadow: none !important;
+            border: none !important;
           }
         }
       `}</style>
 
-      <div className="w-full max-w-2xl bg-white text-gray-900 rounded-2xl sm:rounded-3xl shadow-2xl overflow-hidden my-4 sm:my-8 relative border-2 border-luxury-gold max-h-[92vh] flex flex-col print:max-h-none print:shadow-none print:border-none print:rounded-none">
-        
+      <div className="w-full max-w-2xl bg-white text-gray-900 rounded-2xl sm:rounded-3xl shadow-2xl overflow-hidden my-4 sm:my-8 relative border-2 border-luxury-gold max-h-[92vh] flex flex-col print:max-h-none print:shadow-none print:border-none print:rounded-none print:overflow-visible">
+
+
         {/* Top Controls Header (Hidden on Print) */}
         <div className="p-3 sm:p-4 bg-[#0D3B29] text-white flex items-center justify-between shrink-0 print-hide">
           <div className="flex items-center gap-2">
@@ -170,7 +204,7 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({ isOpen, onClose, inv
 
         {/* 📜 Printable Tax Invoice Container */}
         <div className="p-5 sm:p-8 space-y-6 overflow-y-auto flex-1 bg-white" id="printable-invoice">
-          
+
           {/* Header & Luxury Hotel Crest */}
           <div className="flex flex-col sm:flex-row justify-between items-start border-b-2 border-[#0D3B29]/30 pb-5 gap-4">
             <div className="space-y-1">
@@ -188,7 +222,7 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({ isOpen, onClose, inv
                 </div>
               </div>
               <p className="text-[11px] font-bold text-gray-700 pl-11">
-                Trade Name: GONA FARM AND HOLIDAY HOME • Legal Name: MITHILESH KUMAR SINGH (HUF)
+                Trade Name: GONA FARM AND HOLIDAY HOME • Legal Name: MITHILESH KUMAR SINGH
               </p>
               <p className="text-[11px] text-gray-600 font-medium pl-11">
                 📍 Hotel Address: Village - Semari, Post - Sarso, Chunar Road, Mirzapur, Uttar Pradesh - 231201
@@ -206,13 +240,12 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({ isOpen, onClose, inv
             </div>
 
             <div className="text-left sm:text-right shrink-0 border-l sm:border-l-0 border-gray-200 pl-3 sm:pl-0">
-              <span className={`inline-block px-3.5 py-1 text-white font-bold text-[11px] rounded-full mb-1.5 uppercase tracking-wider shadow-sm ${
-                statusStr === 'VERIFIED' || statusStr === 'PAID' || statusStr === 'CONFIRMED'
+              <span className={`inline-block px-3.5 py-1 text-white font-bold text-[11px] rounded-full mb-1.5 uppercase tracking-wider shadow-sm ${statusStr === 'VERIFIED' || statusStr === 'PAID' || statusStr === 'CONFIRMED'
                   ? 'bg-green-700'
                   : statusStr === 'PAYMENT_SUBMITTED'
-                  ? 'bg-amber-600'
-                  : 'bg-red-600'
-              }`}>
+                    ? 'bg-amber-600'
+                    : 'bg-red-600'
+                }`}>
                 {statusStr === 'VERIFIED' || statusStr === 'PAID' ? 'OFFICIAL TAX INVOICE (PAID)' : `STATUS: ${statusStr}`}
               </span>
               <h3 className="font-serif text-base sm:text-lg font-bold text-[#0D3B29] font-mono">{invoiceData.invoiceId}</h3>
@@ -237,7 +270,7 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({ isOpen, onClose, inv
               <span className="font-bold text-[#0D3B29] uppercase tracking-wider block mb-1">Hotel Service / Booking</span>
               <p className="font-bold text-sm text-[#0D3B29] capitalize">{invoiceData.title}</p>
               <p className="text-gray-600">Type: {invoiceData.type.toUpperCase()}</p>
-              
+
               {/* Highlighted Paid Amount in Header Box */}
               <div className="mt-2 inline-block px-3 py-1 bg-[#0D3B29] text-luxury-gold rounded-lg font-bold text-xs shadow">
                 Paid Amount: ₹{grandTotal.toLocaleString('en-IN')}
@@ -283,7 +316,7 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({ isOpen, onClose, inv
 
           {/* 💰 Calculations & Tax Breakdown Section */}
           <div className="border-t-2 border-[#0D3B29]/20 pt-4 flex flex-col sm:flex-row justify-between items-start gap-6">
-            
+
             {/* Left: GST & Payment Details */}
             <div className="bg-emerald-50/50 p-4 rounded-2xl border border-emerald-200 text-xs text-gray-700 space-y-2 max-w-sm w-full">
               <p className="font-bold text-[#0D3B29] flex items-center gap-1.5 text-sm">
@@ -314,7 +347,7 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({ isOpen, onClose, inv
                 <span>Items Subtotal</span>
                 <span className="font-semibold text-gray-900 font-mono">₹{subtotalVal.toLocaleString('en-IN')}</span>
               </div>
-              
+
               {discountVal > 0 && (
                 <div className="flex justify-between text-emerald-700 font-medium">
                   <span>Discount</span>
