@@ -1,4 +1,21 @@
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+const getNormalizedApiUrl = () => {
+  let url = (import.meta.env.VITE_API_URL || 'http://localhost:5000/api').trim();
+  url = url.replace(/\/+$/, '');
+  if (!url.endsWith('/api')) {
+    url += '/api';
+  }
+  return url;
+};
+
+const API_BASE_URL = getNormalizedApiUrl();
+
+const safeJsonParse = async (res: Response) => {
+  try {
+    return await res.json();
+  } catch (e) {
+    return { success: false, message: `Server returned an invalid response (${res.status} ${res.statusText})` };
+  }
+};
 
 const getHeaders = (includeAuth = true) => {
   const headers: Record<string, string> = {
@@ -17,7 +34,7 @@ export const checkBackendHealth = async (): Promise<boolean> => {
   try {
     const res = await fetch(`${API_BASE_URL}/health`, { method: 'GET' });
     if (!res.ok) return false;
-    const data = await res.json();
+    const data = await safeJsonParse(res);
     return data?.status === 'online';
   } catch (error) {
     return false;
@@ -32,7 +49,7 @@ export const apiService = {
       headers: getHeaders(false),
       body: JSON.stringify({ email: emailOrPhone, identifier: emailOrPhone, phone: emailOrPhone, password })
     });
-    return { data: await res.json(), status: res.status };
+    return { data: await safeJsonParse(res), status: res.status };
   },
 
   register: async (name: string, email: string, password?: string, phone?: string) => {
@@ -41,7 +58,7 @@ export const apiService = {
       headers: getHeaders(false),
       body: JSON.stringify({ name, email, password, phone })
     });
-    return { data: await res.json(), status: res.status };
+    return { data: await safeJsonParse(res), status: res.status };
   },
 
   forgotPassword: async (email: string) => {
@@ -50,7 +67,7 @@ export const apiService = {
       headers: getHeaders(false),
       body: JSON.stringify({ email })
     });
-    return { data: await res.json(), status: res.status };
+    return { data: await safeJsonParse(res), status: res.status };
   },
 
   resetPassword: async (token: string, password: string) => {
@@ -59,31 +76,31 @@ export const apiService = {
       headers: getHeaders(false),
       body: JSON.stringify({ token, password })
     });
-    return { data: await res.json(), status: res.status };
+    return { data: await safeJsonParse(res), status: res.status };
   },
 
   getProfile: async () => {
     const res = await fetch(`${API_BASE_URL}/auth/profile`, {
       headers: getHeaders(true)
     });
-    return { data: await res.json(), status: res.status };
+    return { data: await safeJsonParse(res), status: res.status };
   },
 
   // Rooms API
   getRooms: async () => {
     const res = await fetch(`${API_BASE_URL}/rooms`);
-    return { data: await res.json(), status: res.status };
+    return { data: await safeJsonParse(res), status: res.status };
   },
 
   getRoomById: async (identifier: string) => {
     const res = await fetch(`${API_BASE_URL}/rooms/${identifier}`);
-    return { data: await res.json(), status: res.status };
+    return { data: await safeJsonParse(res), status: res.status };
   },
 
   // Food Menu API
   getMenu: async () => {
     const res = await fetch(`${API_BASE_URL}/food/menu`);
-    return { data: await res.json(), status: res.status };
+    return { data: await safeJsonParse(res), status: res.status };
   },
 
   // Room Bookings API
@@ -93,21 +110,21 @@ export const apiService = {
       headers: getHeaders(true),
       body: JSON.stringify(bookingData)
     });
-    return { data: await res.json(), status: res.status };
+    return { data: await safeJsonParse(res), status: res.status };
   },
 
   getUserRoomBookings: async () => {
     const res = await fetch(`${API_BASE_URL}/bookings/rooms/my`, {
       headers: getHeaders(true)
     });
-    return { data: await res.json(), status: res.status };
+    return { data: await safeJsonParse(res), status: res.status };
   },
 
   getAllRoomBookingsAdmin: async () => {
     const res = await fetch(`${API_BASE_URL}/admin/bookings/rooms`, {
       headers: getHeaders(true)
     });
-    return { data: await res.json(), status: res.status };
+    return { data: await safeJsonParse(res), status: res.status };
   },
 
   updateRoomBookingStatusAdmin: async (id: string, statusData: any) => {
@@ -116,7 +133,7 @@ export const apiService = {
       headers: getHeaders(true),
       body: JSON.stringify(statusData)
     });
-    return { data: await res.json(), status: res.status };
+    return { data: await safeJsonParse(res), status: res.status };
   },
 
   // Food Orders API
@@ -126,21 +143,21 @@ export const apiService = {
       headers: getHeaders(true),
       body: JSON.stringify(orderData)
     });
-    return { data: await res.json(), status: res.status };
+    return { data: await safeJsonParse(res), status: res.status };
   },
 
   getUserFoodOrders: async () => {
     const res = await fetch(`${API_BASE_URL}/food/orders/my`, {
       headers: getHeaders(true)
     });
-    return { data: await res.json(), status: res.status };
+    return { data: await safeJsonParse(res), status: res.status };
   },
 
   getAllFoodOrdersAdmin: async () => {
     const res = await fetch(`${API_BASE_URL}/admin/food/orders`, {
       headers: getHeaders(true)
     });
-    return { data: await res.json(), status: res.status };
+    return { data: await safeJsonParse(res), status: res.status };
   },
 
   updateFoodOrderStatusAdmin: async (id: string, statusData: any) => {
@@ -149,7 +166,7 @@ export const apiService = {
       headers: getHeaders(true),
       body: JSON.stringify(statusData)
     });
-    return { data: await res.json(), status: res.status };
+    return { data: await safeJsonParse(res), status: res.status };
   },
 
   // Farm Bookings API
@@ -159,21 +176,21 @@ export const apiService = {
       headers: getHeaders(true),
       body: JSON.stringify(farmData)
     });
-    return { data: await res.json(), status: res.status };
+    return { data: await safeJsonParse(res), status: res.status };
   },
 
   getUserFarmBookings: async () => {
     const res = await fetch(`${API_BASE_URL}/farm/bookings/my`, {
       headers: getHeaders(true)
     });
-    return { data: await res.json(), status: res.status };
+    return { data: await safeJsonParse(res), status: res.status };
   },
 
   getAllFarmBookingsAdmin: async () => {
     const res = await fetch(`${API_BASE_URL}/admin/farm/bookings`, {
       headers: getHeaders(true)
     });
-    return { data: await res.json(), status: res.status };
+    return { data: await safeJsonParse(res), status: res.status };
   },
 
   updateFarmBookingStatusAdmin: async (id: string, statusData: any) => {
@@ -182,7 +199,7 @@ export const apiService = {
       headers: getHeaders(true),
       body: JSON.stringify(statusData)
     });
-    return { data: await res.json(), status: res.status };
+    return { data: await safeJsonParse(res), status: res.status };
   },
 
   // Payment UTR Proof API
@@ -198,14 +215,14 @@ export const apiService = {
       headers: getHeaders(true),
       body: JSON.stringify(paymentData)
     });
-    return { data: await res.json(), status: res.status };
+    return { data: await safeJsonParse(res), status: res.status };
   },
 
   getPendingPaymentsAdmin: async () => {
     const res = await fetch(`${API_BASE_URL}/admin/payments/pending`, {
       headers: getHeaders(true)
     });
-    return { data: await res.json(), status: res.status };
+    return { data: await safeJsonParse(res), status: res.status };
   },
 
   verifyOrRejectPaymentAdmin: async (id: string, actionData: { action: 'verify' | 'reject'; rejectionReason?: string; bookingType?: string }) => {
@@ -214,7 +231,7 @@ export const apiService = {
       headers: getHeaders(true),
       body: JSON.stringify(actionData)
     });
-    return { data: await res.json(), status: res.status };
+    return { data: await safeJsonParse(res), status: res.status };
   },
 
   // Coupons API
@@ -224,14 +241,14 @@ export const apiService = {
       headers: getHeaders(false),
       body: JSON.stringify({ code, amount })
     });
-    return { data: await res.json(), status: res.status };
+    return { data: await safeJsonParse(res), status: res.status };
   },
 
   getCouponsAdmin: async () => {
     const res = await fetch(`${API_BASE_URL}/admin/coupons`, {
       headers: getHeaders(true)
     });
-    return { data: await res.json(), status: res.status };
+    return { data: await safeJsonParse(res), status: res.status };
   },
 
   // Admin Analytics & Customers
@@ -239,7 +256,7 @@ export const apiService = {
     const res = await fetch(`${API_BASE_URL}/admin/analytics`, {
       headers: getHeaders(true)
     });
-    return { data: await res.json(), status: res.status };
+    return { data: await safeJsonParse(res), status: res.status };
   },
 
   getCustomersAdmin: async () => {
