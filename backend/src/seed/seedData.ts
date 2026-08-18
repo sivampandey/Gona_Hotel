@@ -1,12 +1,14 @@
 import bcrypt from 'bcryptjs';
 
+const initialAdminPassword = process.env.ADMIN_SEED_PASSWORD || 'ChangeAdminPass123!';
+
 export const initialSeedData = {
   users: [
     {
       id: 'usr_admin',
       name: 'Mithlesh Singh',
       email: 'admin@gonahotel.com',
-      passwordHash: bcrypt.hashSync('admin123', 10),
+      passwordHash: bcrypt.hashSync(initialAdminPassword, 10),
       phone: '+91 96966 31621',
       role: 'admin',
       avatar: '/assets/owner.png?v=2',

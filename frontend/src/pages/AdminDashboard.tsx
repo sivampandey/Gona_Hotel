@@ -88,7 +88,7 @@ export const AdminDashboard: React.FC = () => {
       <div className="min-h-screen bg-[#F7F4EB] pt-32 flex flex-col items-center justify-center gap-4 text-center px-6">
         <Lock className="w-16 h-16 text-red-500" />
         <h2 className="font-serif text-3xl font-bold text-[#0D3B29]">Admin Portal Restricted</h2>
-        <p className="text-gray-600">Please sign in as <strong>admin@gonahotel.com</strong> to access the admin dashboard.</p>
+        <p className="text-gray-600">Please sign in with your <strong>Administrator Account</strong> to access the admin dashboard.</p>
       </div>
     );
   }

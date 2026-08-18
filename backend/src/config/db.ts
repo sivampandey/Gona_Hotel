@@ -7,13 +7,16 @@ try {
 
 export const connectDB = async () => {
   try {
-    const mongoUri = process.env.MONGO_URI || 'mongodb+srv://Vrc-admin:Shivam9454@cluster0.slnhlei.mongodb.net/gona_hotel?retryWrites=true&w=majority&appName=Cluster0';
+    const mongoUri = process.env.MONGO_URI;
+    if (!mongoUri) {
+      console.warn('MongoDB Connection Warning: MONGO_URI environment variable is not configured.');
+      return;
+    }
     await mongoose.connect(mongoUri, {
       serverSelectionTimeoutMS: 8000
     });
-    console.log('MongoDB Connected successfully to Atlas cluster!');
+    console.log('MongoDB Connected successfully!');
   } catch (error) {
-    console.warn('MongoDB Connection Warning:', error);
-    console.warn('Operating in fallback in-memory mock backend mode for seamless demonstration.');
+    console.warn('MongoDB Connection Error:', error);
   }
 };

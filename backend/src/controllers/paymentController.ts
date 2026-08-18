@@ -144,7 +144,7 @@ export const verifyOrRejectPaymentAdmin = async (req: any, res: Response) => {
       ]
     });
 
-    const adminEmail = req.user?.email || 'admin@gonahotel.com';
+    const adminEmail = req.user?.email || 'admin';
 
     if (action === 'verify') {
       if (transaction) {

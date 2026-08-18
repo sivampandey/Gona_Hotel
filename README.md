@@ -6,13 +6,13 @@ Welcome to the official repository for **Gona Hotel & Estate** — a modern, hig
 
 ---
 
-## 🔐 Admin Panel Access & Credentials
+## 🔐 Admin Panel Access
 
 This project includes a feature-packed **Admin Dashboard** for complete hotel operations, booking management, menu edits, invoice printing, and revenue analytics.
 
-> 💡 **Admin Login Credentials**:
-> - **Email**: `admin@gonahotel.com` 
-> - **Password**: `admin123`
+> 💡 **Admin access**:
+> Use the production admin account configured securely in the database/environment.
+> Never commit or document real admin credentials.
 
 ---
 
@@ -57,7 +57,7 @@ This project includes a feature-packed **Admin Dashboard** for complete hotel op
 
 ### **Backend**
 - **Runtime**: Node.js + Express + TypeScript
-- **Database**: MongoDB (Mongoose) with local fallback support
+- **Database**: MongoDB (Mongoose)
 - **Authentication**: JWT & Bcrypt
 
 ---

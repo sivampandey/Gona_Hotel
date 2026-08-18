@@ -9,24 +9,25 @@ import MenuItem from '../models/MenuItem';
 import Review from '../models/Review';
 import Coupon from '../models/Coupon';
 
-// Fix Node.js DNS SRV resolution error on Windows for MongoDB Atlas
 try {
   dns.setServers(['8.8.8.8', '1.1.1.1']);
-} catch (e) {
-  // Fallback if custom DNS server override is restricted
-}
+} catch (e) {}
 
 dotenv.config({ path: path.resolve(__dirname, '../../.env') });
 
-const MONGO_URI = process.env.MONGO_URI || 'mongodb+srv://Vrc-admin:Shivam9454@cluster0.slnhlei.mongodb.net/gona_hotel?retryWrites=true&w=majority&appName=Cluster0';
+const MONGO_URI = process.env.MONGO_URI;
 
 const seedDatabase = async () => {
   try {
-    console.log('Connecting to MongoDB Atlas at:', MONGO_URI);
-    await mongoose.connect(MONGO_URI);
-    console.log('✅ Connected successfully to MongoDB Atlas!');
+    if (!MONGO_URI) {
+      console.error('❌ MONGO_URI environment variable is required to run seed script.');
+      process.exit(1);
+    }
 
-    // Clear existing collection data
+    console.log('Connecting to MongoDB...');
+    await mongoose.connect(MONGO_URI);
+    console.log('✅ Connected successfully to MongoDB!');
+
     console.log('Clearing old database records...');
     await User.deleteMany({});
     await Room.deleteMany({});
@@ -34,17 +35,17 @@ const seedDatabase = async () => {
     await Review.deleteMany({});
     await Coupon.deleteMany({});
 
-    console.log('Inserting seed data into MongoDB Atlas...');
+    console.log('Inserting seed data into MongoDB...');
 
-    // 1. Seed Users
-    const adminPasswordHash = await bcrypt.hash('admin123', 10);
-    const guestPasswordHash = await bcrypt.hash('guest123', 10);
+    const adminPassword = process.env.ADMIN_SEED_PASSWORD || 'ChangeAdminPass123!';
+    const adminPasswordHash = await bcrypt.hash(adminPassword, 10);
+    const guestPasswordHash = await bcrypt.hash('GuestPass123!', 10);
 
     const users = await User.insertMany([
       {
         id: 'usr_admin',
         name: 'Mithlesh Singh',
-        email: 'admin@gonahotel.com',
+        email: process.env.ADMIN_SEED_EMAIL || 'admin@gonahotel.com',
         password: adminPasswordHash,
         phone: '+91 96966 31621',
         role: 'admin',
@@ -62,7 +63,7 @@ const seedDatabase = async () => {
         wishlist: { rooms: ['room_2person_deluxe'], food: ['item_p_butter'] }
       }
     ]);
-    console.log(`✅ Seeded ${users.length} Users (Admin & Guest)`);
+    console.log(`✅ Seeded ${users.length} Users`);
 
     // 2. Seed Rooms
     const rooms = await Room.insertMany([
@@ -352,10 +353,10 @@ const seedDatabase = async () => {
     ]);
     console.log(`✅ Seeded ${coupons.length} Discount Coupons`);
 
-    console.log('\n🎉 ALL GONA HOTEL DATA HAS BEEN POPULATED SUCCESSFULLY INTO MONGODB ATLAS!');
+    console.log('\n🎉 ALL GONA HOTEL DATA HAS BEEN POPULATED SUCCESSFULLY INTO MONGODB!');
     process.exit(0);
   } catch (error) {
-    console.error('❌ Error seeding MongoDB Atlas database:', error);
+    console.error('❌ Error seeding MongoDB database:', error);
     process.exit(1);
   }
 };
