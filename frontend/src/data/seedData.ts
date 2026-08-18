@@ -6,16 +6,16 @@ import { User, Room, MenuItem, GalleryItem, Review, Coupon } from '../types';
 // ─────────────────────────────────────────────
 const IMG = {
   // BREAKFAST
-  aloo_paratha:     'https://images.unsplash.com/photo-1565557623262-b51c2513a641?w=800&q=90&fit=crop',
-  paneer_paratha:   'https://images.unsplash.com/photo-1567337710282-00832b415979?w=800&q=90&fit=crop',
+  aloo_paratha:     'https://images.unsplash.com/photo-1626777552726-4a6b54c97e46?w=800&q=90&fit=crop',
+  paneer_paratha:   'https://images.unsplash.com/photo-1565557623262-b51c2513a641?w=800&q=90&fit=crop',
   gobhi_paratha:    'https://images.unsplash.com/photo-1606491956689-2ea866880c84?w=800&q=90&fit=crop',
-  pyaz_paratha:     'https://images.unsplash.com/photo-1565557623262-b51c2513a641?w=800&q=90&fit=crop',
-  plain_roti:       'https://images.unsplash.com/photo-1601050690597-df0568f70950?w=800&q=90&fit=crop',
-  butter_roti:      'https://images.unsplash.com/photo-1601050690597-df0568f70950?w=800&q=90&fit=crop',
+  pyaz_paratha:     'https://images.unsplash.com/photo-1601050690597-df0568f70950?w=800&q=90&fit=crop',
+  plain_roti:       'https://images.unsplash.com/photo-1599487488170-d11ec9c172f0?w=800&q=90&fit=crop',
+  butter_roti:      'https://images.unsplash.com/photo-1626082927389-6cd097cdc6ec?w=800&q=90&fit=crop',
 
   // INDIAN MAIN COURSE
   paneer_butter:    'https://images.unsplash.com/photo-1631452180519-c014fe946bc7?w=800&q=90&fit=crop',
-  matar_paneer:     'https://images.unsplash.com/photo-1645177628172-a94c1f96debb?w=800&q=90&fit=crop',
+  matar_paneer:     'https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=800&q=90&fit=crop',
   kadhai_paneer:    'https://images.unsplash.com/photo-1512058564366-18510be2db19?w=800&q=90&fit=crop',
   shahi_paneer:     'https://images.unsplash.com/photo-1588166524941-3bf61a9c41db?w=800&q=90&fit=crop',
   aloo_jeera:       'https://images.unsplash.com/photo-1567188040759-fb8a883dc6d8?w=800&q=90&fit=crop',
@@ -29,30 +29,30 @@ const IMG = {
   plain_rice:       'https://images.unsplash.com/photo-1516684732162-798a0062be99?w=800&q=90&fit=crop',
   jeera_rice:       'https://images.unsplash.com/photo-1596797038530-2c107229654b?w=800&q=90&fit=crop',
   veg_biryani:      'https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?w=800&q=90&fit=crop',
-  paneer_biryani:   'https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?w=800&q=90&fit=crop',
+  paneer_biryani:   'https://images.unsplash.com/photo-1633945274405-b6c8069047b0?w=800&q=90&fit=crop',
 
   // CHINESE
   veg_chowmein:     'https://images.unsplash.com/photo-1585032226651-759b368d7246?w=800&q=90&fit=crop',
-  paneer_chowmein:  'https://images.unsplash.com/photo-1585032226651-759b368d7246?w=800&q=90&fit=crop',
+  paneer_chowmein:  'https://images.unsplash.com/photo-1612927601601-6638404737ce?w=800&q=90&fit=crop',
   veg_manchurian:   'https://images.unsplash.com/photo-1563245372-f21724e3856d?w=800&q=90&fit=crop',
   paneer_chilli:    'https://images.unsplash.com/photo-1562967914-608f82629710?w=800&q=90&fit=crop',
   paneer_fried_rice:'https://images.unsplash.com/photo-1603133872878-684f208fb84b?w=800&q=90&fit=crop',
 
   // SOUTH INDIAN
-  paper_dosa:       'https://images.unsplash.com/photo-1589301760014-d929f3979dbc?w=800&q=90&fit=crop',
+  paper_dosa:       'https://images.unsplash.com/photo-1668236543090-82eba5ee5976?w=800&q=90&fit=crop',
   masala_dosa:      'https://images.unsplash.com/photo-1589301760014-d929f3979dbc?w=800&q=90&fit=crop',
-  paneer_dosa:      'https://images.unsplash.com/photo-1589301760014-d929f3979dbc?w=800&q=90&fit=crop',
+  paneer_dosa:      'https://images.unsplash.com/photo-1630383249896-424e482df921?w=800&q=90&fit=crop',
 
   // SNACKS & THALI
   chole_bhature:    'https://images.unsplash.com/photo-1626132647523-66e2bf7cd555?w=800&q=90&fit=crop',
-  paneer_pakoda:    'https://images.unsplash.com/photo-1606491956689-2ea866880c84?w=800&q=90&fit=crop',
-  sada_thali:       'https://images.unsplash.com/photo-1559847844-5315695dadae?w=800&q=90&fit=crop',
+  paneer_pakoda:    'https://images.unsplash.com/photo-1601050690597-df0568f70950?w=800&q=90&fit=crop',
+  sada_thali:       'https://images.unsplash.com/photo-1610192244261-3f33de3f55e4?w=800&q=90&fit=crop',
 
   // SALAD
   green_salad:      'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=800&q=90&fit=crop',
 
   // BEVERAGES
-  chai:             'https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=800&q=90&fit=crop',
+  chai:             'https://images.unsplash.com/photo-1576092768241-dec231879fc3?w=800&q=90&fit=crop',
   coffee:           'https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=800&q=90&fit=crop',
   water:            'https://images.unsplash.com/photo-1548839140-29a749e1bc4e?w=800&q=90&fit=crop',
 
