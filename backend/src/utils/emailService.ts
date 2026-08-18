@@ -1,30 +1,19 @@
-import nodemailer from 'nodemailer';
+import { Resend } from 'resend';
 
 export const sendPasswordResetEmail = async (userEmail: string, resetToken: string): Promise<boolean> => {
-  const smtpHost = process.env.SMTP_HOST;
-  const smtpPort = parseInt(process.env.SMTP_PORT || '587', 10);
-  const smtpUser = process.env.SMTP_USER;
-  const smtpPass = process.env.SMTP_PASSWORD;
-  const smtpFrom = process.env.SMTP_FROM || '"Gona Hotel Concierge" <noreply@gonahotel.com>';
+  const resendApiKey = process.env.RESEND_API_KEY;
+  const resendFromEmail = process.env.RESEND_FROM_EMAIL || 'Gona Hotel Concierge <onboarding@resend.dev>';
   const frontendUrl = process.env.FRONTEND_URL || 'https://gona-hotel.vercel.app';
 
-  const resetLink = `${frontendUrl.replace(/\/$/, '')}/reset-password?token=${resetToken}`;
-
-  if (!smtpHost || !smtpUser || !smtpPass) {
-    console.warn('⚠️ [SMTP CONFIG] SMTP server configuration is incomplete in environment variables. Email dispatch skipped.');
+  if (!resendApiKey || !resendApiKey.trim()) {
+    console.warn('⚠️ [RESEND CONFIG] RESEND_API_KEY is not configured in environment variables. Email dispatch skipped.');
     return false;
   }
 
+  const resetLink = `${frontendUrl.replace(/\/$/, '')}/reset-password?token=${resetToken}`;
+
   try {
-    const transporter = nodemailer.createTransport({
-      host: smtpHost,
-      port: smtpPort,
-      secure: smtpPort === 465,
-      auth: {
-        user: smtpUser,
-        pass: smtpPass
-      }
-    });
+    const resend = new Resend(resendApiKey);
 
     const htmlContent = `
       <div style="font-family: 'Georgia', serif; max-width: 600px; margin: 0 auto; background-color: #F7F4EB; border: 2px solid #D4AF37; border-radius: 16px; overflow: hidden;">
@@ -35,7 +24,7 @@ export const sendPasswordResetEmail = async (userEmail: string, resetToken: stri
         <div style="padding: 32px 24px; color: #1E293B;">
           <h2 style="color: #0D3B29; font-size: 20px; margin-top: 0;">Password Reset Request</h2>
           <p style="font-size: 14px; line-height: 1.6; color: #334155;">
-            We received a request to reset the password for your Gona Hotel account associated with <strong>${userEmail}</strong>.
+            We received a request to reset the password for your Gona Hotel account.
           </p>
           <p style="font-size: 14px; line-height: 1.6; color: #334155;">
             Please click the official button below to set a new password for your account:
@@ -59,17 +48,22 @@ export const sendPasswordResetEmail = async (userEmail: string, resetToken: stri
       </div>
     `;
 
-    await transporter.sendMail({
-      from: smtpFrom,
-      to: userEmail,
+    const { data, error } = await resend.emails.send({
+      from: resendFromEmail,
+      to: [userEmail],
       subject: 'Gona Hotel - Password Reset Request',
       html: htmlContent
     });
 
-    console.log(`✅ Password reset email successfully dispatched to ${userEmail}`);
+    if (error) {
+      console.error('❌ Resend API Email Delivery Error:', error.message || error);
+      return false;
+    }
+
+    console.log(`✅ Password reset email successfully dispatched via Resend API (ID: ${data?.id || 'ok'})`);
     return true;
-  } catch (error) {
-    console.error('❌ Failed to dispatch password reset email via SMTP:', error);
+  } catch (error: any) {
+    console.error('❌ Failed to dispatch password reset email via Resend API:', error?.message || error);
     return false;
   }
 };

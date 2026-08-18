@@ -18,7 +18,8 @@
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.3.1",
     "nodemailer": "^9.0.5",
-    "razorpay": "^2.9.2"
+    "razorpay": "^2.9.2",
+    "resend": "^6.20.0"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",
