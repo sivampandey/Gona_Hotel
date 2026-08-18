@@ -163,6 +163,33 @@ export const AdminDashboard: React.FC = () => {
     }
   };
 
+  const handleDeleteCustomer = async (userId: string, userName: string, userEmail: string) => {
+    const confirmText = `Are you sure you want to permanently delete user "${userName}" (${userEmail})?\n\n⚠️ WARNING: This will permanently wipe all of their room bookings, food orders, farm bookings, and transactions from the database!`;
+    if (!window.confirm(confirmText)) return;
+
+    try {
+      const res = await apiService.deleteCustomerAdmin(userId);
+      if (res.status === 200 || res.data?.success) {
+        showToast(res.data?.message || `User "${userName}" and all data deleted permanently!`, 'success');
+        
+        // Remove customer from local state
+        setCustomers(prev => prev.filter(u => u.id !== userId && u._id !== userId && u.email !== userEmail));
+
+        // Cascade cleanup in local state
+        setRoomBookings(prev => prev.filter(b => b.userId !== userId && b.userEmail !== userEmail));
+        setFoodOrders(prev => prev.filter(o => o.userId !== userId && o.userEmail !== userEmail));
+        setFarmBookings(prev => prev.filter(f => f.userId !== userId && f.userEmail !== userEmail));
+        setPendingPayments(prev => prev.filter(p => p.userId !== userId && p.userEmail !== userEmail));
+      } else {
+        showToast(res.data?.message || 'Failed to delete user', 'error');
+      }
+    } catch (err: any) {
+      showToast(err.message || 'Error deleting user', 'error');
+    }
+  };
+
+
+
 
 
   const pendingSubmissions = pendingPayments.filter(p => p.status === 'PAYMENT_SUBMITTED');
@@ -738,26 +765,53 @@ export const AdminDashboard: React.FC = () => {
         {/* ──────────── CUSTOMERS ──────────── */}
         {activeTab === 'customers' && (
           <div className="space-y-4">
-            <h3 className="font-serif text-xl font-bold text-[#0D3B29]">Registered Customers ({customers.length})</h3>
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="font-serif text-xl font-bold text-[#0D3B29]">Registered User Database ({customers.length})</h3>
+                <p className="text-xs text-gray-500">Manage registered users, review profiles, or delete accounts with full cascade cleanup</p>
+              </div>
+            </div>
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {customers.map((u: any) => (
-                <div key={u.id || u._id} className="p-5 rounded-3xl bg-white border border-gray-200 shadow-md flex items-center gap-4">
-                  <div className="w-14 h-14 rounded-full bg-[#0D3B29] text-luxury-gold font-serif text-xl font-bold flex items-center justify-center border-2 border-luxury-gold shrink-0">
-                    {u.name?.charAt(0).toUpperCase() || 'U'}
+              {customers.map((u: any) => {
+                const customerId = u.id || u._id;
+                const isUserAdmin = u.role === 'admin';
+
+                return (
+                  <div key={customerId} className="p-5 rounded-3xl bg-white border border-gray-200 shadow-md flex items-center justify-between gap-4">
+                    <div className="flex items-center gap-4 min-w-0 flex-1">
+                      <div className="w-14 h-14 rounded-full bg-[#0D3B29] text-luxury-gold font-serif text-xl font-bold flex items-center justify-center border-2 border-luxury-gold shrink-0">
+                        {u.name?.charAt(0).toUpperCase() || 'U'}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2">
+                          <p className="font-serif font-bold text-[#0D3B29] truncate">{u.name}</p>
+                          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${isUserAdmin ? 'bg-purple-100 text-purple-800' : 'bg-blue-100 text-blue-800'}`}>
+                            {u.role?.toUpperCase() || 'USER'}
+                          </span>
+                        </div>
+                        <p className="text-xs text-gray-500 flex items-center gap-1 mt-0.5 truncate"><Mail className="w-3 h-3 text-gray-400 shrink-0" /> {u.email}</p>
+                        <p className="text-xs text-gray-500 flex items-center gap-1 mt-0.5"><Phone className="w-3 h-3 text-gray-400 shrink-0" /> {u.phone || 'N/A'}</p>
+                      </div>
+                    </div>
+
+                    {!isUserAdmin && (
+                      <button
+                        onClick={() => handleDeleteCustomer(customerId, u.name, u.email)}
+                        className="p-2.5 rounded-2xl bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 transition-all flex items-center gap-1 text-xs font-bold shrink-0 cursor-pointer"
+                        title="Delete User & Clean Database Records"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                        <span className="hidden sm:inline">Delete User</span>
+                      </button>
+                    )}
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-serif font-bold text-[#0D3B29]">{u.name}</p>
-                    <p className="text-xs text-gray-500 flex items-center gap-1 mt-0.5"><Mail className="w-3 h-3" /> {u.email}</p>
-                    <p className="text-xs text-gray-500 flex items-center gap-1 mt-0.5"><Phone className="w-3 h-3" /> {u.phone || 'N/A'}</p>
-                    <span className={`mt-1.5 inline-block text-[11px] font-bold px-2.5 py-0.5 rounded-full ${u.role === 'admin' ? 'bg-purple-100 text-purple-800' : 'bg-blue-100 text-blue-800'}`}>
-                      {u.role?.toUpperCase() || 'USER'}
-                    </span>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         )}
+
 
       </div>
 

@@ -291,5 +291,13 @@ export const apiService = {
       headers: getHeaders(true)
     });
     return { data: await safeParseJson(res), status: res.status };
+  },
+
+  deleteCustomerAdmin: async (id: string) => {
+    return await safeFetch(`${API_BASE_URL}/admin/customers/${id}`, {
+      method: 'DELETE',
+      headers: getHeaders(true)
+    });
   }
 };
+

@@ -6,7 +6,9 @@ import User from '../models/User';
 import Coupon from '../models/Coupon';
 import Review from '../models/Review';
 import Gallery from '../models/Gallery';
+import PaymentTransaction from '../models/PaymentTransaction';
 import { initialSeedData } from '../seed/seedData';
+
 
 export const getAdminAnalytics = async (req: Request, res: Response) => {
   try {
@@ -219,3 +221,56 @@ export const getCustomersAdmin = async (req: Request, res: Response) => {
     return res.status(500).json({ message: error.message || 'Server error' });
   }
 };
+
+export const deleteCustomerAdmin = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    const userToDelete = await User.findOne({
+      $or: [
+        { _id: id.match(/^[0-9a-fA-F]{24}$/) ? id : null },
+        { email: id },
+        { id }
+      ]
+    });
+
+    if (!userToDelete) {
+      return res.status(404).json({ message: 'User not found in database' });
+    }
+
+    const currentAdminEmail = (req as any).user?.email;
+    if (userToDelete.email.toLowerCase() === currentAdminEmail?.toLowerCase()) {
+      return res.status(400).json({ message: 'You cannot delete your own admin account!' });
+    }
+
+    const targetUserId = userToDelete._id.toString();
+    const targetEmail = userToDelete.email;
+
+    await Promise.all([
+      User.deleteOne({ _id: userToDelete._id }),
+      RoomBooking.deleteMany({
+        $or: [{ userId: targetUserId }, { userEmail: targetEmail }]
+      }),
+      FoodOrder.deleteMany({
+        $or: [{ userId: targetUserId }, { userEmail: targetEmail }]
+      }),
+      FarmBooking.deleteMany({
+        $or: [{ userId: targetUserId }, { userEmail: targetEmail }]
+      }),
+      PaymentTransaction.deleteMany({
+        $or: [{ userId: targetUserId }, { userEmail: targetEmail }]
+      }),
+      Review.deleteMany({
+        $or: [{ userId: targetUserId }, { userEmail: targetEmail }]
+      })
+    ]);
+
+    return res.json({
+      success: true,
+      message: `User "${userToDelete.name}" (${userToDelete.email}) and all associated database records deleted successfully.`
+    });
+  } catch (error: any) {
+    return res.status(500).json({ message: error.message || 'Server error deleting user' });
+  }
+};
+
