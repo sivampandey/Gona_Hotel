@@ -49,6 +49,8 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
   const hotelPhoneSecondary = '+91 79050 79819';
 
   const upiUri = `upi://pay?pa=${upiId}&pn=${encodeURIComponent(payeeName)}&am=${amount}&cu=INR&tn=${encodeURIComponent('Gona Hotel - ' + title)}`;
+  const dynamicQrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(upiUri)}`;
+
 
   const handleCopyUpi = () => {
     navigator.clipboard.writeText(upiId);
@@ -237,13 +239,14 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                         </div>
                       ) : (
                         <img
-                          src="/assets/payment-qr.png"
-                          alt="Gona Hotel Official UPI QR Code"
+                          src={dynamicQrUrl}
+                          alt="Gona Hotel Official Dynamic UPI QR Code"
                           className="w-48 h-48 sm:w-56 sm:h-56 object-contain rounded-lg mx-auto"
-                          onError={() => {
-                            setQrLoadFailed(true);
+                          onError={(e) => {
+                            (e.currentTarget as HTMLImageElement).src = '/assets/payment-qr.png';
                           }}
                         />
+
                       )}
                       <div className="mt-2.5 px-3 py-1.5 rounded-lg bg-amber-50 border border-amber-300 text-[11px] font-bold text-amber-900 flex items-center justify-center gap-1.5">
                         <Sparkles className="w-3.5 h-3.5 text-amber-600 shrink-0" />
