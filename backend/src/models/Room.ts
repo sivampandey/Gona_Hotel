@@ -15,6 +15,8 @@ export interface IRoom extends Document {
   blockedDates: string[];
   rating: number;
   reviewCount: number;
+  totalRooms: number;
+  availableCount: number;
 }
 
 const RoomSchema: Schema = new Schema({
@@ -31,7 +33,9 @@ const RoomSchema: Schema = new Schema({
   isAvailable: { type: Boolean, default: true },
   blockedDates: [{ type: String }],
   rating: { type: Number, default: 4.9 },
-  reviewCount: { type: Number, default: 24 }
+  reviewCount: { type: Number, default: 24 },
+  totalRooms: { type: Number, default: 5 },
+  availableCount: { type: Number, default: 5 }
 }, { timestamps: true });
 
 export default mongoose.model<IRoom>('Room', RoomSchema);

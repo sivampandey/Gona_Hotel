@@ -8,7 +8,11 @@ export const getRooms = async (req: Request, res: Response) => {
 
     let rooms = await Room.find({});
     if (!rooms || rooms.length === 0) {
-      rooms = initialSeedData.rooms as any[];
+      try {
+        rooms = await Room.insertMany(initialSeedData.rooms);
+      } catch (err) {
+        rooms = initialSeedData.rooms as any[];
+      }
     }
 
     let filtered = rooms.map(r => r.toObject ? r.toObject() : r);
@@ -70,6 +74,8 @@ export const createRoom = async (req: Request, res: Response) => {
       reviewCount: 1,
       blockedDates: [],
       isAvailable: true,
+      totalRooms: 5,
+      availableCount: 5,
       ...req.body
     });
     return res.status(201).json(newRoom);
@@ -81,12 +87,24 @@ export const createRoom = async (req: Request, res: Response) => {
 export const updateRoom = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
+
+    let query: any = { $or: [{ slug: id }] };
+    if (id.match(/^[0-9a-fA-F]{24}$/)) {
+      query.$or.push({ _id: id });
+    }
+
+    const seedMatch = initialSeedData.rooms.find(r => r.id === id || r.slug === id);
+    if (seedMatch) {
+      query.$or.push({ slug: seedMatch.slug });
+      query.$or.push({ title: seedMatch.title });
+    }
+
     const room = await Room.findOneAndUpdate(
-      { $or: [{ id }, { slug: id }, { _id: id.match(/^[0-9a-fA-F]{24}$/) ? id : null }] },
-      req.body,
-      { new: true }
+      query,
+      { $set: req.body },
+      { new: true, upsert: true, setDefaultsOnInsert: true }
     );
-    if (!room) return res.status(404).json({ message: 'Room not found' });
+
     return res.json(room);
   } catch (error: any) {
     return res.status(500).json({ message: error.message || 'Server error' });

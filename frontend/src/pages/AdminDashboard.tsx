@@ -147,9 +147,14 @@ export const AdminDashboard: React.FC = () => {
   const handleUpdateRoom = async (roomId: string, updatedFields: Partial<any>) => {
     try {
       const res = await apiService.updateRoomAdmin(roomId, updatedFields);
-      if (res.status === 200 || res.ok) {
-        showToast('Room details updated successfully!', 'success');
-        setRooms(prev => prev.map(r => (r._id === roomId || r.id === roomId || r.slug === roomId) ? { ...r, ...updatedFields } : r));
+      if ((res.status === 200 || res.ok) && res.data) {
+        showToast('Room details updated & saved to database!', 'success');
+        const updatedRoom = res.data;
+        setRooms(prev => prev.map(r => 
+          (r._id === roomId || r.id === roomId || r.slug === roomId || r.title === updatedRoom.title) 
+            ? { ...r, ...updatedRoom, ...updatedFields } 
+            : r
+        ));
       } else {
         showToast(res.data?.message || 'Failed to update room', 'error');
       }
@@ -157,6 +162,7 @@ export const AdminDashboard: React.FC = () => {
       showToast(err.message || 'Error updating room', 'error');
     }
   };
+
 
 
   const pendingSubmissions = pendingPayments.filter(p => p.status === 'PAYMENT_SUBMITTED');
