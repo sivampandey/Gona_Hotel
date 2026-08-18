@@ -47,10 +47,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   // Fetch real profile on load if token exists
   useEffect(() => {
-    if (token) {
+    const savedToken = localStorage.getItem('gona_token');
+    if (savedToken) {
       apiService.getProfile().then(res => {
-        if (res.status === 200 && res.data?.id) {
+        if (res.status === 200 && (res.data?.id || res.data?._id)) {
           setUser(res.data);
+          localStorage.setItem('gona_user', JSON.stringify(res.data));
           setIsBackendConnected(true);
         } else if (res.status === 401 || res.status === 403) {
           // Token expired or invalid
@@ -61,7 +63,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
       }).catch(() => {});
     }
-  }, [token]);
+  }, []);
 
   useEffect(() => {
     if (user) {
@@ -83,10 +85,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       const res = await apiService.login(email, password || '');
       if ((res.status === 200 || res.status === 201) && res.data?.user) {
-        setUser(res.data.user);
-        setToken(res.data.token);
+        const loggedUser = res.data.user;
+        const loggedToken = res.data.token;
+        if (loggedToken) {
+          localStorage.setItem('gona_token', loggedToken);
+        }
+        if (loggedUser) {
+          localStorage.setItem('gona_user', JSON.stringify(loggedUser));
+        }
+        setUser(loggedUser);
+        setToken(loggedToken);
         setIsBackendConnected(true);
-        return { success: true, message: res.data.message || 'Login successful', role: res.data.user?.role };
+        return { success: true, message: res.data.message || 'Login successful', role: loggedUser?.role };
       }
       return { 
         success: false, 
@@ -104,8 +114,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       const res = await apiService.register(name, email, password || '', phone);
       if ((res.status === 200 || res.status === 201) && res.data?.user) {
-        setUser(res.data.user);
-        setToken(res.data.token);
+        const regUser = res.data.user;
+        const regToken = res.data.token;
+        if (regToken) {
+          localStorage.setItem('gona_token', regToken);
+        }
+        if (regUser) {
+          localStorage.setItem('gona_user', JSON.stringify(regUser));
+        }
+        setUser(regUser);
+        setToken(regToken);
         setIsBackendConnected(true);
         return { success: true, message: res.data.message || 'Registration successful' };
       }
@@ -120,6 +138,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       };
     }
   };
+
 
 
   const logout = () => {
