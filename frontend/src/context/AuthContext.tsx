@@ -95,7 +95,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } catch (err: any) {
       return { 
         success: false, 
-        message: 'Unable to connect to authentication server. Please try again later.' 
+        message: err?.message || 'Unable to connect to authentication server. Please try again later.' 
       };
     }
   };
@@ -116,10 +116,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } catch (err: any) {
       return { 
         success: false, 
-        message: 'Unable to connect to authentication server. Please try again later.' 
+        message: err?.message || 'Unable to connect to authentication server. Please try again later.' 
       };
     }
   };
+
 
   const logout = () => {
     setUser(null);

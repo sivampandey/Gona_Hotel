@@ -31,13 +31,18 @@ const allowedOrigins = Array.from(new Set([...defaultAllowedOrigins, ...envOrigi
 app.use(cors({
   origin: (origin, callback) => {
     if (!origin) return callback(null, true);
-    if (allowedOrigins.includes(origin)) {
+    if (
+      allowedOrigins.includes(origin) ||
+      /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin) ||
+      origin.endsWith('.vercel.app')
+    ) {
       return callback(null, true);
     }
-    return callback(new Error('CORS Policy: Origin not allowed by Gona Hotel server'));
+    return callback(null, true);
   },
   credentials: true
 }));
+
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
