@@ -37,7 +37,7 @@ export const Home: React.FC = () => {
   const [currentTouristIndex, setCurrentTouristIndex] = useState(0);
   const touchTouristStartX = useRef<number | null>(null);
 
-  // Our Story Hotel Showcase Images & Slider State (All 6 Photos)
+  // Our Story Hotel Showcase Images & Automatic Slider State (6 Photos)
   const storyImages = [
     {
       src: '/assets/hotel-entrance.jpg',
@@ -65,7 +65,7 @@ export const Home: React.FC = () => {
       desc: 'Luxe indoor dining hall with modern lighting & teak flooring'
     },
     {
-      src: '/assets/resort-pool-fountain.jpg',
+      src: '/assets/hero-bg.jpg',
       title: 'Fountain & Pool View',
       desc: 'Crystal clear resort pool with 3-tier marble fountain'
     }
@@ -146,6 +146,18 @@ export const Home: React.FC = () => {
     setCurrentStoryIndex((prev) => (prev - 1 + storyImages.length) % storyImages.length);
   };
 
+  const handleStoryTouchStart = (e: React.TouchEvent) => {
+    touchStoryStartX.current = e.touches[0].clientX;
+  };
+  const handleStoryTouchEnd = (e: React.TouchEvent) => {
+    if (touchStoryStartX.current === null) return;
+    const touchEndX = e.changedTouches[0].clientX;
+    const diffX = touchStoryStartX.current - touchEndX;
+    if (diffX > 40) handleNextStory();
+    else if (diffX < -40) handlePrevStory();
+    touchStoryStartX.current = null;
+  };
+
   const handleTouchStart = (e: React.TouchEvent) => {
     touchStartX.current = e.touches[0].clientX;
   };
@@ -182,18 +194,6 @@ export const Home: React.FC = () => {
     touchTouristStartX.current = null;
   };
 
-  const handleStoryTouchStart = (e: React.TouchEvent) => {
-    touchStoryStartX.current = e.touches[0].clientX;
-  };
-  const handleStoryTouchEnd = (e: React.TouchEvent) => {
-    if (touchStoryStartX.current === null) return;
-    const touchEndX = e.changedTouches[0].clientX;
-    const diffX = touchStoryStartX.current - touchEndX;
-    if (diffX > 40) handleNextStory();
-    else if (diffX < -40) handlePrevStory();
-    touchStoryStartX.current = null;
-  };
-
   return (
     <div className="min-h-screen bg-[#F7F4EB] text-luxury-obsidian overflow-hidden">
 
@@ -208,67 +208,67 @@ export const Home: React.FC = () => {
             loading="eager"
             className="w-full h-full object-cover scale-105"
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-[#0A2E20]/90 via-[#0D3B29]/75 to-[#0A2E20]/90" />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/45 via-black/20 to-black/60" />
         </div>
 
         {/* Hero Content */}
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-white space-y-6 sm:space-y-10">
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-white space-y-6 sm:space-y-8">
 
-          <div className="space-y-3 sm:space-y-4 max-w-4xl mx-auto">
-            <h1 className="font-serif text-3xl sm:text-5xl lg:text-7xl font-bold tracking-tight text-white leading-tight">
-              Welcome to <span className="text-gold-gradient">Gona Hotel</span>
+          <div className="space-y-3 sm:space-y-4 max-w-4xl mx-auto backdrop-blur-md bg-black/40 p-6 sm:p-10 rounded-3xl border border-white/20 shadow-2xl">
+            <h1 className="font-serif text-3xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-white leading-tight drop-shadow-xl">
+              Welcome to <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#FFF8DC] via-luxury-gold to-[#F3E5AB]">Gona Hotel</span>
             </h1>
-            <p className="text-sm sm:text-xl text-gray-200 font-light tracking-wide max-w-2xl mx-auto">
+            <p className="text-sm sm:text-xl text-gray-100 font-medium tracking-wide max-w-2xl mx-auto drop-shadow-md">
               Luxury Hotel Rooms & Delicious Multi-Cuisine Restaurant
             </p>
-          </div>
 
-          {/* 2 Pill Action Buttons */}
-          <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4 pt-1 sm:pt-2">
-            <Link
-              to="/rooms"
-              className="w-full sm:w-auto px-6 py-3 sm:px-8 sm:py-3.5 rounded-full bg-[#0D3B29] hover:bg-[#134A35] text-white font-bold text-xs sm:text-sm tracking-wide border border-luxury-gold/50 shadow-2xl flex items-center justify-center gap-2 transition-all duration-300 hover:-translate-y-0.5"
-            >
-              <Hotel className="w-4 h-4 text-luxury-gold" /> Book Your Room
-            </Link>
-            <Link
-              to="/restaurant"
-              className="w-full sm:w-auto px-6 py-3 sm:px-8 sm:py-3.5 rounded-full bg-luxury-gold/20 hover:bg-luxury-gold/30 text-luxury-gold font-bold text-xs sm:text-sm tracking-wide border border-luxury-gold flex items-center justify-center gap-2 transition-all duration-300 hover:-translate-y-0.5"
-            >
-              <Utensils className="w-4 h-4" /> Order Food
-            </Link>
+            {/* 2 Pill Action Buttons */}
+            <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4 pt-2">
+              <Link
+                to="/rooms"
+                className="w-full sm:w-auto px-7 py-3 sm:px-8 sm:py-3.5 rounded-full bg-[#0D3B29] hover:bg-[#134A35] text-white font-bold text-xs sm:text-sm tracking-wide border border-luxury-gold/50 shadow-2xl flex items-center justify-center gap-2 transition-all duration-300 hover:scale-105"
+              >
+                <Hotel className="w-4 h-4 text-luxury-gold" /> Book Your Room
+              </Link>
+              <Link
+                to="/restaurant"
+                className="w-full sm:w-auto px-7 py-3 sm:px-8 sm:py-3.5 rounded-full bg-luxury-gold hover:bg-[#d4a82c] text-[#0D3B29] font-bold text-xs sm:text-sm tracking-wide shadow-2xl flex items-center justify-center gap-2 transition-all duration-300 hover:scale-105"
+              >
+                <Utensils className="w-4 h-4 text-[#0D3B29]" /> Order Food
+              </Link>
+            </div>
           </div>
 
           {/* 3 Feature Pills Under Hero */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 pt-8 max-w-4xl mx-auto">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 pt-2 max-w-4xl mx-auto">
 
-            <div className="p-5 rounded-2xl bg-white/90 backdrop-blur-md text-gray-900 border border-luxury-gold/30 shadow-md text-left flex items-center gap-4">
-              <div className="w-12 h-12 rounded-xl bg-luxury-gold/20 text-[#0D3B29] flex items-center justify-center font-bold shrink-0">
+            <div className="p-5 rounded-2xl bg-white/95 backdrop-blur-xl text-gray-900 border border-luxury-gold/40 shadow-xl text-left flex items-center gap-4 hover:scale-105 transition-transform">
+              <div className="w-12 h-12 rounded-xl bg-[#0D3B29] text-luxury-gold flex items-center justify-center font-bold shrink-0 shadow-md">
                 <Hotel className="w-6 h-6 text-luxury-gold" />
               </div>
               <div>
-                <h4 className="font-serif text-base font-bold">Luxury Rooms</h4>
-                <p className="text-xs text-gray-600">Comfortable & Elegant Rooms</p>
+                <h4 className="font-serif text-base font-bold text-[#0D3B29]">Luxury Rooms</h4>
+                <p className="text-xs text-gray-600 font-medium">Comfortable & Elegant Rooms</p>
               </div>
             </div>
 
-            <div className="p-5 rounded-2xl bg-white/90 backdrop-blur-md text-gray-900 border border-luxury-gold/30 shadow-md text-left flex items-center gap-4">
-              <div className="w-12 h-12 rounded-xl bg-luxury-gold/20 text-[#0D3B29] flex items-center justify-center font-bold shrink-0">
+            <div className="p-5 rounded-2xl bg-white/95 backdrop-blur-xl text-gray-900 border border-luxury-gold/40 shadow-xl text-left flex items-center gap-4 hover:scale-105 transition-transform">
+              <div className="w-12 h-12 rounded-xl bg-[#0D3B29] text-luxury-gold flex items-center justify-center font-bold shrink-0 shadow-md">
                 <Utensils className="w-6 h-6 text-luxury-gold" />
               </div>
               <div>
-                <h4 className="font-serif text-base font-bold">Gona Restaurant</h4>
-                <p className="text-xs text-gray-600">Delicious Food Fresh & Tasty</p>
+                <h4 className="font-serif text-base font-bold text-[#0D3B29]">Gona Restaurant</h4>
+                <p className="text-xs text-gray-600 font-medium">Delicious Food Fresh & Tasty</p>
               </div>
             </div>
 
-            <div className="p-5 rounded-2xl bg-white/90 backdrop-blur-md text-gray-900 border border-luxury-gold/30 shadow-md text-left flex items-center gap-4">
-              <div className="w-12 h-12 rounded-xl bg-luxury-gold/20 text-[#0D3B29] flex items-center justify-center font-bold shrink-0">
+            <div className="p-5 rounded-2xl bg-white/95 backdrop-blur-xl text-gray-900 border border-luxury-gold/40 shadow-xl text-left flex items-center gap-4 hover:scale-105 transition-transform">
+              <div className="w-12 h-12 rounded-xl bg-[#0D3B29] text-luxury-gold flex items-center justify-center font-bold shrink-0 shadow-md">
                 <Tag className="w-6 h-6 text-luxury-gold" />
               </div>
               <div>
-                <h4 className="font-serif text-base font-bold">Best Price</h4>
-                <p className="text-xs text-gray-600">Great Value & Best Service</p>
+                <h4 className="font-serif text-base font-bold text-[#0D3B29]">Best Price</h4>
+                <p className="text-xs text-gray-600 font-medium">Great Value & Best Service</p>
               </div>
             </div>
 
@@ -334,7 +334,7 @@ export const Home: React.FC = () => {
           <div className="group rounded-3xl overflow-hidden bg-[#0D3B29] text-white shadow-xl hover:shadow-2xl transition-all duration-300 flex flex-col justify-between">
             <div className="relative aspect-[4/3] overflow-hidden">
               <img
-                src="/assets/restaurant-dining.jpg?v=2"
+                src="/assets/restaurant-indoor-hall.jpg"
                 alt="Fine Dining"
                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
               />
@@ -481,7 +481,7 @@ export const Home: React.FC = () => {
                     <img
                       src={img.src}
                       alt={img.title}
-                      className="w-full h-full object-cover"
+                      className="w-full h-full object-cover object-center"
                     />
                     {/* Gradient Overlay for text readability */}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent" />
@@ -574,7 +574,7 @@ export const Home: React.FC = () => {
 
 
       {/* FEATURED ROOMS SINGLE COMPACT AUTOMATIC SLIDER */}
-      <section 
+      <section
         className="py-12 sm:py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6"
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
@@ -599,7 +599,7 @@ export const Home: React.FC = () => {
 
         {/* Responsive Card Slider Frame with Left/Right Water Glass Arrows */}
         <div className="relative max-w-full md:max-w-7xl mx-auto px-1 sm:px-2">
-          
+
           {/* Left Overlay Arrow Button - Water Glass Effect */}
           <button
             onClick={handlePrevRoom}
@@ -620,15 +620,15 @@ export const Home: React.FC = () => {
 
           {/* Viewport Container - Zero inner padding for 100% clean mobile slider */}
           <div className="overflow-hidden w-full rounded-3xl py-2 px-0">
-            <div 
+            <div
               className="flex transition-transform duration-500 ease-in-out gap-0 md:gap-6"
               style={{
                 transform: `translateX(-${currentRoomIndex * (isDesktop ? 33.3333 : 100)}%)`
               }}
             >
               {[...featuredRooms, ...featuredRooms].map((room, idx) => (
-                <div 
-                  key={`${room.id}-${idx}`} 
+                <div
+                  key={`${room.id}-${idx}`}
                   className="w-full md:w-[calc(33.333%-16px)] shrink-0 transition-all"
                 >
                   <RoomCard room={room} />
@@ -645,11 +645,10 @@ export const Home: React.FC = () => {
             <button
               key={idx}
               onClick={() => setCurrentRoomIndex(idx)}
-              className={`h-2.5 rounded-full transition-all duration-300 ${
-                currentRoomIndex === idx 
-                  ? 'w-8 bg-[#0D3B29]' 
+              className={`h-2.5 rounded-full transition-all duration-300 ${currentRoomIndex === idx
+                  ? 'w-8 bg-[#0D3B29]'
                   : 'w-2.5 bg-gray-300 hover:bg-gray-400'
-              }`}
+                }`}
               title={`Go to Room ${idx + 1}`}
             />
           ))}
@@ -659,7 +658,7 @@ export const Home: React.FC = () => {
 
       {/* GOURMET RESTAURANT AUTOMATIC & TOUCH SLIDER */}
       <section className="py-16 bg-white border-y border-gray-200">
-        <div 
+        <div
           className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6"
           onTouchStart={handleFoodTouchStart}
           onTouchEnd={handleFoodTouchEnd}
@@ -684,7 +683,7 @@ export const Home: React.FC = () => {
 
           {/* Responsive Food Card Slider Frame with Left/Right Water Glass Arrows */}
           <div className="relative max-w-full md:max-w-7xl mx-auto px-1 sm:px-2">
-            
+
             {/* Left Overlay Arrow Button - Water Glass Effect */}
             <button
               onClick={handlePrevFood}
@@ -705,15 +704,15 @@ export const Home: React.FC = () => {
 
             {/* Viewport Container - Zero inner padding for 100% clean mobile slider */}
             <div className="overflow-hidden w-full rounded-3xl py-2 px-0">
-              <div 
+              <div
                 className="flex transition-transform duration-500 ease-in-out gap-0 md:gap-6"
                 style={{
                   transform: `translateX(-${currentFoodIndex * (isDesktop ? 33.3333 : 100)}%)`
                 }}
               >
                 {[...popularFoods, ...popularFoods].map((item, idx) => (
-                  <div 
-                    key={`${item.id}-${idx}`} 
+                  <div
+                    key={`${item.id}-${idx}`}
                     className="w-full md:w-[calc(33.333%-16px)] shrink-0 transition-all"
                   >
                     <FoodCard item={item} />
@@ -730,11 +729,10 @@ export const Home: React.FC = () => {
               <button
                 key={idx}
                 onClick={() => setCurrentFoodIndex(idx)}
-                className={`h-2.5 rounded-full transition-all duration-300 ${
-                  currentFoodIndex === idx 
-                    ? 'w-8 bg-[#0D3B29]' 
+                className={`h-2.5 rounded-full transition-all duration-300 ${currentFoodIndex === idx
+                    ? 'w-8 bg-[#0D3B29]'
                     : 'w-2.5 bg-gray-300 hover:bg-gray-400'
-                }`}
+                  }`}
                 title={`Go to Dish ${idx + 1}`}
               />
             ))}
@@ -793,12 +791,12 @@ export const Home: React.FC = () => {
 
       {/* NEARBY TOURIST PLACES AUTOMATIC & TOUCH SLIDER */}
       <section className="py-14 sm:py-16 bg-[#0D3B29] text-white">
-        <div 
+        <div
           className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6"
           onTouchStart={handleTouristTouchStart}
           onTouchEnd={handleTouristTouchEnd}
         >
-          
+
           <div className="flex items-center justify-between border-b border-luxury-gold/30 pb-4">
             <div className="space-y-1">
               <span className="px-3 py-1 rounded-full bg-luxury-gold text-[#0D3B29] text-[11px] font-bold uppercase tracking-widest inline-flex items-center gap-1.5 shadow-md">
@@ -819,7 +817,7 @@ export const Home: React.FC = () => {
 
           {/* Responsive Tourist Card Slider Frame with Left/Right Water Glass Arrows */}
           <div className="relative max-w-full md:max-w-7xl mx-auto px-1 sm:px-2">
-            
+
             {/* Left Overlay Arrow Button - Water Glass Effect */}
             <button
               onClick={handlePrevTourist}
@@ -840,7 +838,7 @@ export const Home: React.FC = () => {
 
             {/* Viewport Container - Zero inner padding for 100% clean mobile slider */}
             <div className="overflow-hidden w-full rounded-2xl py-2 px-0">
-              <div 
+              <div
                 className="flex transition-transform duration-500 ease-in-out gap-0 md:gap-6"
                 style={{
                   transform: `translateX(-${currentTouristIndex * (isDesktop ? 33.3333 : 100)}%)`
@@ -891,11 +889,10 @@ export const Home: React.FC = () => {
               <button
                 key={idx}
                 onClick={() => setCurrentTouristIndex(idx)}
-                className={`h-2.5 rounded-full transition-all duration-300 ${
-                  currentTouristIndex === idx 
-                    ? 'w-8 bg-luxury-gold' 
+                className={`h-2.5 rounded-full transition-all duration-300 ${currentTouristIndex === idx
+                    ? 'w-8 bg-luxury-gold'
                     : 'w-2.5 bg-white/30 hover:bg-white/50'
-                }`}
+                  }`}
                 title={`Go to Attraction ${idx + 1}`}
               />
             ))}

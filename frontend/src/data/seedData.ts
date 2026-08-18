@@ -210,7 +210,7 @@ export const initialSeedData = {
     { id: 'g3', title: 'Eco Wooden Facade', category: 'rooms', imageUrl: '/assets/hotel-facade.jpg', caption: 'Modern eco-friendly architecture with natural tree cover.' },
     { id: 'g4', title: 'Terrace Sitting Area', category: 'rooms', imageUrl: '/assets/hotel-terrace-lounge.jpg', caption: 'Relaxing open-air terrace with comfortable seating.' },
     { id: 'g5', title: 'Luxe Indoor Dining Hall', category: 'restaurant', imageUrl: '/assets/restaurant-indoor-hall.jpg', caption: 'Spacious fine dining hall with warm teak finishes.' },
-    { id: 'g6', title: 'Resort Pool & Fountain', category: 'farm', imageUrl: '/assets/resort-pool-fountain.jpg', caption: 'Crystal clear pool water with 3-tier marble fountain.' }
+    { id: 'g6', title: 'Resort Pool & Fountain', category: 'farm', imageUrl: '/assets/hero-bg.jpg', caption: 'Crystal clear pool water with 3-tier marble fountain.' }
   ] as GalleryItem[],
 
   reviews: [] as Review[],

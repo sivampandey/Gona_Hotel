@@ -109,17 +109,21 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({ isOpen, onClose, inv
                 </h1>
               </div>
               <p className="text-xs font-bold text-luxury-gold uppercase tracking-widest pl-10">
-                A Unit of Gona Group Ventures
+                Trade Name: GONA FARM AND HOLIDAY HOME • Legal Name: MITHILESH KUMAR SINGH (HUF)
               </p>
               <p className="text-[11px] text-gray-600 font-medium pl-10">
-                Village - Semari, Post - Sarso, Chunar Road, Mirzapur, Uttar Pradesh - 231201
+                📍 Hotel Address: Village - Semari, Post - Sarso, Chunar Road, Mirzapur, Uttar Pradesh - 231201
+              </p>
+              <p className="text-[11px] text-gray-600 font-medium pl-10">
+                🏢 Reg. Address: Akhara Mohal Babhanauli, Robertsganj, Sonbhadra, Uttar Pradesh - 231216
               </p>
               <p className="text-[11px] text-gray-600 font-medium pl-10">
                 📞 Mobile: +91 96966 31621 / +91 79050 79819 | ✉️ info@gonahotel.com
               </p>
               <div className="pt-1.5 pl-10 flex flex-wrap gap-2 text-[10px] font-mono font-bold text-[#0D3B29]">
-                <span className="bg-amber-100 px-2.5 py-0.5 rounded border border-amber-300">GSTIN: 09AAAFG9696A1Z5</span>
+                <span className="bg-amber-100 px-2.5 py-0.5 rounded border border-amber-300">GSTIN: 09AAKHM1332D1ZH</span>
                 <span className="bg-emerald-100 px-2.5 py-0.5 rounded border border-emerald-300">SAC Code: 9963</span>
+                <span className="bg-blue-100 px-2.5 py-0.5 rounded border border-blue-300">Form GST REG-06</span>
               </div>
             </div>
 

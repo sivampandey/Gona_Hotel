@@ -57,8 +57,10 @@ export const Navbar: React.FC = () => {
 
   return (
     <header
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 light-warm-water-nav text-[#0D3B29] ${
-        isScrolled ? 'py-2.5 shadow-md' : 'py-3.5'
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+        isScrolled
+          ? 'bg-white/95 backdrop-blur-xl border-b border-luxury-gold/40 shadow-lg py-2.5 text-[#0D3B29]'
+          : 'bg-white/90 backdrop-blur-md border-b border-[#0D3B29]/15 shadow-sm py-3.5 text-[#0D3B29]'
       }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -102,14 +104,13 @@ export const Navbar: React.FC = () => {
           {/* Right Action Icons & Profile Dropdown */}
           <div className="hidden lg:flex items-center gap-4">
             
-            {/* Phone Quick Call */}
+            {/* Phone Quick Call Icon Only */}
             <a
               href="tel:+919696631621"
-              className="p-2 text-[#0D3B29] hover:text-[#B8860B] transition-colors flex items-center gap-1.5 text-xs font-bold"
+              className="p-2 text-[#0D3B29] hover:text-[#B8860B] transition-colors flex items-center justify-center"
               title="Call Concierge: +91 96966 31621 / +91 79050 79819"
             >
-              <Phone className="w-4 h-4 text-[#0D3B29]" />
-              <span>+91 96966 31621</span>
+              <Phone className="w-5 h-5" />
             </a>
 
             {/* Food Cart Button */}
@@ -242,7 +243,7 @@ export const Navbar: React.FC = () => {
 
       {/* Mobile Drawer */}
       {mobileMenuOpen && (
-        <div className="lg:hidden light-warm-water-nav text-[#0D3B29] border-b border-luxury-gold/40 px-6 py-6 space-y-4 animate-in slide-in-from-top-4 shadow-2xl">
+        <div className="lg:hidden bg-white/98 backdrop-blur-2xl text-[#0D3B29] border-b border-luxury-gold/40 px-6 py-6 space-y-4 animate-in slide-in-from-top-4 shadow-2xl">
           {navLinks.map((link) => (
             <Link
               key={link.name}

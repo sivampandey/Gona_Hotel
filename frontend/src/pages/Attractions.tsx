@@ -29,8 +29,8 @@ export const touristPlaces: TouristPlace[] = [
     hindiName: 'लखनिया दरी झरना',
     category: 'waterfall',
     categoryLabel: 'Waterfall & Nature Trek',
-    distanceFromHotel: '5 km from Gona Hotel',
-    travelTime: '10 mins drive',
+    distanceFromHotel: '42 km from Gona Hotel',
+    travelTime: '50 mins drive',
     bestTime: 'Monsoon & Winter (July to March)',
     image: '/assets/tourist/lakhaniya-dari.jpg',
     galleryImages: [
@@ -44,7 +44,7 @@ export const touristPlaces: TouristPlace[] = [
       '150-meter majestic cascading waterfall pool',
       'Prehistoric cave rock paintings & archaeological sites',
       'Popular for eco-trekking & stream bathing',
-      'Just 10 mins drive (6 km) from Gona Hotel & Resort'
+      '50 mins drive (42 km) from Gona Hotel & Resort'
     ],
     googleMapsUrl: 'https://www.google.com/maps/search/Lakhaniya+Dari+Waterfall+Mirzapur'
   },
@@ -54,8 +54,8 @@ export const touristPlaces: TouristPlace[] = [
     hindiName: 'सिरसी बाँध एवं झील',
     category: 'nature',
     categoryLabel: 'Reservoir Lake & Scenic Dam',
-    distanceFromHotel: '6 km from Gona Hotel',
-    travelTime: '10 mins drive',
+    distanceFromHotel: '110 km from Gona Hotel',
+    travelTime: '2 hours drive',
     bestTime: 'July to March',
     image: '/assets/tourist/sirsi-dam.jpg',
     galleryImages: [
@@ -68,7 +68,7 @@ export const touristPlaces: TouristPlace[] = [
       'Vast tranquil reservoir lake with hill backdrop',
       'Spectacular water spillway during monsoon season',
       'Peaceful sunset viewpoint & photography destination',
-      'Just 8 mins drive (4 km) south of Gona Hotel'
+      '2 hours drive (110 km) south of Gona Hotel'
     ],
     googleMapsUrl: 'https://www.google.com/maps/search/Sirsi+Dam+Rajgarh+Mirzapur'
   },
@@ -78,8 +78,8 @@ export const touristPlaces: TouristPlace[] = [
     hindiName: 'सिद्धनाथ दरी झरना',
     category: 'waterfall',
     categoryLabel: 'Forest Waterfall & Trekking',
-    distanceFromHotel: '4 km from Gona Hotel',
-    travelTime: '8 mins drive',
+    distanceFromHotel: '3 km from Gona Hotel',
+    travelTime: '10 mins drive',
     bestTime: 'Monsoon & Winter',
     image: '/assets/tourist/siddhanath-dari.jpg',
     galleryImages: [
@@ -92,7 +92,7 @@ export const touristPlaces: TouristPlace[] = [
       'Pristine uncrowded natural forest waterfall',
       'Cool stream pools surrounded by greenery',
       'Great for nature walks & adventure photography',
-      '12 mins scenic drive (8 km) from Gona Hotel'
+      '40 mins drive (31 km) from Gona Hotel'
     ],
     googleMapsUrl: 'https://www.google.com/maps/search/Siddhanath+Ki+Dari+Mirzapur'
   },
@@ -102,13 +102,13 @@ export const touristPlaces: TouristPlace[] = [
     hindiName: 'चुनार का ऐतिहासिक किला',
     category: 'fort',
     categoryLabel: 'Historic Heritage Fort',
-    distanceFromHotel: '12 km from Gona Hotel',
-    travelTime: '15 mins drive',
+    distanceFromHotel: '28 km from Gona Hotel',
+    travelTime: '35 mins drive',
     bestTime: 'All Year Round (October to March best)',
     image: '/assets/tourist/chunar-fort.jpg',
     galleryImages: [
       '/assets/tourist/chunar-fort.jpg',
-      '/assets/hotel-exterior.jpg',
+      '/assets/hero-bg.jpg',
       '/assets/gona-venture-signpost.jpg'
     ],
     shortDesc: 'Iconic ancient fortress perched high on a cliff overlooking the calm Ganges River. Features King Bhartihari Samadhi, Sonwa Mandap, and massive sandstone ramparts.',
@@ -117,7 +117,7 @@ export const touristPlaces: TouristPlace[] = [
       'Commanding panoramic views over holy River Ganges',
       'Sonwa Mandap & King Bhartihari underground Samadhi',
       'Massive 16th-century stone ramparts & cannon posts',
-      'Quick 15 mins drive (12 km) via Chunar Road from Gona Hotel'
+      '35 mins drive (28 km) via Chunar Road from Gona Hotel'
     ],
     googleMapsUrl: 'https://www.google.com/maps/search/Chunar+Fort+Mirzapur'
   },
@@ -127,8 +127,8 @@ export const touristPlaces: TouristPlace[] = [
     hindiName: 'विंडम फॉल्स झरना',
     category: 'waterfall',
     categoryLabel: 'Picturesque Waterfall & Park',
-    distanceFromHotel: '18 km from Gona Hotel',
-    travelTime: '20 mins drive',
+    distanceFromHotel: '40 km from Gona Hotel',
+    travelTime: '50 mins drive',
     bestTime: 'August to February',
     image: '/assets/tourist/wyndham-falls.jpg',
     galleryImages: [
@@ -141,7 +141,7 @@ export const touristPlaces: TouristPlace[] = [
       'Gentle multi-step rock waterfall streams',
       'Family park and nature gardens',
       'Scenic Vindhya mountain valley background',
-      '20 mins drive (18 km) from Gona Hotel'
+      '50 mins drive (40 km) from Gona Hotel'
     ],
     googleMapsUrl: 'https://www.google.com/maps/search/Wyndham+Falls+Mirzapur'
   },
@@ -151,8 +151,8 @@ export const touristPlaces: TouristPlace[] = [
     hindiName: 'विन्ध्याचल माता मंदिर',
     category: 'temple',
     categoryLabel: 'Sacred Shaktipeeth Pilgrimage',
-    distanceFromHotel: '24 km from Gona Hotel',
-    travelTime: '28 mins drive',
+    distanceFromHotel: '74 km from Gona Hotel',
+    travelTime: '1.5 hours drive',
     bestTime: 'All Year Round (Grand Navratri Mela)',
     image: '/assets/tourist/vindhyachal-dham.jpg',
     galleryImages: [
@@ -165,7 +165,7 @@ export const touristPlaces: TouristPlace[] = [
       'Sacred Shaktipeeth on the holy banks of River Ganga',
       'Complete Trikona Parikrama circuit (Vindhyavasini, Ashtabhuja, Kali Khoh)',
       'Holy Ganges Ghats for holy dip & evening Aarti',
-      '28 mins drive (24 km) from Gona Hotel'
+      '1.5 hours drive (74 km) from Gona Hotel'
     ],
     googleMapsUrl: 'https://www.google.com/maps/search/Vindhyavasini+Devi+Temple+Vindhyachal'
   }
@@ -201,8 +201,8 @@ export const Attractions: React.FC = () => {
           <button
             onClick={() => setSelectedCategory('all')}
             className={`px-5 py-2.5 rounded-full text-xs font-bold transition-all shadow-sm ${selectedCategory === 'all'
-                ? 'bg-[#0D3B29] text-white shadow-md'
-                : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-200'
+              ? 'bg-[#0D3B29] text-white shadow-md'
+              : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-200'
               }`}
           >
             🌟 All Tourist Places ({touristPlaces.length})
@@ -210,8 +210,8 @@ export const Attractions: React.FC = () => {
           <button
             onClick={() => setSelectedCategory('waterfall')}
             className={`px-5 py-2.5 rounded-full text-xs font-bold transition-all shadow-sm ${selectedCategory === 'waterfall'
-                ? 'bg-[#0D3B29] text-white shadow-md'
-                : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-200'
+              ? 'bg-[#0D3B29] text-white shadow-md'
+              : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-200'
               }`}
           >
             🌊 Waterfalls & Nature
@@ -219,8 +219,8 @@ export const Attractions: React.FC = () => {
           <button
             onClick={() => setSelectedCategory('fort')}
             className={`px-5 py-2.5 rounded-full text-xs font-bold transition-all shadow-sm ${selectedCategory === 'fort'
-                ? 'bg-[#0D3B29] text-white shadow-md'
-                : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-200'
+              ? 'bg-[#0D3B29] text-white shadow-md'
+              : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-200'
               }`}
           >
             🏰 Historic Ganga Forts
@@ -228,8 +228,8 @@ export const Attractions: React.FC = () => {
           <button
             onClick={() => setSelectedCategory('temple')}
             className={`px-5 py-2.5 rounded-full text-xs font-bold transition-all shadow-sm ${selectedCategory === 'temple'
-                ? 'bg-[#0D3B29] text-white shadow-md'
-                : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-200'
+              ? 'bg-[#0D3B29] text-white shadow-md'
+              : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-200'
               }`}
           >
             🛕 Spiritual Shaktipeeth

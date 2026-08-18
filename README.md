@@ -20,15 +20,15 @@ This project includes a feature-packed **Admin Dashboard** for complete hotel op
 
 - **🏨 Luxury Room Bookings**: Browse AC Deluxe & Standard rooms with detailed amenities, interactive photo galleries, real-time availability checks, and instant booking.
 - **🍽️ Multi-Cuisine Fine Dining**: Interactive food menu with category filters (North Indian, Veg & Non-Veg Specials, Biryani, Chinese, Beverages), cart management, coupons, and table/delivery checkout.
-- **🧾 Professional 5% GST Tax Invoice**: Print-ready GST Tax Invoices featuring official branding (**GONA HOTEL & RESTAURANT**), **GSTIN: `09AAAFG9696A1Z5`**, **SAC Code: `9963`**, single 5% GST breakdown, and 1-click **Print / Download PDF** for guests and admins.
+- **🧾 Professional 5% GST Tax Invoice**: Print-ready GST Tax Invoices featuring official branding (**GONA HOTEL & RESTAURANT / GONA FARM AND HOLIDAY HOME**), **GSTIN: `09AAKHM1332D1ZH`**, **SAC Code: `9963`**, single 5% GST breakdown, and 1-click **Print / Download PDF** for guests and admins.
 - **📸 Automatic 6-Photo Resort Showcase Sliders**: Smooth 3.5s auto-play sliders with touch-swipe support, pause-on-hover, index counter badges, and navigation arrows on both Home and About pages.
 - **🗺️ Nearby Tourist Attractions Guide**: Real Google Maps driving distances and route directions measured directly from Gona Hotel (Sarso, Rajgarh):
-  - 🌊 **Sirsi Dam & Water Reservoir**: 4 km (8 mins)
-  - 🌊 **Lakhaniya Dari Waterfall**: 6 km (10 mins)
-  - 🌊 **Siddhanath Ki Dari Waterfall**: 8 km (12 mins)
-  - 🏰 **Historic Chunar Fort**: 12 km (15 mins)
-  - 🌊 **Wyndham Falls**: 18 km (20 mins)
-  - 🛕 **Vindhyachal Dham & Maa Vindhyavasini Temple**: 24 km (28 mins)
+  - 🌊 **Sirsi Dam & Water Reservoir**: 110 km (2 hours)
+  - 🌊 **Lakhaniya Dari Waterfall**: 42 km (50 mins)
+  - 🌊 **Siddhanath Ki Dari Waterfall**: 31 km (40 mins)
+  - 🏰 **Historic Chunar Fort**: 28 km (35 mins)
+  - 🌊 **Wyndham Falls**: 40 km (50 mins)
+  - 🛕 **Vindhyachal Dham & Maa Vindhyavasini Temple**: 74 km (1.5 hours)
 - **🏡 Private Farm House Estate**: Dedicated booking portal for full farm house stays, pool picnics, BBQ nights, and celebration lawns.
 - **💳 Payment Integration**: Native support for UPI QR scanning and 1-click payment via Google Pay, PhonePe, Paytm, and BHIM (`7880729819m@pnb`).
 - **📞 24/7 Hotel Concierge**: Integrated phone hotline (`+91 96966 31621`, `+91 79050 79819`) and instant WhatsApp reservation desk.
@@ -90,7 +90,9 @@ npm run dev
 
 - **Address**: Chunar Road, Sarso, Rajgarh, Mirzapur, Uttar Pradesh - 231201
 - **Phone**: +91 96966 31621 | +91 79050 79819
-- **GSTIN**: `09AAAFG9696A1Z5`
+- **GSTIN**: `09AAKHM1332D1ZH` (Govt. of India Form GST REG-06)
+- **Trade Name**: GONA FARM AND HOLIDAY HOME
+- **Legal Name**: MITHILESH KUMAR SINGH (HUF)
 - **SAC Code**: `9963`
 
 ---
