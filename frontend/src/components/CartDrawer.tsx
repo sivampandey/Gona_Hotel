@@ -167,12 +167,9 @@ export const CartDrawer: React.FC = () => {
                       key={item.id}
                       className="flex items-center gap-3 p-3 rounded-xl bg-white/5 border border-gray-800 hover:border-luxury-gold/30 transition-colors"
                     >
-                      <img
-                        src={item.image || '/images/food/placeholder.jpg'}
-                        alt={item.name}
-                        onError={(e) => { e.currentTarget.src = '/images/food/placeholder.jpg'; }}
-                        className="w-16 h-16 rounded-lg object-cover shrink-0"
-                      />
+                      <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border ${item.isVeg ? 'bg-green-950/50 border-green-700/60 text-green-400' : 'bg-red-950/50 border-red-700/60 text-red-400'}`}>
+                        <Utensils className="w-5 h-5" />
+                      </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-1.5 mb-1">
                           <span
