@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Sparkles, Lock, Mail, ArrowRight, AlertCircle, Loader2 } from 'lucide-react';
+import { Sparkles, Lock, UserCheck, ArrowRight, AlertCircle, Loader2, Smartphone } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useNotification } from '../context/NotificationContext';
 
 export const Login: React.FC = () => {
-  const [email, setEmail] = useState('');
+  const [emailOrPhone, setEmailOrPhone] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -18,8 +18,9 @@ export const Login: React.FC = () => {
     e.preventDefault();
     setError(null);
 
-    if (!email.trim()) {
-      setError('Please enter your email address.');
+    const input = emailOrPhone.trim();
+    if (!input) {
+      setError('Please enter your email address or phone number.');
       return;
     }
     if (!password) {
@@ -29,12 +30,12 @@ export const Login: React.FC = () => {
 
     setLoading(true);
     try {
-      const res = await login(email.trim(), password);
+      const res = await login(input, password);
       if (res.success) {
         showToast(res.message || 'Signed in successfully!', 'success');
-        navigate(email.includes('admin') ? '/admin' : '/profile');
+        navigate(input.toLowerCase().includes('admin') ? '/admin' : '/profile');
       } else {
-        setError(res.message || 'Invalid email or password.');
+        setError(res.message || 'Invalid email/phone number or password.');
         showToast(res.message || 'Login failed', 'error');
       }
     } catch (err: any) {
@@ -48,13 +49,13 @@ export const Login: React.FC = () => {
   return (
     <div className="min-h-[calc(100vh-80px)] bg-luxury-cream text-luxury-obsidian flex items-center justify-center pt-20 sm:pt-24 pb-8 sm:pb-12 px-3 sm:px-4">
       <div className="w-full max-w-[360px] sm:max-w-md glass-panel p-5 sm:p-7 rounded-2xl sm:rounded-3xl border border-luxury-gold/40 shadow-xl space-y-4 sm:space-y-5">
-        
+
         <div className="text-center space-y-1 sm:space-y-1.5">
           <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-full bg-luxury-gold text-luxury-emerald-dark flex items-center justify-center mx-auto shadow-md font-bold">
             <Sparkles className="w-4 h-4 sm:w-5 sm:h-5" />
           </div>
           <h1 className="font-serif text-xl sm:text-2xl font-bold text-luxury-emerald-dark">Royal Sign In</h1>
-          <p className="text-[11px] sm:text-xs text-gray-600">Access stay reservations, gourmet orders & farm visits</p>
+          <p className="text-[11px] sm:text-xs text-gray-600">Access stay reservations, gourmet orders & farm visits via Email or Phone</p>
         </div>
 
         {error && (
@@ -66,18 +67,18 @@ export const Login: React.FC = () => {
 
         <form onSubmit={handleLoginSubmit} className="space-y-3 sm:space-y-3.5 text-xs">
           <div>
-            <label className="font-bold text-gray-700 block mb-0.5 sm:mb-1 text-[11px] sm:text-xs">Email Address</label>
+            <label className="font-bold text-gray-700 block mb-0.5 sm:mb-1 text-[11px] sm:text-xs">Email Address or Phone Number</label>
             <div className="relative">
-              <Mail className="w-4 h-4 text-gray-400 absolute left-3 top-2.5 sm:top-3" />
+              <UserCheck className="w-4 h-4 text-gray-400 absolute left-3 top-2.5 sm:top-3" />
               <input
-                type="email"
-                value={email}
+                type="text"
+                value={emailOrPhone}
                 onChange={(e) => {
-                  setEmail(e.target.value);
+                  setEmailOrPhone(e.target.value);
                   if (error) setError(null);
                 }}
                 required
-                placeholder="your-email@example.com"
+                placeholder="Email or 10-digit mobile number"
                 className="w-full pl-9 pr-3 py-2 sm:py-2.5 rounded-lg sm:rounded-xl border border-gray-200 text-xs sm:text-sm focus:outline-none focus:border-luxury-gold"
               />
             </div>
@@ -95,7 +96,7 @@ export const Login: React.FC = () => {
                   if (error) setError(null);
                 }}
                 required
-                placeholder="••••••••"
+                placeholder="Enter your Password"
                 className="w-full pl-9 pr-3 py-2 sm:py-2.5 rounded-lg sm:rounded-xl border border-gray-200 text-xs sm:text-sm focus:outline-none focus:border-luxury-gold"
               />
             </div>

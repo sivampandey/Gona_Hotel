@@ -24,8 +24,8 @@ export const Register: React.FC = () => {
       setError('Please enter your full name.');
       return;
     }
-    if (!email.trim() || !email.includes('@')) {
-      setError('Please enter a valid email address.');
+    if (!email.trim() && !phone.trim()) {
+      setError('Please enter an email address or phone number.');
       return;
     }
     if (password.length < 6) {
@@ -60,7 +60,7 @@ export const Register: React.FC = () => {
             <Sparkles className="w-4 h-4 sm:w-5 sm:h-5" />
           </div>
           <h1 className="font-serif text-xl sm:text-2xl font-bold text-luxury-emerald-dark">Create Account</h1>
-          <p className="text-[11px] sm:text-xs text-gray-600">Join Gona Privilege Club for stay & dining benefits</p>
+          <p className="text-[11px] sm:text-xs text-gray-600">Register with your Email or Mobile Number</p>
         </div>
 
         {error && (
@@ -90,7 +90,24 @@ export const Register: React.FC = () => {
           </div>
 
           <div>
-            <label className="font-bold text-gray-700 block mb-0.5 sm:mb-1 text-[11px] sm:text-xs">Email Address *</label>
+            <label className="font-bold text-gray-700 block mb-0.5 sm:mb-1 text-[11px] sm:text-xs">Mobile Phone Number *</label>
+            <div className="relative">
+              <Phone className="w-4 h-4 text-gray-400 absolute left-3 top-2.5 sm:top-3" />
+              <input
+                type="text"
+                value={phone}
+                onChange={(e) => {
+                  setPhone(e.target.value);
+                  if (error) setError(null);
+                }}
+                placeholder="Enter 10-digit mobile number"
+                className="w-full pl-9 pr-3 py-2 sm:py-2.5 rounded-lg sm:rounded-xl border border-gray-200 text-xs sm:text-sm focus:outline-none focus:border-luxury-gold"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="font-bold text-gray-700 block mb-0.5 sm:mb-1 text-[11px] sm:text-xs">Email Address (Optional if phone provided)</label>
             <div className="relative">
               <Mail className="w-4 h-4 text-gray-400 absolute left-3 top-2.5 sm:top-3" />
               <input
@@ -100,22 +117,7 @@ export const Register: React.FC = () => {
                   setEmail(e.target.value);
                   if (error) setError(null);
                 }}
-                required
                 placeholder="Enter your email"
-                className="w-full pl-9 pr-3 py-2 sm:py-2.5 rounded-lg sm:rounded-xl border border-gray-200 text-xs sm:text-sm focus:outline-none focus:border-luxury-gold"
-              />
-            </div>
-          </div>
-
-          <div>
-            <label className="font-bold text-gray-700 block mb-0.5 sm:mb-1 text-[11px] sm:text-xs">Phone Number</label>
-            <div className="relative">
-              <Phone className="w-4 h-4 text-gray-400 absolute left-3 top-2.5 sm:top-3" />
-              <input
-                type="text"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                placeholder="Enter phone number"
                 className="w-full pl-9 pr-3 py-2 sm:py-2.5 rounded-lg sm:rounded-xl border border-gray-200 text-xs sm:text-sm focus:outline-none focus:border-luxury-gold"
               />
             </div>

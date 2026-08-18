@@ -6,20 +6,41 @@ import User from '../models/User';
 export const registerUser = async (req: Request, res: Response) => {
   try {
     const { name, email, password, phone } = req.body;
-    if (!name || !email || !password) {
-      return res.status(400).json({ success: false, message: 'Name, email, and password are required' });
+    if (!name || (!email && !phone) || !password) {
+      return res.status(400).json({ success: false, message: 'Name, email/phone number, and password are required' });
     }
 
     if (password.length < 6) {
       return res.status(400).json({ success: false, message: 'Password must be at least 6 characters long' });
     }
 
-    const normalizedEmail = email.trim().toLowerCase();
+    const inputEmail = (email || '').trim().toLowerCase();
+    const inputPhone = (phone || '').trim();
+    const isEmailFormat = inputEmail.includes('@');
+    
+    // Extract phone digits if phone is passed
+    const phoneDigits = (inputPhone || (isEmailFormat ? '' : inputEmail)).replace(/\D/g, '');
+    const cleanPhone = phoneDigits.length >= 10 ? phoneDigits.slice(-10) : inputPhone;
 
-    // Check MongoDB for duplicate email
-    const existingUser = await User.findOne({ email: normalizedEmail });
-    if (existingUser) {
-      return res.status(400).json({ success: false, message: 'User with this email already exists' });
+    let finalEmail = isEmailFormat ? inputEmail : '';
+    if (!finalEmail && cleanPhone) {
+      finalEmail = `${cleanPhone}@gonahotel.com`;
+    }
+
+    // Check duplicate by email
+    if (finalEmail) {
+      const existingEmailUser = await User.findOne({ email: finalEmail });
+      if (existingEmailUser) {
+        return res.status(400).json({ success: false, message: 'An account with this email or phone number already exists' });
+      }
+    }
+
+    // Check duplicate by phone number
+    if (cleanPhone && cleanPhone.length >= 10) {
+      const existingPhoneUser = await User.findOne({ phone: new RegExp(cleanPhone) });
+      if (existingPhoneUser) {
+        return res.status(400).json({ success: false, message: 'An account with this phone number already exists' });
+      }
     }
 
     const passwordHash = await bcrypt.hash(password, 10);
@@ -27,9 +48,9 @@ export const registerUser = async (req: Request, res: Response) => {
 
     const newUser = await User.create({
       name: name.trim(),
-      email: normalizedEmail,
+      email: finalEmail,
       password: passwordHash,
-      phone: phone ? phone.trim() : '',
+      phone: cleanPhone || inputPhone,
       role: 'user',
       avatar,
       wishlist: { rooms: [], food: [] }
@@ -63,22 +84,35 @@ export const registerUser = async (req: Request, res: Response) => {
 
 export const loginUser = async (req: Request, res: Response) => {
   try {
-    const { email, password } = req.body;
-    if (!email || !password) {
-      return res.status(400).json({ success: false, message: 'Email and password required' });
+    const { email, password, phone, identifier } = req.body;
+    const loginInput = (identifier || email || phone || '').trim();
+
+    if (!loginInput || !password) {
+      return res.status(400).json({ success: false, message: 'Email or phone number and password are required' });
     }
 
-    const normalizedEmail = email.trim().toLowerCase();
+    const digits = loginInput.replace(/\D/g, '');
 
-    // Find user in MongoDB
-    const user = await User.findOne({ email: normalizedEmail });
+    // Search user by email OR phone number in MongoDB
+    const searchConditions: any[] = [
+      { email: loginInput.toLowerCase() },
+      { phone: loginInput }
+    ];
+
+    if (digits.length >= 10) {
+      const last10 = digits.slice(-10);
+      searchConditions.push({ phone: new RegExp(last10) });
+      searchConditions.push({ email: `${last10}@gonahotel.com` });
+    }
+
+    const user = await User.findOne({ $or: searchConditions });
     if (!user) {
-      return res.status(400).json({ success: false, message: 'Invalid email or password' });
+      return res.status(400).json({ success: false, message: 'Invalid email/phone number or password' });
     }
 
     const isMatch = await bcrypt.compare(password, user.password || '');
     if (!isMatch) {
-      return res.status(400).json({ success: false, message: 'Invalid email or password' });
+      return res.status(400).json({ success: false, message: 'Invalid email/phone number or password' });
     }
 
     const jwtSecret = process.env.JWT_SECRET || 'gona_hotel_super_secret_key_2026';
@@ -136,7 +170,7 @@ export const toggleWishlist = async (req: any, res: Response) => {
     const userId = req.user?.id;
     if (!userId) return res.status(401).json({ message: 'Unauthorized' });
 
-    const { itemId, type } = req.body; // type: 'rooms' | 'food'
+    const { itemId, type } = req.body;
     const user = await User.findById(userId);
     if (!user) return res.status(404).json({ message: 'User not found' });
 

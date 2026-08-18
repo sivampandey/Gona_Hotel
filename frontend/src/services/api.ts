@@ -26,11 +26,11 @@ export const checkBackendHealth = async (): Promise<boolean> => {
 
 export const apiService = {
   // Auth API
-  login: async (email: string, password?: string) => {
+  login: async (emailOrPhone: string, password?: string) => {
     const res = await fetch(`${API_BASE_URL}/auth/login`, {
       method: 'POST',
       headers: getHeaders(false),
-      body: JSON.stringify({ email, password })
+      body: JSON.stringify({ email: emailOrPhone, identifier: emailOrPhone, phone: emailOrPhone, password })
     });
     return { data: await res.json(), status: res.status };
   },
