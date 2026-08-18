@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { 
   X, QrCode, PhoneCall, ShieldCheck, CheckCircle2, Loader2, Copy, Check, 
-  MessageCircle, ExternalLink, Sparkles, Smartphone, ArrowRight, Clock, AlertCircle
+  MessageCircle, ExternalLink, Sparkles, Smartphone, Clock, AlertCircle
 } from 'lucide-react';
 import { useNotification } from '../context/NotificationContext';
 import { apiService } from '../services/api';
@@ -70,52 +70,75 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
     }
 
     const cleanUtr = utrNumber.trim().toUpperCase();
+    const targetId = bookingId || orderId;
+
+    if (!targetId) {
+      showToast('Order or Booking ID missing for payment submission', 'error');
+      return;
+    }
+
     setIsSubmitting(true);
     setViewState('submitting');
 
     try {
-      const targetId = bookingId || orderId;
-      if (targetId) {
-        await apiService.submitUtrProof({
-          bookingId: targetId,
-          orderId: targetId,
-          bookingType,
-          utrNumber: cleanUtr,
-          payerName
-        });
+      const res = await apiService.submitUtrProof({
+        bookingId: targetId,
+        orderId: targetId,
+        bookingType,
+        utrNumber: cleanUtr,
+        payerName
+      });
+
+      if (res.status === 200 && res.data?.success) {
+        setSubmittedUtr(cleanUtr);
+        setViewState('submitted');
+        showToast('Payment details submitted! Status: Pending Verification by Hotel Admin.', 'success');
+      } else {
+        const errorMsg = res.data?.message || 'Failed to submit payment proof. Please try again.';
+        showToast(errorMsg, 'error');
+        setViewState('input');
       }
-    } catch (err) {
-      console.warn('Backend UTR submission warning:', err);
+    } catch (err: any) {
+      showToast(err.message || 'Unable to connect to payment server. Please try again.', 'error');
+      setViewState('input');
     } finally {
       setIsSubmitting(false);
-      setSubmittedUtr(cleanUtr);
-      setViewState('submitted');
-      showToast('Payment details submitted! Status: Pending Verification by Hotel Admin.', 'success');
     }
   };
 
   const handleContactBookingConfirm = async () => {
+    const targetId = bookingId || orderId;
+
+    if (!targetId) {
+      showToast('Order or Booking ID missing', 'error');
+      return;
+    }
+
     setIsSubmitting(true);
     setViewState('submitting');
 
     try {
-      const targetId = bookingId || orderId;
-      if (targetId) {
-        await apiService.submitUtrProof({
-          bookingId: targetId,
-          orderId: targetId,
-          bookingType,
-          utrNumber: 'DESK_PAY_UPON_ARRIVAL',
-          payerName
-        });
+      const res = await apiService.submitUtrProof({
+        bookingId: targetId,
+        orderId: targetId,
+        bookingType,
+        utrNumber: 'DESK_PAY_UPON_ARRIVAL',
+        payerName
+      });
+
+      if (res.status === 200 && res.data?.success) {
+        setSubmittedUtr('DESK_PAYMENT');
+        setViewState('submitted');
+        showToast('Reservation registered! Hotel desk will verify upon check-in.', 'success');
+      } else {
+        showToast(res.data?.message || 'Failed to register reservation', 'error');
+        setViewState('input');
       }
-    } catch (err) {
-      console.warn('Contact booking submission warning:', err);
+    } catch (err: any) {
+      showToast(err.message || 'Failed to submit reservation', 'error');
+      setViewState('input');
     } finally {
       setIsSubmitting(false);
-      setSubmittedUtr('DESK_PAYMENT');
-      setViewState('submitted');
-      showToast('Reservation registered! Hotel desk will verify upon check-in.', 'success');
     }
   };
 

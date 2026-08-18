@@ -34,6 +34,11 @@ export const submitUtrProof = async (req: any, res: Response) => {
       });
       if (!targetRecord) return res.status(404).json({ message: 'Room booking not found' });
 
+      // Ownership enforcement check
+      if (targetRecord.userId && targetRecord.userId.toString() !== userId.toString()) {
+        return res.status(403).json({ message: 'Forbidden: You do not own this booking' });
+      }
+
       targetRecord.paymentStatus = 'PAYMENT_SUBMITTED';
       targetRecord.bookingStatus = 'PAYMENT_SUBMITTED';
       targetRecord.utrNumber = cleanUtr;
@@ -51,6 +56,11 @@ export const submitUtrProof = async (req: any, res: Response) => {
       });
       if (!targetRecord) return res.status(404).json({ message: 'Food order not found' });
 
+      // Ownership enforcement check
+      if (targetRecord.userId && targetRecord.userId.toString() !== userId.toString()) {
+        return res.status(403).json({ message: 'Forbidden: You do not own this food order' });
+      }
+
       targetRecord.paymentStatus = 'PAYMENT_SUBMITTED';
       targetRecord.orderStatus = 'PAYMENT_SUBMITTED';
       targetRecord.utrNumber = cleanUtr;
@@ -67,6 +77,11 @@ export const submitUtrProof = async (req: any, res: Response) => {
         ]
       });
       if (!targetRecord) return res.status(404).json({ message: 'Farm booking not found' });
+
+      // Ownership enforcement check
+      if (targetRecord.userId && targetRecord.userId.toString() !== userId.toString()) {
+        return res.status(403).json({ message: 'Forbidden: You do not own this farm booking' });
+      }
 
       targetRecord.paymentStatus = 'PAYMENT_SUBMITTED';
       targetRecord.status = 'PAYMENT_SUBMITTED';
@@ -228,21 +243,4 @@ export const verifyOrRejectPaymentAdmin = async (req: any, res: Response) => {
   } catch (error: any) {
     return res.status(500).json({ message: error.message || 'Server error' });
   }
-};
-
-// Legacy stubs for Razorpay compatibility
-export const createRazorpayOrder = async (req: Request, res: Response) => {
-  return res.json({
-    success: true,
-    id: 'order_' + Date.now(),
-    amount: (req.body.amount || 0) * 100,
-    currency: 'INR'
-  });
-};
-
-export const verifyRazorpayPayment = async (req: Request, res: Response) => {
-  return res.json({
-    success: true,
-    message: 'Razorpay stub response'
-  });
 };

@@ -8,7 +8,7 @@ import { getMenuItems, createMenuItem, updateMenuItem, deleteMenuItem } from '..
 import { createRoomBooking, getUserBookings, getAllBookingsAdmin, updateBookingStatusAdmin } from '../controllers/bookingController';
 import { createFoodOrder, getUserFoodOrders, getFoodOrderById, getAllFoodOrdersAdmin, updateFoodOrderStatusAdmin } from '../controllers/foodOrderController';
 import { createFarmBooking, getUserFarmBookings, getAllFarmBookingsAdmin, updateFarmBookingStatusAdmin } from '../controllers/farmController';
-import { submitUtrProof, getPendingTransactionsAdmin, verifyOrRejectPaymentAdmin, createRazorpayOrder, verifyRazorpayPayment } from '../controllers/paymentController';
+import { submitUtrProof, getPendingTransactionsAdmin, verifyOrRejectPaymentAdmin } from '../controllers/paymentController';
 import { 
   getAdminAnalytics, getGalleryAdmin, addGalleryItemAdmin, deleteGalleryItemAdmin, 
   getReviewsAdmin, createReview, toggleReviewApprovalAdmin, getCouponsAdmin, 
@@ -59,14 +59,10 @@ router.get('/farm/bookings/my', authenticateToken, getUserFarmBookings);
 router.get('/admin/farm/bookings', authenticateToken, requireAdmin, getAllFarmBookingsAdmin);
 router.put('/admin/farm/bookings/:id', authenticateToken, requireAdmin, updateFarmBookingStatusAdmin);
 
-// Payment Routes
+// Payment Routes (Client UPI QR + UTR + Admin Verification)
 router.post('/payments/submit-utr', authenticateToken, submitUtrProof);
 router.get('/admin/payments/pending', authenticateToken, requireAdmin, getPendingTransactionsAdmin);
 router.put('/admin/payments/verify/:id', authenticateToken, requireAdmin, verifyOrRejectPaymentAdmin);
-
-// Legacy/Mock Razorpay Routes
-router.post('/payment/razorpay/order', createRazorpayOrder);
-router.post('/payment/razorpay/verify', verifyRazorpayPayment);
 
 // Coupons, Gallery, Reviews & Admin Routes
 router.post('/coupons/validate', validateCouponPublic);
