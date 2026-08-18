@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Printer, Download, Sparkles, CheckCircle2, ShieldCheck, Loader2 } from 'lucide-react';
+import { X, Printer, Download, Sparkles, ShieldCheck, Loader2, CheckCircle2, Award } from 'lucide-react';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 
@@ -17,11 +17,11 @@ interface InvoiceModalProps {
     paymentId?: string;
     utrNumber?: string;
     paymentStatus?: string;
-    items: Array<{ description: string; quantity?: number; amount: number }>;
-    subtotal: number;
+    items?: Array<{ description: string; quantity?: number; amount: number }>;
+    subtotal?: number;
     tax?: number;
     discount?: number;
-    totalAmount: number;
+    totalAmount?: number;
   };
 }
 
@@ -40,12 +40,36 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({ isOpen, onClose, inv
 
     try {
       setIsGeneratingPdf(true);
+
+      // Temporarily expand scroll constraints so html2canvas captures 100% of the bill content
+      const parentModal = invoiceElem.parentElement;
+      const originalElemStyle = invoiceElem.getAttribute('style') || '';
+      const originalParentStyle = parentModal?.getAttribute('style') || '';
+
+      invoiceElem.style.maxHeight = 'none';
+      invoiceElem.style.height = 'auto';
+      invoiceElem.style.overflow = 'visible';
+      if (parentModal) {
+        parentModal.style.maxHeight = 'none';
+        parentModal.style.height = 'auto';
+        parentModal.style.overflow = 'visible';
+      }
+
+      window.scrollTo(0, 0);
+
       const canvas = await html2canvas(invoiceElem, {
         scale: 2,
         useCORS: true,
         logging: false,
-        backgroundColor: '#ffffff'
+        backgroundColor: '#ffffff',
+        windowWidth: 800
       });
+
+      // Restore original scroll/modal styles
+      invoiceElem.setAttribute('style', originalElemStyle);
+      if (parentModal) {
+        parentModal.setAttribute('style', originalParentStyle);
+      }
 
       const imgData = canvas.toDataURL('image/png');
       const pdf = new jsPDF({
@@ -59,7 +83,7 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({ isOpen, onClose, inv
       const imgHeight = (canvas.height * imgWidth) / canvas.width;
 
       pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, Math.min(imgHeight, pageHeight));
-      pdf.save(`Gona_Hotel_Tax_Invoice_${invoiceData.invoiceId}.pdf`);
+      pdf.save(`Gona_Hotel_Tax_Invoice_${invoiceData.invoiceId || 'Bill'}.pdf`);
     } catch (err) {
       console.error('PDF download error:', err);
       window.print();
@@ -68,14 +92,20 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({ isOpen, onClose, inv
     }
   };
 
+  // Safe Amount & Item Calculations
+  const grandTotal = invoiceData.totalAmount || invoiceData.subtotal || 0;
+  const itemsList = (invoiceData.items && invoiceData.items.length > 0)
+    ? invoiceData.items
+    : [{ description: invoiceData.title || 'Gona Hotel Service', quantity: 1, amount: grandTotal }];
+
+  const subtotalVal = invoiceData.subtotal || itemsList.reduce((sum, item) => sum + (item.amount || 0), 0) || grandTotal;
   const discountVal = invoiceData.discount || 0;
-  const taxableAmount = Math.max(0, invoiceData.subtotal - discountVal);
-  const calculatedTax = invoiceData.tax !== undefined ? invoiceData.tax : 0;
-  const grandTotal = invoiceData.totalAmount || (taxableAmount + calculatedTax);
+  const taxableAmount = Math.max(0, subtotalVal - discountVal);
+  const calculatedTax = invoiceData.tax !== undefined ? invoiceData.tax : (grandTotal > taxableAmount ? Math.round(grandTotal - taxableAmount) : 0);
   const statusStr = (invoiceData.paymentStatus || 'VERIFIED').toUpperCase();
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/80 backdrop-blur-md animate-in fade-in overflow-y-auto print:p-0 print:bg-white print:static">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/85 backdrop-blur-md animate-in fade-in overflow-y-auto print:p-0 print:bg-white print:static">
       
       {/* Print CSS Override */}
       <style>{`
@@ -92,7 +122,7 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({ isOpen, onClose, inv
             top: 0;
             width: 100%;
             margin: 0;
-            padding: 20px;
+            padding: 24px;
             background: white !important;
             color: black !important;
             border: none !important;
@@ -106,31 +136,31 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({ isOpen, onClose, inv
 
       <div className="w-full max-w-2xl bg-white text-gray-900 rounded-2xl sm:rounded-3xl shadow-2xl overflow-hidden my-4 sm:my-8 relative border-2 border-luxury-gold max-h-[92vh] flex flex-col print:max-h-none print:shadow-none print:border-none print:rounded-none">
         
-        {/* Top Header Controls (Hidden on Print) */}
+        {/* Top Controls Header (Hidden on Print) */}
         <div className="p-3 sm:p-4 bg-[#0D3B29] text-white flex items-center justify-between shrink-0 print-hide">
           <div className="flex items-center gap-2">
             <Sparkles className="w-4 h-4 text-luxury-gold" />
             <span className="text-[10px] sm:text-xs font-bold text-luxury-gold uppercase tracking-widest">
-              Gona Hotel & Restaurant Official Invoice
+              Gona Hotel & Resort Official Tax Invoice
             </span>
           </div>
           <div className="flex items-center gap-2 sm:gap-3">
             <button
               onClick={handleDownloadPdf}
               disabled={isGeneratingPdf}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-luxury-gold text-[#0D3B29] font-bold text-xs hover:bg-[#F3E5AB] transition-colors shadow disabled:opacity-50"
+              className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-luxury-gold text-[#0D3B29] font-bold text-xs hover:bg-[#F3E5AB] transition-all shadow-md disabled:opacity-50 cursor-pointer"
             >
-              {isGeneratingPdf ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Download className="w-3.5 h-3.5" />} Download PDF
+              {isGeneratingPdf ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Download className="w-3.5 h-3.5" />} Download PDF Bill
             </button>
             <button
               onClick={handlePrint}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white font-bold text-xs transition-colors border border-white/20"
+              className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs transition-colors border border-white/20 cursor-pointer"
             >
               <Printer className="w-3.5 h-3.5" /> Print
             </button>
             <button
               onClick={onClose}
-              className="p-1 text-gray-400 hover:text-white transition-colors"
+              className="p-1 text-gray-400 hover:text-white transition-colors cursor-pointer"
               aria-label="Close invoice"
             >
               <X className="w-5 h-5" />
@@ -138,33 +168,38 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({ isOpen, onClose, inv
           </div>
         </div>
 
-        {/* Printable Tax Invoice Container */}
-        <div className="p-4 sm:p-8 space-y-6 overflow-y-auto flex-1 bg-white" id="printable-invoice">
+        {/* 📜 Printable Tax Invoice Container */}
+        <div className="p-5 sm:p-8 space-y-6 overflow-y-auto flex-1 bg-white" id="printable-invoice">
           
-          {/* Top Hotel Header */}
+          {/* Header & Luxury Hotel Crest */}
           <div className="flex flex-col sm:flex-row justify-between items-start border-b-2 border-[#0D3B29]/30 pb-5 gap-4">
             <div className="space-y-1">
-              <div className="flex items-center gap-2">
-                <span className="w-8 h-8 rounded-full bg-[#0D3B29] text-luxury-gold font-bold flex items-center justify-center text-sm shadow">
+              <div className="flex items-center gap-2.5">
+                <span className="w-9 h-9 rounded-full bg-[#0D3B29] text-luxury-gold font-serif font-bold flex items-center justify-center text-base shadow-md border border-luxury-gold">
                   G
                 </span>
-                <h1 className="font-serif text-2xl sm:text-3xl font-extrabold text-[#0D3B29] tracking-wider uppercase">
-                  GONA HOTEL & RESTAURANT
-                </h1>
+                <div>
+                  <h1 className="font-serif text-2xl sm:text-3xl font-extrabold text-[#0D3B29] tracking-wider uppercase">
+                    GONA HOTEL & RESTAURANT
+                  </h1>
+                  <span className="text-[10px] font-bold text-luxury-gold uppercase tracking-widest block">
+                    Luxury Resort & Organic Agro Farm
+                  </span>
+                </div>
               </div>
-              <p className="text-xs font-bold text-luxury-gold uppercase tracking-widest pl-10">
+              <p className="text-[11px] font-bold text-gray-700 pl-11">
                 Trade Name: GONA FARM AND HOLIDAY HOME • Legal Name: MITHILESH KUMAR SINGH (HUF)
               </p>
-              <p className="text-[11px] text-gray-600 font-medium pl-10">
+              <p className="text-[11px] text-gray-600 font-medium pl-11">
                 📍 Hotel Address: Village - Semari, Post - Sarso, Chunar Road, Mirzapur, Uttar Pradesh - 231201
               </p>
-              <p className="text-[11px] text-gray-600 font-medium pl-10">
+              <p className="text-[11px] text-gray-600 font-medium pl-11">
                 🏢 Reg. Address: Akhara Mohal Babhanauli, Robertsganj, Sonbhadra, Uttar Pradesh - 231216
               </p>
-              <p className="text-[11px] text-gray-600 font-medium pl-10">
+              <p className="text-[11px] text-gray-600 font-medium pl-11">
                 📞 Mobile: +91 96966 31621 / +91 79050 79819 | ✉️ info@gonahotel.com
               </p>
-              <div className="pt-1.5 pl-10 flex flex-wrap gap-2 text-[10px] font-mono font-bold text-[#0D3B29]">
+              <div className="pt-1.5 pl-11 flex flex-wrap gap-2 text-[10px] font-mono font-bold text-[#0D3B29]">
                 <span className="bg-amber-100 px-2.5 py-0.5 rounded border border-amber-300">GSTIN: 09AAKHM1332D1ZH</span>
                 <span className="bg-emerald-100 px-2.5 py-0.5 rounded border border-emerald-300">SAC Code: 9963</span>
               </div>
@@ -178,20 +213,20 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({ isOpen, onClose, inv
                   ? 'bg-amber-600'
                   : 'bg-red-600'
               }`}>
-                {statusStr === 'VERIFIED' || statusStr === 'PAID' ? 'OFFICIAL TAX INVOICE' : `STATUS: ${statusStr}`}
+                {statusStr === 'VERIFIED' || statusStr === 'PAID' ? 'OFFICIAL TAX INVOICE (PAID)' : `STATUS: ${statusStr}`}
               </span>
-              <h3 className="font-serif text-base sm:text-lg font-bold text-gray-900 font-mono">{invoiceData.invoiceId}</h3>
+              <h3 className="font-serif text-base sm:text-lg font-bold text-[#0D3B29] font-mono">{invoiceData.invoiceId}</h3>
               <p className="text-[11px] text-gray-500">
                 Date: {invoiceData.date ? new Date(invoiceData.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : new Date().toLocaleDateString('en-IN')}
               </p>
               {(invoiceData.utrNumber || invoiceData.paymentId) && (
-                <p className="text-[11px] text-gray-500 font-mono">UTR / Payment Ref: {invoiceData.utrNumber || invoiceData.paymentId}</p>
+                <p className="text-[11px] text-gray-600 font-mono font-semibold">UTR / Payment Ref: {invoiceData.utrNumber || invoiceData.paymentId}</p>
               )}
             </div>
           </div>
 
-          {/* Customer & Billing Box */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-amber-50/60 p-4 rounded-xl border border-luxury-gold/30 text-xs">
+          {/* Billed To & Service Details Box */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-amber-50/70 p-4 sm:p-5 rounded-2xl border border-luxury-gold/40 text-xs shadow-sm">
             <div>
               <span className="font-bold text-[#0D3B29] uppercase tracking-wider block mb-1">Billed To (Guest Details)</span>
               <p className="font-bold text-sm text-gray-900">{invoiceData.customerName}</p>
@@ -202,102 +237,135 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({ isOpen, onClose, inv
               <span className="font-bold text-[#0D3B29] uppercase tracking-wider block mb-1">Hotel Service / Booking</span>
               <p className="font-bold text-sm text-[#0D3B29] capitalize">{invoiceData.title}</p>
               <p className="text-gray-600">Type: {invoiceData.type.toUpperCase()}</p>
-              <p className={`font-semibold ${
-                statusStr === 'VERIFIED' || statusStr === 'PAID' ? 'text-emerald-700' : 'text-amber-700'
-              }`}>
-                Payment Status: {statusStr}
-              </p>
+              
+              {/* Highlighted Paid Amount in Header Box */}
+              <div className="mt-2 inline-block px-3 py-1 bg-[#0D3B29] text-luxury-gold rounded-lg font-bold text-xs shadow">
+                Paid Amount: ₹{grandTotal.toLocaleString('en-IN')}
+              </div>
             </div>
           </div>
 
-          {/* Line Items Table */}
-          <div className="overflow-x-auto">
+          {/* 📋 Line Items Table */}
+          <div className="overflow-x-auto rounded-xl border border-gray-200 shadow-sm">
             <table className="w-full text-left text-xs border-collapse">
               <thead>
-                <tr className="bg-[#0D3B29] text-white uppercase text-[10px] tracking-wider">
-                  <th className="py-2.5 px-3 rounded-l-lg">S.No & Item Description</th>
-                  <th className="py-2.5 px-2 text-center">HSN/SAC</th>
-                  <th className="py-2.5 px-2 text-center">Qty</th>
-                  <th className="py-2.5 px-3 text-right rounded-r-lg">Total Amount (₹)</th>
+                <tr className="bg-[#0D3B29] text-luxury-gold uppercase text-[10px] tracking-wider font-bold">
+                  <th className="py-3 px-4">S.No & Item Description</th>
+                  <th className="py-3 px-3 text-center">HSN/SAC</th>
+                  <th className="py-3 px-3 text-center">Qty</th>
+                  <th className="py-3 px-3 text-right">Unit Price (₹)</th>
+                  <th className="py-3 px-4 text-right">Total Amount (₹)</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-200">
-                {invoiceData.items.map((item, idx) => (
-                  <tr key={idx} className="hover:bg-gray-50">
-                    <td className="py-3 px-3 font-medium text-gray-900">
-                      <span className="font-bold text-gray-400 mr-2">{idx + 1}.</span>
-                      {item.description}
-                    </td>
-                    <td className="py-3 px-2 text-center font-mono text-gray-500">9963</td>
-                    <td className="py-3 px-2 text-center font-bold text-gray-700">{item.quantity || 1}</td>
-                    <td className="py-3 px-3 text-right font-bold text-gray-900">
-                      ₹{item.amount.toLocaleString('en-IN')}
-                    </td>
-                  </tr>
-                ))}
+              <tbody className="divide-y divide-gray-200 bg-white">
+                {itemsList.map((item, idx) => {
+                  const qty = item.quantity || 1;
+                  const unitPrice = Math.round(item.amount / qty);
+
+                  return (
+                    <tr key={idx} className={idx % 2 === 0 ? 'bg-white' : 'bg-gray-50/60'}>
+                      <td className="py-3 px-4 font-medium text-gray-900">
+                        <span className="font-bold text-gray-400 mr-2">{idx + 1}.</span>
+                        {item.description}
+                      </td>
+                      <td className="py-3 px-3 text-center font-mono text-gray-500">9963</td>
+                      <td className="py-3 px-3 text-center font-bold text-gray-700">{qty}</td>
+                      <td className="py-3 px-3 text-right text-gray-600 font-mono">₹{unitPrice.toLocaleString('en-IN')}</td>
+                      <td className="py-3 px-4 text-right font-bold text-gray-900 font-mono">
+                        ₹{item.amount.toLocaleString('en-IN')}
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
 
-          {/* Tax Breakdown & Totals */}
-          <div className="border-t-2 border-gray-200 pt-4 flex flex-col sm:flex-row justify-between items-start gap-4">
+          {/* 💰 Calculations & Tax Breakdown Section */}
+          <div className="border-t-2 border-[#0D3B29]/20 pt-4 flex flex-col sm:flex-row justify-between items-start gap-6">
             
-            {/* Left: GST Declaration */}
-            <div className="bg-gray-50 p-3 rounded-xl border border-gray-200 text-[11px] text-gray-600 space-y-1 max-w-xs">
-              <p className="font-bold text-[#0D3B29] flex items-center gap-1">
-                <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" /> Tax Declaration
+            {/* Left: GST & Payment Details */}
+            <div className="bg-emerald-50/50 p-4 rounded-2xl border border-emerald-200 text-xs text-gray-700 space-y-2 max-w-sm w-full">
+              <p className="font-bold text-[#0D3B29] flex items-center gap-1.5 text-sm">
+                <ShieldCheck className="w-4 h-4 text-emerald-600" /> Payment & Tax Summary
               </p>
-              <p>Total GST Applied: <strong>{calculatedTax > 0 ? '5%' : '0%'}</strong></p>
-              <p>GST Amount: ₹{calculatedTax.toLocaleString('en-IN')}</p>
-              <p className="text-[10px] text-gray-400 pt-1 border-t border-gray-200">Official Computer Generated Bill from Gona Hotel & Restaurant.</p>
+              <div className="space-y-1 text-[11px]">
+                <p className="flex justify-between">
+                  <span className="text-gray-500">Payment Status:</span>
+                  <strong className="text-emerald-800">{statusStr}</strong>
+                </p>
+                <p className="flex justify-between">
+                  <span className="text-gray-500">GST Rate Applied:</span>
+                  <strong>5% (SGST 2.5% + CGST 2.5%)</strong>
+                </p>
+                <p className="flex justify-between">
+                  <span className="text-gray-500">GST Amount:</span>
+                  <strong>₹{calculatedTax.toLocaleString('en-IN')}</strong>
+                </p>
+              </div>
+              <p className="text-[10px] text-gray-500 pt-2 border-t border-emerald-200/60">
+                Official computer-generated tax invoice issued by Gona Hotel & Restaurant.
+              </p>
             </div>
 
-            {/* Right: Calculation Table */}
-            <div className="w-full sm:w-64 space-y-1.5 text-xs">
+            {/* Right: Bill Calculation Table */}
+            <div className="w-full sm:w-72 space-y-2 text-xs">
               <div className="flex justify-between text-gray-600">
                 <span>Items Subtotal</span>
-                <span className="font-semibold text-gray-900">₹{invoiceData.subtotal.toLocaleString('en-IN')}</span>
+                <span className="font-semibold text-gray-900 font-mono">₹{subtotalVal.toLocaleString('en-IN')}</span>
               </div>
               
               {discountVal > 0 && (
                 <div className="flex justify-between text-emerald-700 font-medium">
                   <span>Discount</span>
-                  <span>-₹{discountVal.toLocaleString('en-IN')}</span>
+                  <span className="font-mono">-₹{discountVal.toLocaleString('en-IN')}</span>
                 </div>
               )}
 
-              <div className="flex justify-between text-gray-600 pt-1 border-t border-gray-100">
+              <div className="flex justify-between text-gray-600 pt-1.5 border-t border-gray-100">
                 <span>Net Taxable Amount</span>
-                <span className="font-semibold text-gray-900">₹{taxableAmount.toLocaleString('en-IN')}</span>
+                <span className="font-semibold text-gray-900 font-mono">₹{taxableAmount.toLocaleString('en-IN')}</span>
               </div>
 
               {calculatedTax > 0 && (
                 <div className="flex justify-between text-gray-700 font-semibold pt-1 border-t border-gray-200">
                   <span>GST (5%)</span>
-                  <span className="text-[#0D3B29]">₹{calculatedTax.toLocaleString('en-IN')}</span>
+                  <span className="text-[#0D3B29] font-mono">₹{calculatedTax.toLocaleString('en-IN')}</span>
                 </div>
               )}
 
-              <div className="flex justify-between text-sm sm:text-base font-serif font-bold text-[#0D3B29] pt-2 border-t-2 border-[#0D3B29]">
-                <span>Grand Total</span>
-                <span className="text-emerald-700">₹{grandTotal.toLocaleString('en-IN')}</span>
+              {/* 🌟 GRAND TOTAL PAID CARD 🌟 */}
+              <div className="p-3.5 rounded-2xl bg-gradient-to-r from-[#0D3B29] to-[#144d36] text-white flex justify-between items-center shadow-lg mt-3 border border-luxury-gold">
+                <div>
+                  <span className="text-[10px] uppercase tracking-wider font-bold text-luxury-gold block">
+                    Total Amount Paid
+                  </span>
+                  <span className="text-xs text-gray-200">Inclusive of all taxes</span>
+                </div>
+                <span className="font-serif text-2xl font-bold text-luxury-gold">
+                  ₹{grandTotal.toLocaleString('en-IN')}
+                </span>
               </div>
             </div>
           </div>
 
-          {/* Footer & Signature Stamp */}
+          {/* 🖋️ Official Hotel Stamp & Signature Seal */}
           <div className="pt-6 border-t border-gray-200 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-gray-500">
             <div className="text-center sm:text-left space-y-0.5">
-              <p className="font-bold text-[#0D3B29]">Thank you for visiting Gona Hotel & Restaurant!</p>
-              <p>For any queries, please present this computer generated tax invoice.</p>
+              <p className="font-bold text-[#0D3B29] text-xs">Thank you for staying & dining with Gona Hotel & Restaurant!</p>
+              <p>For any queries, please present this computer-generated tax invoice.</p>
               <p className="text-[10px] text-gray-400">E. & O.E. • Subject to Mirzapur Jurisdiction</p>
             </div>
 
-            <div className="text-center border-t sm:border-t-0 sm:border-l border-gray-200 pl-0 sm:pl-4 pt-2 sm:pt-0">
-              <div className="w-28 h-10 border border-luxury-gold/40 rounded flex items-center justify-center bg-amber-50/50 mx-auto">
-                <span className="text-[10px] font-bold text-[#0D3B29] uppercase tracking-tighter">Gona Hotel Seal</span>
+            <div className="text-center border-t sm:border-t-0 sm:border-l border-gray-200 pl-0 sm:pl-6 pt-3 sm:pt-0 shrink-0">
+              <div className="w-36 h-14 border-2 border-dashed border-luxury-gold rounded-xl flex flex-col items-center justify-center bg-amber-50/60 p-1 mx-auto shadow-inner">
+                <Award className="w-4 h-4 text-[#0D3B29]" />
+                <span className="text-[10px] font-extrabold text-[#0D3B29] uppercase tracking-tighter">
+                  Gona Hotel Seal
+                </span>
+                <span className="text-[8px] text-emerald-800 font-bold">VERIFIED TAX INVOICE</span>
               </div>
-              <p className="text-[10px] font-bold text-[#0D3B29] mt-1">Authorized Signatory</p>
+              <p className="text-[10px] font-bold text-[#0D3B29] mt-1.5">Authorized Signatory</p>
             </div>
           </div>
 
