@@ -507,7 +507,7 @@ export const AdminDashboard: React.FC = () => {
                           <div className="flex-1 flex gap-2 w-full">
                             <input
                               type="text"
-                              placeholder="Rejection reason (e.g. UTR not found in PNB statement)"
+                              placeholder="Rejection reason (e.g. UTR not found in bank statement)"
                               value={rejectionReason[txn.transactionId || txn.utrNumber] || ''}
                               onChange={e => setRejectionReason({ ...rejectionReason, [txn.transactionId || txn.utrNumber]: e.target.value })}
                               className="flex-1 px-3 py-2 border border-gray-300 rounded-xl text-xs focus:outline-none focus:border-red-500"

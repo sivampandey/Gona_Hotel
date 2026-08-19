@@ -42,8 +42,8 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
 
   if (!isOpen) return null;
 
-  const upiId = '7880729819m@pnb';
-  const payeeName = 'Gona Hotel and Resort';
+  const upiId = 'Vyapar.175694236355@hdfcbank';
+  const payeeName = 'Gona Hotel';
   const hotelPhonePrimary = '+919696631621';
   const hotelPhoneFormatted = '+91 96966 31621';
   const hotelPhoneSecondary = '+91 79050 79819';
@@ -239,11 +239,11 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                         </div>
                       ) : (
                         <img
-                          src={dynamicQrUrl}
-                          alt="Gona Hotel Official Dynamic UPI QR Code"
+                          src="/assets/payment-qr.png"
+                          alt="Gona Hotel Official UPI QR Code"
                           className="w-48 h-48 sm:w-56 sm:h-56 object-contain rounded-lg mx-auto"
                           onError={(e) => {
-                            (e.currentTarget as HTMLImageElement).src = '/assets/payment-qr.png';
+                            (e.currentTarget as HTMLImageElement).src = dynamicQrUrl;
                           }}
                         />
 
@@ -507,7 +507,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
 
               <div className="flex justify-between items-center">
                 <span className="text-gray-400">UPI Account</span>
-                <span className="font-mono text-gray-300">7880729819m@pnb</span>
+                <span className="font-mono text-gray-300">{upiId}</span>
               </div>
             </div>
 

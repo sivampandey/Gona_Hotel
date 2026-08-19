@@ -30,7 +30,7 @@ This project includes a feature-packed **Admin Dashboard** for complete hotel op
   - 🌊 **Wyndham Falls**: 40 km (50 mins)
   - 🛕 **Vindhyachal Dham & Maa Vindhyavasini Temple**: 74 km (1.5 hours)
 - **🏡 Private Farm House Estate**: Dedicated booking portal for full farm house stays, pool picnics, BBQ nights, and celebration lawns.
-- **💳 Payment Integration**: Native support for UPI QR scanning and 1-click payment via Google Pay, PhonePe, Paytm, and BHIM (`7880729819m@pnb`).
+- **💳 Payment Integration**: Native support for UPI QR scanning and 1-click payment via Google Pay, PhonePe, Paytm, and BHIM (`Vyapar.175694236355@hdfcbank`).
 - **📞 24/7 Hotel Concierge**: Integrated phone hotline (`+91 96966 31621`, `+91 79050 79819`) and instant WhatsApp reservation desk.
 - **📊 Comprehensive Admin Dashboard**: Live tracking of room reservations, kitchen food orders, menu price edits, coupon codes, user management, and GST tax invoice printing.
 
