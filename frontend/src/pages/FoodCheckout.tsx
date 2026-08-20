@@ -10,6 +10,7 @@ import { useNotification } from '../context/NotificationContext';
 import { PaymentModal } from '../components/PaymentModal';
 import { InvoiceModal } from '../components/InvoiceModal';
 import { apiService } from '../services/api';
+import { SEO } from '../components/SEO';
 
 export const FoodCheckout: React.FC = () => {
   const {
@@ -124,6 +125,7 @@ export const FoodCheckout: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-luxury-cream text-luxury-obsidian pt-28 pb-24">
+      <SEO noindex title="Checkout - Food Order | Gona Hotel" />
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
         
         <Link to="/restaurant" className="inline-flex items-center gap-2 text-sm font-semibold text-luxury-emerald hover:text-luxury-gold">

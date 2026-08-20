@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Home as HomeIcon, Flame, Waves, Users, Calendar, Sparkles, CheckCircle2, ArrowRight, ShieldCheck } from 'lucide-react';
+import { SEO } from '../components/SEO';
+import { siteConfig } from '../config/siteConfig';
+import { getBreadcrumbSchema } from '../config/jsonLdSchemas';
 
 export const Farm: React.FC = () => {
   const navigate = useNavigate();
@@ -59,6 +62,16 @@ export const Farm: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-[#F7F4EB] text-luxury-obsidian pt-28 pb-24">
+      <SEO
+        title="Organic Farm & Agri-Tourism Estate | Gona Hotel"
+        description="Book a private farm house stay, swimming pool party, organic farm tour, and fresh farm-to-table dining at Gona Organic Farm & Estate."
+        canonicalPath="/farm"
+        ogImage="/images/restaurant/sada-thali-bhojan.webp"
+        jsonLd={getBreadcrumbSchema([
+          { name: 'Home', url: siteConfig.url },
+          { name: 'Farm', url: `${siteConfig.url}/farm` }
+        ])}
+      />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-16">
 
         {/* Farm House Hero Banner with Real Luxury House Image */}

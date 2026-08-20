@@ -2,6 +2,9 @@ import React, { useState } from 'react';
 import { Sparkles, Play, X } from 'lucide-react';
 import { initialSeedData } from '../data/seedData';
 import type { GalleryItem } from '../types';
+import { SEO } from '../components/SEO';
+import { siteConfig } from '../config/siteConfig';
+import { getBreadcrumbSchema } from '../config/jsonLdSchemas';
 
 export const GalleryPage: React.FC = () => {
   const [activeCategory, setActiveCategory] = useState<string>('all');
@@ -16,6 +19,16 @@ export const GalleryPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-luxury-cream text-luxury-obsidian pt-28 pb-24">
+      <SEO
+        title="Photo & Video Gallery | Gona Hotel"
+        description="View high-resolution photography and video walkthroughs of Gona Hotel rooms, pure veg restaurant dishes, organic farm harvests, and events."
+        canonicalPath="/gallery"
+        ogImage="/images/restaurant/sada-thali-bhojan.webp"
+        jsonLd={getBreadcrumbSchema([
+          { name: 'Home', url: siteConfig.url },
+          { name: 'Gallery', url: `${siteConfig.url}/gallery` }
+        ])}
+      />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
         
         <div className="text-center space-y-4 max-w-3xl mx-auto">

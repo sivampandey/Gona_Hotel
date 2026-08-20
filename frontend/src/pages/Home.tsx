@@ -8,6 +8,9 @@ import { RoomCard } from '../components/RoomCard';
 import { FoodCard } from '../components/FoodCard';
 import { initialSeedData } from '../data/seedData';
 import { touristPlaces } from './Attractions';
+import { SEO } from '../components/SEO';
+import { siteConfig } from '../config/siteConfig';
+import { getHotelSchema, getBreadcrumbSchema } from '../config/jsonLdSchemas';
 
 export const Home: React.FC = () => {
   const featuredRooms = initialSeedData.rooms;
@@ -195,7 +198,17 @@ export const Home: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#F7F4EB] text-luxury-obsidian overflow-hidden">
+    <div className="min-h-screen bg-[#F7F4EB] text-luxury-obsidian">
+      <SEO
+        title="Gona Hotel | Comfortable Stay & Luxury Hospitality"
+        description="Experience luxury accommodation, authentic pure veg dining, and organic agri-tourism at Gona Hotel & Resort."
+        canonicalPath="/"
+        ogImage="/assets/hero-bg.jpg"
+        jsonLd={[
+          getHotelSchema(),
+          getBreadcrumbSchema([{ name: 'Home', url: siteConfig.url }])
+        ]}
+      />
 
       {/* HERO SECTION WITH AUTOMATIC BACKGROUND SLIDER */}
       <section className="relative min-h-[80vh] sm:min-h-[85vh] flex items-center justify-center pt-24 pb-14 sm:pt-36 sm:pb-20 overflow-hidden">

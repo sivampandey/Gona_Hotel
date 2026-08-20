@@ -3,6 +3,9 @@ import {
   Phone, Mail, MapPin, Send, MessageCircle, Clock, CheckCircle, ExternalLink 
 } from 'lucide-react';
 import { useNotification } from '../context/NotificationContext';
+import { SEO } from '../components/SEO';
+import { siteConfig } from '../config/siteConfig';
+import { getBreadcrumbSchema } from '../config/jsonLdSchemas';
 
 export const Contact: React.FC = () => {
   const { showToast } = useNotification();
@@ -23,6 +26,16 @@ export const Contact: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-[#F7F4EB] text-luxury-obsidian pt-28 pb-24">
+      <SEO
+        title="Contact Us & Reservations | Gona Hotel"
+        description="Get in touch with Gona Hotel concierge for room reservations, restaurant table bookings, farm visits, and general inquiries."
+        canonicalPath="/contact"
+        ogImage="/images/restaurant/sada-thali-bhojan.webp"
+        jsonLd={getBreadcrumbSchema([
+          { name: 'Home', url: siteConfig.url },
+          { name: 'Contact', url: `${siteConfig.url}/contact` }
+        ])}
+      />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
         
         <div className="text-center space-y-3 max-w-3xl mx-auto">

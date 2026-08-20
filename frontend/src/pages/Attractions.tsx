@@ -4,6 +4,9 @@ import {
   MapPin, Compass, Camera, Navigation, Phone, ExternalLink,
   Sparkles, X, ChevronRight, CheckCircle2, Clock, Car, Sun
 } from 'lucide-react';
+import { SEO } from '../components/SEO';
+import { siteConfig } from '../config/siteConfig';
+import { getBreadcrumbSchema } from '../config/jsonLdSchemas';
 
 export interface TouristPlace {
   id: string;
@@ -181,6 +184,16 @@ export const Attractions: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-[#F7F4EB] text-luxury-obsidian pt-28 pb-24">
+      <SEO
+        title="Nearby Tourist Attractions | Gona Hotel"
+        description="Discover majestic waterfalls, historic Chunar Fort, and sacred temples conveniently located near Gona Hotel & Resort."
+        canonicalPath="/attractions"
+        ogImage="/images/restaurant/sada-thali-bhojan.webp"
+        jsonLd={getBreadcrumbSchema([
+          { name: 'Home', url: siteConfig.url },
+          { name: 'Attractions', url: `${siteConfig.url}/attractions` }
+        ])}
+      />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
 
         {/* Page Header */}

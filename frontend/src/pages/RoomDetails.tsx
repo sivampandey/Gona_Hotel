@@ -10,6 +10,9 @@ import { InvoiceModal } from '../components/InvoiceModal';
 import { useAuth } from '../context/AuthContext';
 import { useNotification } from '../context/NotificationContext';
 import { apiService } from '../services/api';
+import { SEO } from '../components/SEO';
+import { siteConfig } from '../config/siteConfig';
+import { getBreadcrumbSchema } from '../config/jsonLdSchemas';
 
 export const RoomDetails: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -109,6 +112,17 @@ export const RoomDetails: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-[#F7F4EB] text-luxury-obsidian pt-28 pb-24">
+      <SEO
+        title={`${room.title} | Gona Hotel`}
+        description={room.description}
+        canonicalPath={`/rooms/${room.slug}`}
+        ogImage={room.images[0]}
+        jsonLd={getBreadcrumbSchema([
+          { name: 'Home', url: siteConfig.url },
+          { name: 'Rooms', url: `${siteConfig.url}/rooms` },
+          { name: room.title, url: `${siteConfig.url}/rooms/${room.slug}` }
+        ])}
+      />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
         
         {/* Breadcrumb */}

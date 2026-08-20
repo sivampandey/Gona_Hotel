@@ -8,6 +8,7 @@ import { useAuth } from '../context/AuthContext';
 import { useNotification } from '../context/NotificationContext';
 import { InvoiceModal } from '../components/InvoiceModal';
 import { apiService } from '../services/api';
+import { SEO } from '../components/SEO';
 
 type AdminTab = 'analytics' | 'payments' | 'rooms' | 'bookings' | 'menu' | 'food-orders' | 'farm-bookings' | 'coupons' | 'customers';
 
@@ -315,6 +316,7 @@ export const AdminDashboard: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-[#F7F4EB] pt-24 pb-24">
+      <SEO noindex title="Admin Management Console | Gona Hotel" />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
 
         {/* Header */}

@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Sparkles, User, Mail, Phone, Lock, ArrowRight, AlertCircle, Loader2 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useNotification } from '../context/NotificationContext';
+import { SEO } from '../components/SEO';
 
 export const Register: React.FC = () => {
   const [name, setName] = useState('');
@@ -53,6 +54,7 @@ export const Register: React.FC = () => {
 
   return (
     <div className="min-h-[calc(100vh-80px)] bg-luxury-cream text-luxury-obsidian flex items-center justify-center pt-20 sm:pt-24 pb-8 sm:pb-12 px-3 sm:px-4">
+      <SEO noindex title="Create Account | Gona Hotel" />
       <div className="w-full max-w-[360px] sm:max-w-md glass-panel p-5 sm:p-7 rounded-2xl sm:rounded-3xl border border-luxury-gold/40 shadow-xl space-y-4 sm:space-y-5">
 
         <div className="text-center space-y-1 sm:space-y-1.5">

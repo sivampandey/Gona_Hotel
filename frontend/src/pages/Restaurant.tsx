@@ -3,6 +3,9 @@ import { Search, ShoppingBag, Bike } from 'lucide-react';
 import { FoodCard } from '../components/FoodCard';
 import { initialSeedData } from '../data/seedData';
 import { useCart } from '../context/CartContext';
+import { SEO } from '../components/SEO';
+import { siteConfig } from '../config/siteConfig';
+import { getBreadcrumbSchema } from '../config/jsonLdSchemas';
 
 export const Restaurant: React.FC = () => {
   const [activeCategory, setActiveCategory] = useState<string>('all');
@@ -41,6 +44,16 @@ export const Restaurant: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-[#F7F4EB] text-luxury-obsidian pt-28 pb-24">
+      <SEO
+        title="Pure Veg Restaurant & Fine Dining | Gona Hotel"
+        description="Order authentic 100% Pure Veg North Indian curries, South Indian dosas, Biryani, Chinese, and fresh beverages at Gona Hotel Restaurant."
+        canonicalPath="/restaurant"
+        ogImage="/images/restaurant/sada-thali-bhojan.webp"
+        jsonLd={getBreadcrumbSchema([
+          { name: 'Home', url: siteConfig.url },
+          { name: 'Restaurant', url: `${siteConfig.url}/restaurant` }
+        ])}
+      />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
         
         {/* Header Matching Official Menu Card Branding */}

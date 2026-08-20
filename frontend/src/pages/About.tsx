@@ -4,6 +4,9 @@ import {
   Phone, MapPin, Star, Award, Users, Heart,
   CheckCircle2, Utensils, Hotel, Quote, ArrowRight
 } from 'lucide-react';
+import { SEO } from '../components/SEO';
+import { siteConfig } from '../config/siteConfig';
+import { getBreadcrumbSchema } from '../config/jsonLdSchemas';
 
 export const About: React.FC = () => {
   const stats = [
@@ -22,6 +25,16 @@ export const About: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-[#F7F4EB]">
+      <SEO
+        title="About Gona Hotel | Heritage & Hospitality"
+        description="Learn about Gona Hotel's commitment to luxury hospitality, authentic pure veg dining, and sustainable agri-tourism."
+        canonicalPath="/about"
+        ogImage="/assets/about-hero.jpg"
+        jsonLd={getBreadcrumbSchema([
+          { name: 'Home', url: siteConfig.url },
+          { name: 'About', url: `${siteConfig.url}/about` }
+        ])}
+      />
 
       {/* ── HERO ── */}
       <section className="relative h-72 sm:h-96 flex items-end pb-12 overflow-hidden">

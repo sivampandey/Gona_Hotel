@@ -1,0 +1,14 @@
+User-agent: *
+Allow: /
+
+# Private & Authenticated Routes
+Disallow: /admin
+Disallow: /profile
+Disallow: /checkout
+Disallow: /login
+Disallow: /register
+Disallow: /forgot-password
+Disallow: /reset-password
+Disallow: /farm/book
+
+Sitemap: https://gona-hotel.vercel.app/sitemap.xml

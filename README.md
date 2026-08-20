@@ -62,6 +62,21 @@ This project includes a feature-packed **Admin Dashboard** for complete hotel op
 
 ---
 
+## ⚙️ Environment Variables Configuration
+
+### **Frontend (Vercel)**
+- `VITE_API_URL`: Live Render backend API URL (e.g. `https://gona-hotel.onrender.com/api`)
+- `VITE_SITE_URL`: Production site URL (default: `https://gona-hotel.vercel.app`)
+
+### **Backend (Render)**
+- `PORT`: Port number provided by host environment (e.g. `5000`)
+- `MONGO_URI`: MongoDB connection string
+- `JWT_SECRET`: Secret key for signing authentication JWT tokens
+- `FRONTEND_URL`: Allowed frontend origin for production CORS allowlist (e.g. `https://gona-hotel.vercel.app`)
+- `CORS_ORIGIN`: Additional trusted origins comma-separated
+
+---
+
 ## 🚀 Quick Start Guide
 
 ### 1. Clone the repository

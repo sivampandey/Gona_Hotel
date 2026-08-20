@@ -6,6 +6,7 @@ import { useNotification } from '../context/NotificationContext';
 import { PaymentModal } from '../components/PaymentModal';
 import { InvoiceModal } from '../components/InvoiceModal';
 import { apiService } from '../services/api';
+import { SEO } from '../components/SEO';
 
 export const FarmBookingPage: React.FC = () => {
   const [searchParams] = useSearchParams();
@@ -108,6 +109,7 @@ export const FarmBookingPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-[#F7F4EB] text-luxury-obsidian pt-28 pb-24">
+      <SEO noindex title="Farm House Booking | Gona Hotel" />
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
         
         <Link to="/farm" className="inline-flex items-center gap-2 text-sm font-semibold text-[#0D3B29] hover:text-luxury-gold">

@@ -10,6 +10,7 @@ import { RoomCard } from '../components/RoomCard';
 import { FoodCard } from '../components/FoodCard';
 import { InvoiceModal } from '../components/InvoiceModal';
 import { apiService } from '../services/api';
+import { SEO } from '../components/SEO';
 
 export const Profile: React.FC = () => {
   const [searchParams] = useSearchParams();
@@ -74,6 +75,7 @@ export const Profile: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-[#F7F4EB] text-luxury-obsidian pt-28 pb-24">
+      <SEO noindex title="My Guest Profile | Gona Hotel" />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
         
         {/* User Header */}

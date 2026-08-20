@@ -3,6 +3,9 @@ import { useSearchParams } from 'react-router-dom';
 import { Search, Filter, Hotel } from 'lucide-react';
 import { RoomCard } from '../components/RoomCard';
 import { initialSeedData } from '../data/seedData';
+import { SEO } from '../components/SEO';
+import { siteConfig } from '../config/siteConfig';
+import { getBreadcrumbSchema } from '../config/jsonLdSchemas';
 
 export const Rooms: React.FC = () => {
   const [searchParams] = useSearchParams();
@@ -38,6 +41,16 @@ export const Rooms: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-[#F7F4EB] text-luxury-obsidian pt-28 pb-24">
+      <SEO
+        title="Rooms & Accommodation | Gona Hotel"
+        description="Explore luxury rooms & executive suites at Gona Hotel. Air-conditioned rooms with high-speed WiFi, smart TV, room service, and attached bathrooms."
+        canonicalPath="/rooms"
+        ogImage="/assets/room-4person.jpg"
+        jsonLd={getBreadcrumbSchema([
+          { name: 'Home', url: siteConfig.url },
+          { name: 'Rooms', url: `${siteConfig.url}/rooms` }
+        ])}
+      />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
         
         {/* Header */}
