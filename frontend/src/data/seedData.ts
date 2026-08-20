@@ -1,60 +1,59 @@
 import { User, Room, MenuItem, GalleryItem, Review, Coupon } from '../types';
 
 // ─────────────────────────────────────────────
-// HIGH-QUALITY FOOD IMAGES — each dish matched
-// Using Unsplash photo IDs verified to load
+// HIGH-QUALITY RESTAURANT FOOD IMAGES — local WebP assets
 // ─────────────────────────────────────────────
 const IMG = {
   // BREAKFAST
-  aloo_paratha:     'https://images.unsplash.com/photo-1626777552726-4a6b54c97e46?w=800&q=90&fit=crop',
-  paneer_paratha:   'https://images.unsplash.com/photo-1565557623262-b51c2513a641?w=800&q=90&fit=crop',
-  gobhi_paratha:    'https://images.unsplash.com/photo-1606491956689-2ea866880c84?w=800&q=90&fit=crop',
-  pyaz_paratha:     'https://images.unsplash.com/photo-1601050690597-df0568f70950?w=800&q=90&fit=crop',
-  plain_roti:       'https://images.unsplash.com/photo-1599487488170-d11ec9c172f0?w=800&q=90&fit=crop',
-  butter_roti:      'https://images.unsplash.com/photo-1626082927389-6cd097cdc6ec?w=800&q=90&fit=crop',
+  aloo_paratha:     '/images/restaurant/aloo-paratha.webp',
+  paneer_paratha:   '/images/restaurant/paneer-paratha.webp',
+  gobhi_paratha:    '/images/restaurant/gobhi-paratha.webp',
+  pyaz_paratha:     '/images/restaurant/pyaz-paratha.webp',
+  plain_roti:       '/images/restaurant/plain-roti.webp',
+  butter_roti:      '/images/restaurant/butter-roti.webp',
 
   // INDIAN MAIN COURSE
-  paneer_butter:    'https://images.unsplash.com/photo-1631452180519-c014fe946bc7?w=800&q=90&fit=crop',
-  matar_paneer:     'https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=800&q=90&fit=crop',
-  kadhai_paneer:    'https://images.unsplash.com/photo-1512058564366-18510be2db19?w=800&q=90&fit=crop',
-  shahi_paneer:     'https://images.unsplash.com/photo-1588166524941-3bf61a9c41db?w=800&q=90&fit=crop',
-  aloo_jeera:       'https://images.unsplash.com/photo-1567188040759-fb8a883dc6d8?w=800&q=90&fit=crop',
-  mix_veg:          'https://images.unsplash.com/photo-1585937421612-70a008356fbe?w=800&q=90&fit=crop',
+  paneer_butter:    '/images/restaurant/paneer-butter-masala.webp',
+  matar_paneer:     '/images/restaurant/matar-paneer.webp',
+  kadhai_paneer:    '/images/restaurant/kadhai-paneer.webp',
+  shahi_paneer:     '/images/restaurant/shahi-paneer.webp',
+  aloo_jeera:       '/images/restaurant/aloo-jeera.webp',
+  mix_veg:          '/images/restaurant/mix-veg.webp',
 
   // DAL
-  dal_fry:          'https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=800&q=90&fit=crop',
-  dal_tadka:        'https://images.unsplash.com/photo-1574653853027-5382a3d23a15?w=800&q=90&fit=crop',
+  dal_fry:          '/images/restaurant/dal-fry.webp',
+  dal_tadka:        '/images/restaurant/dal-tadka.webp',
 
   // RICE & BIRYANI
-  plain_rice:       'https://images.unsplash.com/photo-1516684732162-798a0062be99?w=800&q=90&fit=crop',
-  jeera_rice:       'https://images.unsplash.com/photo-1596797038530-2c107229654b?w=800&q=90&fit=crop',
-  veg_biryani:      'https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?w=800&q=90&fit=crop',
-  paneer_biryani:   'https://images.unsplash.com/photo-1633945274405-b6c8069047b0?w=800&q=90&fit=crop',
+  plain_rice:       '/images/restaurant/plain-rice.webp',
+  jeera_rice:       '/images/restaurant/jeera-rice.webp',
+  veg_biryani:      '/images/restaurant/veg-biryani.webp',
+  paneer_biryani:   '/images/restaurant/paneer-biryani.webp',
 
   // CHINESE
-  veg_chowmein:     'https://images.unsplash.com/photo-1585032226651-759b368d7246?w=800&q=90&fit=crop',
-  paneer_chowmein:  'https://images.unsplash.com/photo-1612927601601-6638404737ce?w=800&q=90&fit=crop',
-  veg_manchurian:   'https://images.unsplash.com/photo-1563245372-f21724e3856d?w=800&q=90&fit=crop',
-  paneer_chilli:    'https://images.unsplash.com/photo-1562967914-608f82629710?w=800&q=90&fit=crop',
-  paneer_fried_rice:'https://images.unsplash.com/photo-1603133872878-684f208fb84b?w=800&q=90&fit=crop',
+  veg_chowmein:     '/images/restaurant/veg-chowmein.webp',
+  paneer_chowmein:  '/images/restaurant/paneer-chowmein.webp',
+  veg_manchurian:   '/images/restaurant/veg-manchurian.webp',
+  paneer_chilli:    '/images/restaurant/paneer-chilli.webp',
+  paneer_fried_rice:'/images/restaurant/paneer-fried-rice.webp',
 
   // SOUTH INDIAN
-  paper_dosa:       'https://images.unsplash.com/photo-1668236543090-82eba5ee5976?w=800&q=90&fit=crop',
-  masala_dosa:      'https://images.unsplash.com/photo-1589301760014-d929f3979dbc?w=800&q=90&fit=crop',
-  paneer_dosa:      'https://images.unsplash.com/photo-1630383249896-424e482df921?w=800&q=90&fit=crop',
+  paper_dosa:       '/images/restaurant/paper-dosa.webp',
+  masala_dosa:      '/images/restaurant/masala-dosa.webp',
+  paneer_dosa:      '/images/restaurant/paneer-dosa.webp',
 
   // SNACKS & THALI
-  chole_bhature:    'https://images.unsplash.com/photo-1626777552726-4a6b54c97e46?w=800&q=90&fit=crop',
-  paneer_pakoda:    'https://images.unsplash.com/photo-1601050690597-df0568f70950?w=800&q=90&fit=crop',
-  sada_thali:       'https://images.unsplash.com/photo-1610192244261-3f33de3f55e4?w=800&q=90&fit=crop',
+  chole_bhature:    '/images/restaurant/chole-bhature.webp',
+  paneer_pakoda:    '/images/restaurant/paneer-pakoda.webp',
+  sada_thali:       '/images/restaurant/sada-thali-bhojan.webp',
 
   // SALAD
-  green_salad:      'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=800&q=90&fit=crop',
+  green_salad:      '/images/restaurant/green-salad.webp',
 
   // BEVERAGES
-  chai:             'https://images.unsplash.com/photo-1576092768241-dec231879fc3?w=800&q=90&fit=crop',
-  coffee:           'https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=800&q=90&fit=crop',
-  water:            'https://images.unsplash.com/photo-1523362628745-0c100150b504?w=800&q=90&fit=crop',
+  chai:             '/images/restaurant/special-chai.webp',
+  coffee:           '/images/restaurant/hot-coffee.webp',
+  water:            '/images/restaurant/mineral-water-bottle.webp',
 
   // ROOMS
   room1:            'https://images.unsplash.com/photo-1611892440504-42a792e24d32?w=1200&q=90&fit=crop',
